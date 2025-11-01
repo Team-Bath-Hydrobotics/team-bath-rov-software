@@ -1,0 +1,18 @@
+[project]
+name = "docs"
+version = "0.1.0"
+description = "Documentation for ROV software"
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = "^3.9"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+mkdocs = "^1.6.1"
+mkdocs-material = "^9.6.23"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
