@@ -1,0 +1,36 @@
+name: Deploy MkDocs site
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs-site/**"
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs-site
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Build and deploy site
+        run: poetry run mkdocs gh-deploy --force
