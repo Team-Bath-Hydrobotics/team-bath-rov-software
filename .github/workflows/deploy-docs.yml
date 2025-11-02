@@ -4,14 +4,17 @@ on:
   push:
     branches:
       - main
+      - '!gh-pages'
     paths:
       - "docs-site/**"
+      - ".github/workflows/deploy-docs.yml"
 
 permissions:
   contents: write
 
 jobs:
   deploy:
+    if: github.ref != 'refs/heads/gh-pages'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -20,6 +23,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Enter base directory
+        run: cd site
 
       - name: Set up Python
         uses: actions/setup-python@v5
