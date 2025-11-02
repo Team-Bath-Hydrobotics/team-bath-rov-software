@@ -18,15 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: docs-site
+        working-directory: docs-site/site
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Enter base directory
-        run: cd site
-
+        
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
