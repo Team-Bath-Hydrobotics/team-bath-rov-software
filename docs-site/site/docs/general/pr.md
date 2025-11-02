@@ -8,9 +8,7 @@ Run pre-commit hooks locally before committing, this can be automated as outline
 Ensure that all functionality is tested before merging.
 
 ## How to PR review
-- When reviewing a PR, follow these steps:
-
-- Check the purpose of the PR
+When reviewing a PR, follow these steps:
 
 - Confirm that it addresses a specific task or issue.
 
@@ -18,14 +16,8 @@ Ensure that all functionality is tested before merging.
 
 - Verify that the code works as intended.
 
-- Check for potential issues
-
-- Look for merge conflicts, duplicate code, or broken functionality.
+- Check for potential issues with the code or potential points of conflict
 
 - Ensure that changes are modular and don’t introduce unnecessary dependencies.
 
-- Comment constructively
-
-- Ask clarifying questions rather than making assumptions.
-
-- Suggest improvements politely.
+- Comment constructively, and ask clarifying questions rather than making assumptions.
