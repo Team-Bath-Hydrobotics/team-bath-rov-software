@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "video-processor"
+version = "0.1.0"
+description = "ROV Telemetry and Video Stream Simulator"
+authors = ["mbm60-max <mbm60@bath.ac.uk>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+opencv-python = "^4.8.0"
+numpy = "^2.1.1"
+ffmpeg-python = "^0.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
