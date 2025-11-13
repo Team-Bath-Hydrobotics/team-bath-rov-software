@@ -1,6 +1,25 @@
+[tool.poetry]
+name = "team-bath-rov-software"
+version = "0.1.0"
+description = "ROV Software Suite"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+black = ">=24.0.0"
+flake8 = ">=7.0.0"
+pre-commit = "^4.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.black]
-line-length = 88
-target-version = ['py39']
+target-version = ['py310']
 
 [tool.isort]
 profile = "black"
