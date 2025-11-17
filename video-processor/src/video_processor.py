@@ -1,4 +1,5 @@
 import queue
+import random
 import select
 import signal
 import socket
@@ -251,15 +252,30 @@ class VideoProcessor:
                 pass
 
     def receive_mpegts_stream(self, stream_id: int, port: int, config: Dict):
-        """Receive MPEGTS stream and decode frames"""
+        """Receive MPEGTS stream and decode frames with disconnect resilience"""
         print(f"Starting MPEGTS receiver for stream {stream_id} on port {port}")
 
+        # Exponential backoff parameters
+        base_delay = 0.5  # Initial delay in seconds
+        max_delay = 30.0  # Maximum delay between retries
+        max_consecutive_failures = 10  # Max failures before extended cooldown
+        extended_cooldown = 60.0  # Cooldown period after max failures
+
+        consecutive_failures = 0
+        current_delay = base_delay
+
         while self.running:
+            connected = False
             try:
                 # Connect to the simulator's video stream
                 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 client_socket.connect(("127.0.0.1", port))
+                connected = True
                 print(f"Connected to stream {stream_id} on port {port}")
+
+                # Reset failure counters on successful connection
+                consecutive_failures = 0
+                current_delay = base_delay
 
                 # Create FFmpeg process to decode MPEGTS to raw frames
                 ffmpeg_decode = subprocess.Popen(
@@ -291,6 +307,8 @@ class VideoProcessor:
                     config["width"] * config["height"] * 3
                 )  # BGR24 = 3 bytes per pixel
                 frames_processed = 0
+                frame_errors = 0  # Track consecutive frame errors
+                max_frame_errors = 50  # Max consecutive frame errors before reconnect
 
                 while self.running:
                     try:
@@ -299,11 +317,13 @@ class VideoProcessor:
                         if len(frame_data) != frame_size:
                             if len(frame_data) == 0:
                                 print(
-                                    f"No more data from FFmpeg for stream {stream_id}"
+                                    f"No more data from FFmpeg for stream {stream_id}",
+                                    file=sys.stderr
                                 )
                             else:
                                 print(
-                                    f"Incomplete frame data for stream {stream_id}: {len(frame_data)}/{frame_size}"
+                                    f"Incomplete frame data for stream {stream_id}: {len(frame_data)}/{frame_size}",
+                                    file=sys.stderr
                                 )
                             break
 
@@ -326,21 +346,78 @@ class VideoProcessor:
 
                         # Put frame in backpressure-resistant queue
                         self.frame_queues[stream_id].put((frame, metadata))
+                        frame_errors = 0  # Reset frame error counter on success
 
                         if frames_processed % 100 == 0:
                             print(
                                 f"Stream {stream_id}: Queued {frames_processed} frames"
                             )
 
+                    except (ValueError, RuntimeError) as e:
+                        # Frame-level error recovery: track errors and continue
+                        frame_errors += 1
+                        print(
+                            f"Frame processing error for stream {stream_id} ({frame_errors}/{max_frame_errors}): {e}",
+                            file=sys.stderr
+                        )
+
+                        if frame_errors >= max_frame_errors:
+                            print(
+                                f"Too many consecutive frame errors for stream {stream_id}, reconnecting...",
+                                file=sys.stderr
+                            )
+                            break
+
+                        # Continue processing instead of full disconnect
+                        continue
+
                     except Exception as e:
-                        print(f"Error processing frame for stream {stream_id}: {e}")
+                        print(
+                            f"Unexpected frame error for stream {stream_id}: {e}",
+                            file=sys.stderr
+                        )
                         break
 
+            except (socket.error, ConnectionRefusedError, OSError) as e:
+                consecutive_failures += 1
+                error_type = type(e).__name__
+                print(
+                    f"Connection error for stream {stream_id} ({consecutive_failures}/{max_consecutive_failures}) [{error_type}]: {e}",
+                    file=sys.stderr
+                )
+
+                # Check if we've hit max consecutive failures
+                if consecutive_failures >= max_consecutive_failures:
+                    print(
+                        f"Max consecutive failures reached for stream {stream_id}. Entering extended cooldown ({extended_cooldown}s)...",
+                        file=sys.stderr
+                    )
+                    time.sleep(extended_cooldown)
+                    consecutive_failures = 0  # Reset after cooldown
+                    current_delay = base_delay
+                else:
+                    # Exponential backoff with jitter
+                    jitter = random.uniform(0, 0.1 * current_delay)
+                    delay = min(current_delay + jitter, max_delay)
+                    print(
+                        f"Reconnecting stream {stream_id} in {delay:.2f}s...",
+                        file=sys.stderr
+                    )
+                    time.sleep(delay)
+                    current_delay = min(current_delay * 2, max_delay)
+
             except Exception as e:
-                print(f"Error in MPEGTS receiver for stream {stream_id}: {e}")
-                time.sleep(2)  # Wait before reconnecting
+                consecutive_failures += 1
+                error_type = type(e).__name__
+                print(
+                    f"Unexpected error in MPEGTS receiver for stream {stream_id} ({consecutive_failures}/{max_consecutive_failures}) [{error_type}]: {e}",
+                    file=sys.stderr
+                )
+                time.sleep(current_delay)
 
             finally:
+                if connected:
+                    print(f"Disconnected from stream {stream_id} on port {port}", file=sys.stderr)
                 try:
                     client_socket.close()
                 except BaseException:
