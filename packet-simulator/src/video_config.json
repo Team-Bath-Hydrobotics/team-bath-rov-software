@@ -1,0 +1,15 @@
+{
+  "video_config": {
+    "feeds": [
+      {"width": 640, "height": 480, "fps": 60, "format": "mono"},
+      {"width": 1920, "height": 1080, "fps": 30, "format": "stereo"}
+
+    ],
+    "input_file_dir": "../fake_videos"
+  },
+  "network":{
+    "base_video_port": 6000,
+    "host_ip":"127.0.0.1",
+    "output_network_type": "tcp"
+  }
+}
