@@ -62,5 +62,12 @@
     "output_base_video_port": 8554,
     "input_network_type": "tcp",
     "output_network_type": "udp"
+  },
+  "client_resilience":{
+    "base_delay_ms": 500,
+    "max_delay_ms": 30000,
+    "max_consecutive_failures": 10,
+    "extended_cooldown_ms": 60000,
+    "max_frame_errors": 100
   }
 }

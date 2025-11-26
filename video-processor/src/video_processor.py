@@ -14,13 +14,14 @@ from mpegts.mpegts_server import MPEGTSServer
 class VideoProcessor:
     """Video Processor to coordinate MPEGTS receiving and sending along with preprocessing"""
 
-    def __init__(self, video_feeds, network_config):
+    def __init__(self, video_feeds, network_config, client_resilience_config):
         if video_feeds[0] is None or len(video_feeds[0]) == 0:
             print("No input video feeds configured, exiting.")
             sys.exit(1)
 
         self.input_video_feeds = video_feeds[0]
         self.output_video_feeds = video_feeds[1]
+        self.client_resilience_config = client_resilience_config
 
         (
             self.host_ip,
@@ -109,6 +110,7 @@ class VideoProcessor:
                 output_config=output_feed_settings,
                 frame_queue=frame_queue,
                 network_type=NetworkEnum(self.input_network_type),
+                resilience_config=self.client_resilience_config,
             )
             self.clients[feed_id] = client
 
@@ -228,6 +230,22 @@ def parse_filter_args(feed_config):
     return filter_settings
 
 
+def parse_client_resilience_args(network_config):
+    resilience_config = network_config.get("client_resilience", {})
+    base_delay_ms = resilience_config.get("base_delay_ms", 500)
+    max_delay_ms = resilience_config.get("max_delay_ms", 30000)
+    max_consecutive_failures = resilience_config.get("max_consecutive_failures", 10)
+    extended_cooldown_ms = resilience_config.get("extended_cooldown_ms", 60000)
+    max_frame_errors = resilience_config.get("max_frame_errors", 100)
+    return (
+        base_delay_ms,
+        max_delay_ms,
+        max_consecutive_failures,
+        extended_cooldown_ms,
+        max_frame_errors,
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description="ROV Telemetry and Video Simulator")
     parser.add_argument(
@@ -241,8 +259,11 @@ def main():
     metrics_monitor.start()
     video_config, network_config = parse_config_args(args)
     video_feeds = parse_video_feeds(video_config)
+    client_resilience_config = parse_client_resilience_args(network_config)
 
-    video_processor = VideoProcessor(video_feeds, network_config)
+    video_processor = VideoProcessor(
+        video_feeds, network_config, client_resilience_config
+    )
     video_processor.start()
 
 
