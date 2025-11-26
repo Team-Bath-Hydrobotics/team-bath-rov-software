@@ -35,6 +35,24 @@
       }
     ],
     "output_feeds": [
+      {
+        "id": "1",
+        "feed_settings": {
+          "width": 640,
+          "height": 480,
+          "fps": 30,
+          "format": "mono"
+        }
+      },
+      {
+        "id": "2",
+        "feed_settings": {    
+          "width": 1000,
+          "height": 500,
+          "fps": 60,
+          "format": "stereo"
+        }
+      }
     ]
   },
   "network": {
