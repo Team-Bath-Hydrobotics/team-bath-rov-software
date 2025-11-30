@@ -1,0 +1,32 @@
+{
+  "input": {
+    "host": "0.0.0.0",
+    "port": 5000,
+    "network_type": "udp"
+  },
+  "output": {
+    "mqtt": {
+      "broker_host": "localhost",
+      "broker_port": 1883,
+      "client_id": "telemetry-processor",
+      "base_topic": "rov/telemetry",
+      "username": null,
+      "password": null
+    }
+  },
+  "processing": {
+    "filters": {
+      "depth_sensor": [
+        {
+          "type": "kalman",
+          "process_variance": 1e-5,
+          "measurement_variance": 1e-2
+        }
+      ]
+    },
+    "aggregation": {
+      "enabled": false,
+      "window_ms": 1000
+    }
+  }
+}
