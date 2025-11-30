@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ROV Telemetry Message",
+  "version": "1.0.0",
+  "type": "object",
+  "properties": {
+    "timestamp": { "type": "number" },
+    "id": { "type": "string" },
+
+    "attitude": {
+      "type": "object",
+      "properties": {
+        "roll": { "type": "number" },
+        "pitch": { "type": "number" },
+        "yaw": { "type": "number" }
+      }
+    },
+
+    "angular_velocity": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+
+    "linear_acceleration": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+
+    "linear_velocity": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+
+    "depth": { "type": "number" },
+    "ambient_temperature": { "type": "number" },
+    "ambient_pressure": { "type": "number" },
+    "internal_temperature": { "type": "number" },
+
+    "cardinal_direction": { "type": "string" },
+    "grove_water_sensor": { "type": "number" },
+
+    "actuators": {
+      "type": "object",
+      "properties": {
+        "a1": { "type": "number" },
+        "a2": { "type": "number" },
+        "a3": { "type": "number" },
+        "a4": { "type": "number" },
+        "a5": { "type": "number" },
+        "a6": { "type": "number" }
+      }
+    }
+  },
+  "required": ["timestamp", "id"],
+  "additionalProperties": false
+}

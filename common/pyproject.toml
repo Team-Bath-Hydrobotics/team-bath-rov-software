@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "common"
+version = "0.1.0"
+description = "Common utility package"
+authors = ["mbm60-max <mbm60@bath.ac.uk>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+paho-mqtt = "^2.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
