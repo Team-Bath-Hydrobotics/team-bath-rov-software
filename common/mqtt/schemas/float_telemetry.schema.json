@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Float Telemetry Message",
+  "version": "1.0.0",
+  "type": "object",
+  "properties": {
+    "timestamp": { "type": "number" },
+    "id": { "type": "string" },
+    "depth": { "type": "number" }
+  },
+  "required": ["timestamp", "id", "depth"],
+  "additionalProperties": false
+}
