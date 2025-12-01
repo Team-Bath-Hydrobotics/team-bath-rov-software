@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "telemetry-processor"
+version = "0.1.0"
+description = "ROV Telemetry Preprocessor - aggregation, filtering (Kalman), and MQTT output"
+authors = ["Team Bath Hydrobotics"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+paho-mqtt = "^2.0.0"
+numpy = "^2.1.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+black = "^24.0.0"
+flake8 = "^7.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | __pycache__
+)/
+'''
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [".git", "__pycache__", "venv", ".venv"]
