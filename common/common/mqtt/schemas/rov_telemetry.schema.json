@@ -10,50 +10,219 @@
     "attitude": {
       "type": "object",
       "properties": {
-        "roll": { "type": "number" },
-        "pitch": { "type": "number" },
-        "yaw": { "type": "number" }
+        "roll": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "enum": ["deg"] }
+          },
+          "required": ["value", "unit"]
+        },
+        "pitch": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "enum": ["deg"] }
+          },
+          "required": ["value", "unit"]
+        },
+        "yaw": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "enum": ["deg"] }
+          },
+          "required": ["value", "unit"]
+        }
       }
     },
 
     "angular_velocity": {
-      "type": "array",
-      "items": { "type": "number" },
-      "minItems": 3,
-      "maxItems": 3
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "rad/s" }
+          },
+          "required": ["value", "unit"]
+        },
+        "y": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "rad/s" }
+          },
+          "required": ["value", "unit"]
+        },
+        "z": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "rad/s" }
+          },
+          "required": ["value", "unit"]
+        }
+      }
     },
 
     "linear_acceleration": {
-      "type": "array",
-      "items": { "type": "number" },
-      "minItems": 3,
-      "maxItems": 3
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s²" }
+          },
+          "required": ["value", "unit"]
+        },
+        "y": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s²" }
+          },
+          "required": ["value", "unit"]
+        },
+        "z": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s²" }
+          },
+          "required": ["value", "unit"]
+        }
+      }
     },
 
     "linear_velocity": {
-      "type": "array",
-      "items": { "type": "number" },
-      "minItems": 3,
-      "maxItems": 3
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s" }
+          },
+          "required": ["value", "unit"]
+        },
+        "y": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s" }
+          },
+          "required": ["value", "unit"]
+        },
+        "z": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s" }
+          },
+          "required": ["value", "unit"]
+        }
+      }
+    },
+    "depth": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "m" }
+      },
+      "required": ["value", "unit"]
     },
 
-    "depth": { "type": "number" },
-    "ambient_temperature": { "type": "number" },
-    "ambient_pressure": { "type": "number" },
-    "internal_temperature": { "type": "number" },
+    "ambient_temperature": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "C" }
+      },
+      "required": ["value", "unit"]
+    },
+
+    "internal_temperature": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "C" }
+      },
+      "required": ["value", "unit"]
+    },
+
+    "ambient_pressure": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "Pa" }
+      },
+      "required": ["value", "unit"]
+    },
 
     "cardinal_direction": { "type": "string" },
-    "grove_water_sensor": { "type": "number" },
+    "grove_water_sensor": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "?" }
+      },
+      "required": ["value", "unit"]
+    },
 
     "actuators": {
       "type": "object",
       "properties": {
-        "a1": { "type": "number" },
-        "a2": { "type": "number" },
-        "a3": { "type": "number" },
-        "a4": { "type": "number" },
-        "a5": { "type": "number" },
-        "a6": { "type": "number" }
+        "a1": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" }
+          },
+          "required": ["value", "unit"]
+        },
+        "a2": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" }
+          },
+          "required": ["value", "unit"]
+        },
+        "a3": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" }
+          },
+          "required": ["value", "unit"]
+        },
+        "a4": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" }
+          },
+          "required": ["value", "unit"]
+        },
+        "a5": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" }
+          },
+          "required": ["value", "unit"]
+        },
+        "a6": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" }
+          },
+          "required": ["value", "unit"]
+        }
       }
     }
   },

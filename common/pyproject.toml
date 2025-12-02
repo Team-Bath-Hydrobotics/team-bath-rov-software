@@ -9,6 +9,7 @@ packages = [{include = "common"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 paho-mqtt = "^2.1.0"
+setuptools = "^80.9.0"
 
 [tool.poetry.group.dev.dependencies]
 black = ">=25.11.0,<26.0.0"
