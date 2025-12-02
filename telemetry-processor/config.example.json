@@ -6,12 +6,8 @@
   },
   "output": {
     "mqtt": {
-      "broker_host": "localhost",
-      "broker_port": 1883,
       "client_id": "telemetry-processor",
-      "base_topic": "hydrobotics/rov/<rov_id>/telemetry",
-      "username": null,
-      "password": null
+      "base_topic": "hydrobotics/rov/<rov_id>/telemetry"
     }
   },
   "processing": {

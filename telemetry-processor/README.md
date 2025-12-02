@@ -23,7 +23,16 @@ poetry install
 ```
 
 ## Running
-
+You'll need a .env file in the root of this project with the following variables defined
+```
+MQTT_URL=replaceme
+MQTT_PORT=replaceme
+MQTT_WEBSOCKET_PORT=replaceme
+MQTT_TLS_WEBSOCKET_URL=replaceme
+MQTT_USERNAME=replaceme
+MQTT_PASSWORD=replaceme
+```
+the values for these have been shared on teams, if you can't find them contact Max.
 Run the processor with a configuration file:
 ```bash
 poetry run python src/telemetry_processor.py --config path/to/config.json
@@ -42,12 +51,8 @@ The configuration file should be JSON with the following structure:
   },
   "output": {
     "mqtt": {
-      "broker_host": "localhost",
-      "broker_port": 1883,
       "client_id": "telemetry-processor",
       "base_topic": "rov/telemetry",
-      "username": null,
-      "password": null
     }
   },
   "processing": {
