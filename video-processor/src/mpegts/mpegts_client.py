@@ -9,8 +9,9 @@ from typing import Dict
 import numpy as np
 from back_pressure_queue import BackpressureQueue
 from data_interface.frame_metadata import FrameMetadata
-from data_interface.network_type import NetworkEnum, NetworkHandler
 from mpegts.mpegts_base import MPEGTSBase
+
+from common.common.network.network_type import NetworkEnum, NetworkHandler
 
 
 class MPEGTSClient(MPEGTSBase):

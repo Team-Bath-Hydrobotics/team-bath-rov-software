@@ -5,9 +5,10 @@ import socket
 import struct
 import time
 
-from data_interface.network_type import NetworkEnum, NetworkHandler
 from data_interface.rov_data import ROVData
 from data_interface.vector_data import Vector3
+
+from common.common.network.network_type import NetworkEnum, NetworkHandler
 
 
 class ROVTelemetrySimulator:

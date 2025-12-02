@@ -9,7 +9,7 @@
       "broker_host": "localhost",
       "broker_port": 1883,
       "client_id": "telemetry-processor",
-      "base_topic": "rov/telemetry",
+      "base_topic": "hydrobotics/rov/<rov_id>/telemetry",
       "username": null,
       "password": null
     }
@@ -24,6 +24,7 @@
         }
       ]
     },
+    "high_freq_sensors": ["attitude", "angular_velocity", "linear_acceleration", "linear_velocity"],
     "aggregation": {
       "enabled": false,
       "window_ms": 1000

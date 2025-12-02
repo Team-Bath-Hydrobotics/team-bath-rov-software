@@ -4,8 +4,9 @@ import socket
 import struct
 import time
 
-from data_interface.network_type import NetworkEnum, NetworkHandler
 from data_interface.stdout_data import StdoutType
+
+from common.common.network.network_type import NetworkEnum, NetworkHandler
 
 
 class StdoutSimulator:
