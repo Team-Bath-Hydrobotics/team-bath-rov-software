@@ -4,7 +4,8 @@ from abc import ABC, abstractmethod
 from typing import Dict
 
 from back_pressure_queue import BackpressureQueue
-from data_interface.network_type import NetworkEnum
+
+from common.common.network.network_type import NetworkEnum
 
 
 class MPEGTSBase(ABC):

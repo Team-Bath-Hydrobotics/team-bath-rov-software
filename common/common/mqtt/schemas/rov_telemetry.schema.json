@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ROV Telemetry Message",
+  "version": "1.0.0",
+  "type": "object",
+  "properties": {
+    "timestamp": { "type": "number" },
+    "id": { "type": "string" },
+
+    "attitude": {
+      "type": "object",
+      "properties": {
+        "roll": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "enum": ["deg"] },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "pitch": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "enum": ["deg"] },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "yaw": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "enum": ["deg"] },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        }
+      }
+    },
+
+    "angular_velocity": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "rad/s" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "y": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "rad/s" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "z": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "rad/s" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        }
+      }
+    },
+
+    "linear_acceleration": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s²" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "y": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s²" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "z": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s²" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        }
+      }
+    },
+
+    "linear_velocity": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "y": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "z": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "m/s" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        }
+      }
+    },
+    "depth": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "m" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "ambient_temperature": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "C" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "internal_temperature": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "C" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "ambient_pressure": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "Pa" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "cardinal_direction": { "type": "string" },
+    "grove_water_sensor": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "?" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "actuators": {
+      "type": "object",
+      "properties": {
+        "a1": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "a2": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "a3": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "a4": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "a5": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        },
+        "a6": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
+          },
+          "required": ["value", "unit", "timestamp"]
+        }
+      }
+    }
+  },
+  "required": ["timestamp", "id"],
+  "additionalProperties": false
+}

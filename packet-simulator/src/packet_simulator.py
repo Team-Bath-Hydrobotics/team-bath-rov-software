@@ -3,11 +3,12 @@ import os
 import threading
 import time
 
-from data_interface.network_type import NetworkEnum
 from simulators.float_telemetry_simulator import FloatTelemetrySimulator
 from simulators.rov_telemetry_simulator import ROVTelemetrySimulator
 from simulators.std_out_simulator import StdoutSimulator
 from simulators.video_simulator import VideoSimulator
+
+from common.common.network.network_type import NetworkEnum
 
 
 class PacketSimulator:

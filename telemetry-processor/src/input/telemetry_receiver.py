@@ -5,8 +5,9 @@ import socket
 import threading
 from typing import Callable, Optional
 
-from data_interface.network_type import NetworkEnum, NetworkHandler
 from data_interface.telemetry_data import TelemetryData
+
+from common.network.network_type import NetworkEnum, NetworkHandler
 
 
 class TelemetryReceiver:

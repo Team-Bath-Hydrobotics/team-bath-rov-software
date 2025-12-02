@@ -25,7 +25,7 @@ class TimeWindowAggregator:
 
     def __init__(
         self,
-        window_duration_ms: float = 1000.0,
+        window_duration_ms: float = 50.0,
         emit_callback: Optional[Callable[[AggregationResult], None]] = None,
     ):
         """Initialize aggregator.
