@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import signal
 import threading
 import time
@@ -10,6 +11,7 @@ from typing import Dict, List, Optional
 import jsonschema
 from aggregation.aggregator import AggregationResult, TimeWindowAggregator
 from data_interface.telemetry_data import TelemetryData
+from dotenv import load_dotenv
 from filters.base_filter import BaseFilter
 from filters.kalman_filter import KalmanFilter
 from input.telemetry_receiver import TelemetryReceiver
@@ -22,8 +24,12 @@ from common.network.network_type import NetworkEnum
 class TelemetryProcessor:
     """Telemetry Processor to coordinate receiving, filtering, and publishing."""
 
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, env: dict = None):
+        if env is None or env == {}:
+            raise ValueError("Environment variables must be provided.")
+
         self.config = config
+        self.env = env
         self.running = False
 
         # Parse configuration
@@ -67,12 +73,11 @@ class TelemetryProcessor:
         if not schema:
             raise ValueError(f"No schema defined for topic {topic}")
         self.schema = schema
-
+        print(f"Using env vars: {self.env}")  # Debug print to verify env vars
         self.publisher = MQTTPublisher(
-            broker_host=mqtt_config.get("broker_host", "localhost"),
-            broker_port=mqtt_config.get("broker_port", 1883),
-            username=mqtt_config.get("username"),
-            password=mqtt_config.get("password"),
+            tls_url=self.env["tls_url"],
+            username=self.env["mqtt_username"],
+            password=self.env["mqtt_password"],
             client_id=mqtt_config.get("client_id", "telemetry-processor"),
             base_topic=topic,
         )
@@ -134,8 +139,12 @@ class TelemetryProcessor:
 
         # Connect to MQTT broker
         self.publisher.connect()
-        time.sleep(1)  # Wait for connection
 
+        time.sleep(1)  # Wait for connection
+        if not self.publisher.connected:
+            print("Failed to connect to MQTT broker. Exiting.")
+            self.running = False
+            return
         # Start receiver
         self.receiver.start()
 
@@ -177,7 +186,6 @@ class TelemetryProcessor:
         while self.running:
             packet = self._assemble_packet()
             self.publisher.publish(packet)
-            print(f"Published packet: {packet}")
             time.sleep(self.publish_interval)
 
     def get_field(
@@ -251,10 +259,20 @@ class TelemetryProcessor:
         return packet
 
 
-def parse_config(config_path: str) -> dict:
+def parse_config_and_env(config_path: str) -> dict:
     """Parse configuration from JSON file."""
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(config_path), ".env"))
     with open(config_path, "r") as f:
-        return json.load(f)
+        config = json.load(f)
+    os.getenv("MQTT_USERNAME")
+    os.getenv("MQTT_PASSWORD")
+    os.getenv("MQTT_TLS_WEBSOCKET_URL")
+    env = {
+        "mqtt_username": os.getenv("MQTT_USERNAME"),
+        "mqtt_password": os.getenv("MQTT_PASSWORD"),
+        "tls_url": os.getenv("MQTT_TLS_WEBSOCKET_URL"),
+    }
+    return config, env
 
 
 def main():
@@ -267,8 +285,8 @@ def main():
     )
     args = parser.parse_args()
 
-    config = parse_config(args.config)
-    processor = TelemetryProcessor(config)
+    config, env = parse_config_and_env(args.config)
+    processor = TelemetryProcessor(config, env)
     processor.start()
 
 

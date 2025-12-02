@@ -10,6 +10,7 @@ python = "^3.10"
 paho-mqtt = "^2.0.0"
 numpy = "^2.1.1"
 jsonschema = "^4.25.1"
+dotenv = "^0.9.9"
 common = {path = "../common"}
 
 [tool.poetry.group.dev.dependencies]

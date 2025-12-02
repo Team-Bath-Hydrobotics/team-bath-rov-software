@@ -14,25 +14,28 @@
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "enum": ["deg"] }
+            "unit": { "type": "string", "enum": ["deg"] },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "pitch": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "enum": ["deg"] }
+            "unit": { "type": "string", "enum": ["deg"] },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "yaw": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "enum": ["deg"] }
+            "unit": { "type": "string", "enum": ["deg"] },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         }
       }
     },
@@ -44,25 +47,28 @@
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "rad/s" }
+            "unit": { "type": "string", "const": "rad/s" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "y": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "rad/s" }
+            "unit": { "type": "string", "const": "rad/s" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "z": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "rad/s" }
+            "unit": { "type": "string", "const": "rad/s" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         }
       }
     },
@@ -74,25 +80,28 @@
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "m/s²" }
+            "unit": { "type": "string", "const": "m/s²" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "y": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "m/s²" }
+            "unit": { "type": "string", "const": "m/s²" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "z": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "m/s²" }
+            "unit": { "type": "string", "const": "m/s²" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         }
       }
     },
@@ -104,25 +113,28 @@
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "m/s" }
+            "unit": { "type": "string", "const": "m/s" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "y": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "m/s" }
+            "unit": { "type": "string", "const": "m/s" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "z": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "m/s" }
+            "unit": { "type": "string", "const": "m/s" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         }
       }
     },
@@ -130,36 +142,40 @@
       "type": "object",
       "properties": {
         "value": { "type": "number" },
-        "unit": { "type": "string", "const": "m" }
+        "unit": { "type": "string", "const": "m" },
+        "timestamp": { "type": "number" }
       },
-      "required": ["value", "unit"]
+      "required": ["value", "unit", "timestamp"]
     },
 
     "ambient_temperature": {
       "type": "object",
       "properties": {
         "value": { "type": "number" },
-        "unit": { "type": "string", "const": "C" }
+        "unit": { "type": "string", "const": "C" },
+        "timestamp": { "type": "number" }
       },
-      "required": ["value", "unit"]
+      "required": ["value", "unit", "timestamp"]
     },
 
     "internal_temperature": {
       "type": "object",
       "properties": {
         "value": { "type": "number" },
-        "unit": { "type": "string", "const": "C" }
+        "unit": { "type": "string", "const": "C" },
+        "timestamp": { "type": "number" }
       },
-      "required": ["value", "unit"]
+      "required": ["value", "unit", "timestamp"]
     },
 
     "ambient_pressure": {
       "type": "object",
       "properties": {
         "value": { "type": "number" },
-        "unit": { "type": "string", "const": "Pa" }
+        "unit": { "type": "string", "const": "Pa" },
+        "timestamp": { "type": "number" }
       },
-      "required": ["value", "unit"]
+      "required": ["value", "unit", "timestamp"]
     },
 
     "cardinal_direction": { "type": "string" },
@@ -167,9 +183,10 @@
       "type": "object",
       "properties": {
         "value": { "type": "number" },
-        "unit": { "type": "string", "const": "?" }
+        "unit": { "type": "string", "const": "?" },
+        "timestamp": { "type": "number" }
       },
-      "required": ["value", "unit"]
+      "required": ["value", "unit", "timestamp"]
     },
 
     "actuators": {
@@ -179,49 +196,55 @@
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "%" }
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "a2": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "%" }
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "a3": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "%" }
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "a4": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "%" }
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "a5": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "%" }
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         },
         "a6": {
           "type": "object",
           "properties": {
             "value": { "type": "number" },
-            "unit": { "type": "string", "const": "%" }
+            "unit": { "type": "string", "const": "%" },
+            "timestamp": { "type": "number" }
           },
-          "required": ["value", "unit"]
+          "required": ["value", "unit", "timestamp"]
         }
       }
     }
