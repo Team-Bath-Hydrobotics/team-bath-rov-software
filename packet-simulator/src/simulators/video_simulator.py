@@ -4,7 +4,7 @@ import subprocess
 import threading
 import time
 
-from common.common.network.network_type import NetworkEnum, NetworkHandler
+from common.network.network_type import NetworkEnum, NetworkHandler
 
 
 class VideoSimulator:

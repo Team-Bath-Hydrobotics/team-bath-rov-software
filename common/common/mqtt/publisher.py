@@ -37,8 +37,6 @@ class MQTTPublisher:
             if not schema:
                 raise ValueError(f"No schema defined for topic {topic}")
             jsonschema.validate(instance=message, schema=schema)
-            print(message)
-            print(schema)
             payload = json.dumps(message)
             result = self.client.publish(topic, payload)
             if result.rc != mqtt.MQTT_ERR_SUCCESS:

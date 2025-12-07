@@ -8,7 +8,7 @@ from simulators.rov_telemetry_simulator import ROVTelemetrySimulator
 from simulators.std_out_simulator import StdoutSimulator
 from simulators.video_simulator import VideoSimulator
 
-from common.common.network.network_type import NetworkEnum
+from common.network.network_type import NetworkEnum
 
 
 class PacketSimulator:
@@ -74,7 +74,6 @@ class PacketSimulator:
         )
         self.rov_simulator = ROVTelemetrySimulator(
             self.rov_ports,
-            self.rov_running,
             self.output_network_type,
             frequency=20,
             controller_frequency=10,
@@ -128,7 +127,9 @@ class PacketSimulator:
             )
 
         print("\nSimulator ready! Video feeds are waiting for connections...")
-        print("Start the video processor to connect to the feeds.")
+        print(
+            "Start the video processor to connect to the feeds and the telemetry processor to connect to the telemetry ports."
+        )
 
         try:
             while True:
@@ -143,6 +144,15 @@ class PacketSimulator:
                         print(
                             f"Warning: {total_threads - alive_count} video feed threads have stopped!"
                         )
+                if hasattr(self.rov_simulator, "thread"):
+                    if not self.rov_simulator.thread.is_alive():
+                        print("Warning: ROV telemetry simulator thread has stopped!")
+                if hasattr(self.float_simulator, "thread"):
+                    if not self.float_simulator.thread.is_alive():
+                        print("Warning: Float telemetry simulator thread has stopped!")
+                if hasattr(self.stdout_simulator, "thread"):
+                    if not self.stdout_simulator.thread.is_alive():
+                        print("Warning: Stdout simulator thread has stopped!")
 
         except KeyboardInterrupt:
             print("\nShutting down simulator...")

@@ -5,9 +5,8 @@ import socket
 import struct
 import time
 
-from data_interface.float_data import FloatData
-
-from common.common.network.network_type import NetworkEnum, NetworkHandler
+from common.data_interface.float_data import FloatData
+from common.network.network_type import NetworkEnum, NetworkHandler
 
 
 class FloatTelemetrySimulator:

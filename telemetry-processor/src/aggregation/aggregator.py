@@ -4,19 +4,14 @@ from collections import deque
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from data_interface.telemetry_data import TelemetryData
-
 
 @dataclass
 class AggregationResult:
     """Result of an aggregation operation."""
 
-    sensor_id: str
+    sensor_name: str
     timestamp: float
-    count: int
     mean: float
-    min_value: float
-    max_value: float
     unit: Optional[str] = None
 
 
@@ -41,24 +36,23 @@ class TimeWindowAggregator:
         self._buffers: dict[str, deque] = {}
         self._last_emit: dict[str, float] = {}
 
-    def add(self, data: TelemetryData):
+    def add(self, data):
         """Add telemetry data point to aggregation buffer."""
-        sensor_id = data.sensor_id
+        sensor_name = data.sensor_name
 
-        if sensor_id not in self._buffers:
-            self._buffers[sensor_id] = deque()
-            self._last_emit[sensor_id] = data.timestamp
-
-        self._buffers[sensor_id].append(data)
+        if sensor_name not in self._buffers:
+            self._buffers[sensor_name] = deque()
+            self._last_emit[sensor_name] = data.timestamp
+        self._buffers[sensor_name].append(data)
 
         # Check if window has elapsed
-        elapsed = (data.timestamp - self._last_emit[sensor_id]) * 1000
+        elapsed = (data.timestamp - self._last_emit[sensor_name]) * 1000
         if elapsed >= self.window_duration_ms:
-            self._emit_aggregation(sensor_id, data.timestamp)
+            self._emit_aggregation(sensor_name, data.timestamp)
 
-    def _emit_aggregation(self, sensor_id: str, current_time: float):
+    def _emit_aggregation(self, sensor_name: str, current_time: float):
         """Compute and emit aggregation for a sensor."""
-        buffer = self._buffers[sensor_id]
+        buffer = self._buffers[sensor_name]
         if not buffer:
             return
 
@@ -66,12 +60,9 @@ class TimeWindowAggregator:
         unit = buffer[0].unit if buffer else None
 
         result = AggregationResult(
-            sensor_id=sensor_id,
+            sensor_name=sensor_name,
             timestamp=current_time,
-            count=len(values),
             mean=sum(values) / len(values),
-            min_value=min(values),
-            max_value=max(values),
             unit=unit,
         )
 
@@ -79,15 +70,15 @@ class TimeWindowAggregator:
             self.emit_callback(result)
 
         # Clear buffer and update last emit time
-        self._buffers[sensor_id].clear()
-        self._last_emit[sensor_id] = current_time
+        self._buffers[sensor_name].clear()
+        self._last_emit[sensor_name] = current_time
 
-    def flush(self, sensor_id: Optional[str] = None):
+    def flush(self, sensor_name: Optional[str] = None):
         """Flush aggregation buffers."""
-        if sensor_id:
-            if sensor_id in self._buffers and self._buffers[sensor_id]:
-                last_time = self._buffers[sensor_id][-1].timestamp
-                self._emit_aggregation(sensor_id, last_time)
+        if sensor_name:
+            if sensor_name in self._buffers and self._buffers[sensor_name]:
+                last_time = self._buffers[sensor_name][-1].timestamp
+                self._emit_aggregation(sensor_name, last_time)
         else:
-            for sid in list(self._buffers.keys()):
-                self.flush(sid)
+            for s_name in list(self._buffers.keys()):
+                self.flush(s_name)

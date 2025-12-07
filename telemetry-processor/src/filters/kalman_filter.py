@@ -1,7 +1,7 @@
 """Kalman filter implementation for telemetry smoothing."""
-
-from data_interface.telemetry_data import TelemetryData
 from filters.base_filter import BaseFilter
+
+from common.data_interface import TelemetryData
 
 
 class KalmanFilter(BaseFilter):
