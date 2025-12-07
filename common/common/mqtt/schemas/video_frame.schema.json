@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Hydrobotics Video Frame Metadata",
+  "version": "1.0.0",
+  "type": "object",
+  "properties": {
+    "frame_id": { "type": "integer" },
+    "id": { "type": "string" },
+    "timestamp": { "type": "number" },
+    "camera_type": { "type": "string" },
+    "stream_id": { "type": "string" },
+    "original_fps": { "type": "number" },
+    "target_fps": { "type": "number" },
+    "input_width": { "type": "integer" },
+    "input_height": { "type": "integer" },
+    "output_width": { "type": "integer" },
+    "output_height": { "type": "integer" }
+  },
+  "required": ["frame_id", "id", "timestamp"],
+  "additionalProperties": false
+}

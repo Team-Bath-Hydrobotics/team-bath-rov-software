@@ -1,0 +1,16 @@
+topics:
+  video:
+    frame: "hydrobotics/video/<rov_id>/frame"
+
+  rov:
+    telemetry: "hydrobotics/rov/<rov_id>/telemetry"
+    command: "hydrobotics/rov/<rov_id>/command"
+
+  float:
+    telemetry: "hydrobotics/float/<float_id>/telemetry"
+
+  project:
+    video_processor:
+      status: "hydrobotics/project/video_processor/status"
+    pre_processor:
+      status: "hydrobotics/project/pre_processor/status"

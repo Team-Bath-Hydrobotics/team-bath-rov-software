@@ -23,7 +23,13 @@ poetry install
 ```
 
 ## Running
-
+You'll need a .env file in the root of this project with the following variables defined
+```
+MQTT_TLS_WEBSOCKET_URL=replaceme
+MQTT_USERNAME=replaceme
+MQTT_PASSWORD=replaceme
+```
+the values for these have been shared on teams, if you can't find them contact Max.
 Run the processor with a configuration file:
 ```bash
 poetry run python src/telemetry_processor.py --config path/to/config.json
@@ -42,12 +48,8 @@ The configuration file should be JSON with the following structure:
   },
   "output": {
     "mqtt": {
-      "broker_host": "localhost",
-      "broker_port": 1883,
       "client_id": "telemetry-processor",
       "base_topic": "rov/telemetry",
-      "username": null,
-      "password": null
     }
   },
   "processing": {
@@ -83,16 +85,13 @@ The configuration file should be JSON with the following structure:
 - `network_type`: Either `"udp"` or `"tcp"`
 
 **Output (MQTT):**
-- `broker_host`: MQTT broker hostname/IP
-- `broker_port`: MQTT broker port (default: 1883)
 - `client_id`: Unique client identifier
 - `base_topic`: Base MQTT topic (sensor data published to `{base_topic}/{sensor_id}`)
-- `username`/`password`: Optional authentication credentials
 
 **Processing:**
-- `filters`: Map of sensor_id to list of filters to apply
+- `filters`: Map of sensor_name to list of filters to apply
   - Kalman filter: Smooths noisy sensor readings
-- `aggregation`: Optional time-window aggregation
+- `aggregation`: Time-window aggregation for high frequency samples -> 20hz
   - `enabled`: Enable/disable aggregation
   - `window_ms`: Aggregation window duration in milliseconds
 
