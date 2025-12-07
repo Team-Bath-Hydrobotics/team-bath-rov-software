@@ -5,10 +5,9 @@ import socket
 import struct
 import time
 
-from data_interface.rov_data import ROVData
-from data_interface.vector_data import Vector3
-
-from common.common.network.network_type import NetworkEnum, NetworkHandler
+from common.data_interface.rov_data import ROVData
+from common.data_interface.vector_data import Vector3
+from common.network.network_type import NetworkEnum, NetworkHandler
 
 
 class ROVTelemetrySimulator:
@@ -17,7 +16,6 @@ class ROVTelemetrySimulator:
 
     Args:
         ports (dict): Dictionary of port configurations.
-        running_flag (threading.Event): Flag to control the running state.
         frequency (int): Frequency in Hz to send telemetry data.
         controller_frequency (int): Frequency in Hz to check for controller input.
     """
@@ -25,13 +23,11 @@ class ROVTelemetrySimulator:
     def __init__(
         self,
         ports,
-        running_flag,
         socket_type: NetworkEnum,
         frequency=20,
         controller_frequency=10,
     ):
         self.ports = ports
-        self.running = running_flag
         self.frequency = frequency
         self.controller_frequency = controller_frequency
         self.sim_time = 0.0
@@ -104,33 +100,34 @@ class ROVTelemetrySimulator:
         self.socket.listen(1)
 
         try:
-            while self.running:
+            while True:
                 try:
                     print(
                         f"Telemetry waiting for connection on port {self.ports['data']}"
                     )
                     conn, addr = self.socket.accept()
                     print(f"Telemetry connected by {addr}")
-
-                    while self.running:
-                        rov_data = self.generate_telemetry_data()
-
+                    while True:
                         try:
+                            rov_data = self.generate_telemetry_data()
                             serialized_data = pickle.dumps(rov_data)
                             message = (
                                 struct.pack("Q", len(serialized_data)) + serialized_data
                             )
                             conn.sendall(message)
+
+                            time.sleep(1.0 / self.frequency)
+
                         except (BrokenPipeError, ConnectionResetError):
                             print("Telemetry client disconnected")
                             break
-
-                        time.sleep(1.0 / self.frequency)  # Use frequency for sleep time
+                        except Exception as e:
+                            print(f"Error sending telemetry: {e}")
+                            break
 
                 except socket.error as e:
-                    if self.running:
-                        print(f"Telemetry socket error: {e}")
-                        time.sleep(1)
+                    print(f"Telemetry socket error: {e}")
+                    time.sleep(1)
 
         except Exception as e:
             print(f"Telemetry error: {e}")
@@ -147,49 +144,47 @@ class ROVTelemetrySimulator:
         self.socket.listen(1)
 
         try:
-            while self.running:
+            while True:
                 try:
                     print(
                         f"Controller input waiting for connection on port {self.ports['control']}"
                     )
                     conn, addr = self.socket.accept()
                     print(f"Controller input connected by {addr}")
-
-                    while self.running:
-                        try:
-                            # Receive data
-                            data = conn.recv(4096)
-                            if not data:
-                                break
-
-                            # Try different approaches to find the pickle data
-                            controller_data = None
-
-                            # Approach 1: Try the data as-is
-                            try:
-                                controller_data = pickle.loads(data)
-                            except pickle.UnpicklingError:
-                                pass
-
-                            # Skip first 20 bytes
-                            if controller_data is None:
-                                try:
-                                    controller_data = pickle.loads(data[20:])
-                                except (pickle.UnpicklingError, IndexError):
-                                    pass
-                            # If we successfully parsed the data, show it
-                            if controller_data is not None:
-                                print(
-                                    f"Controller: Axes={len(controller_data.get('axes', []))} "
-                                    f"Buttons={sum(controller_data.get('buttons', []))} "
-                                    f"Hats={controller_data.get('hats', [])}"
-                                )
-
-                        except (BrokenPipeError, ConnectionResetError):
-                            print("Controller input client disconnected")
+                    try:
+                        # Receive data
+                        data = conn.recv(4096)
+                        if not data:
                             break
-                        except Exception as e:
-                            print(f"Error processing controller data: {e}")
+
+                        # Try different approaches to find the pickle data
+                        controller_data = None
+
+                        # Approach 1: Try the data as-is
+                        try:
+                            controller_data = pickle.loads(data)
+                        except pickle.UnpicklingError:
+                            pass
+
+                        # Skip first 20 bytes
+                        if controller_data is None:
+                            try:
+                                controller_data = pickle.loads(data[20:])
+                            except (pickle.UnpicklingError, IndexError):
+                                pass
+                        # If we successfully parsed the data, show it
+                        if controller_data is not None:
+                            print(
+                                f"Controller: Axes={len(controller_data.get('axes', []))} "
+                                f"Buttons={sum(controller_data.get('buttons', []))} "
+                                f"Hats={controller_data.get('hats', [])}"
+                            )
+
+                    except (BrokenPipeError, ConnectionResetError):
+                        print("Controller input client disconnected")
+                        break
+                    except Exception as e:
+                        print(f"Error processing controller data: {e}")
 
                 except socket.error as e:
                     if self.running:

@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from data_interface.telemetry_data import TelemetryData
+from common.data_interface import TelemetryData
 
 
 class BaseFilter(ABC):
