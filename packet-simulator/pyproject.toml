@@ -11,6 +11,7 @@ opencv-python = "^4.8.0"
 numpy = "^2.1.1"
 ffmpeg-python = "^0.2.0"
 black = "^25.11.0"
+common = {path = "../common"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"

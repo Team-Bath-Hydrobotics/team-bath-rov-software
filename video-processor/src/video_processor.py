@@ -5,10 +5,11 @@ import threading
 import time
 
 from back_pressure_queue import BackpressureQueue
-from data_interface.network_type import NetworkEnum
-from metrics.metrics_monitor import MetricsMonitor
 from mpegts.mpegts_client import MPEGTSClient
 from mpegts.mpegts_server import MPEGTSServer
+
+from common.common.metrics.metrics_monitor import MetricsMonitor
+from common.common.network.network_type import NetworkEnum
 
 
 class VideoProcessor:

@@ -1,22 +1,18 @@
 {
   "input": {
-    "host": "0.0.0.0",
-    "port": 5000,
-    "network_type": "udp"
+    "host": "127.0.0.1",
+    "port": 52525,
+    "network_type": "tcp"
   },
   "output": {
     "mqtt": {
-      "broker_host": "localhost",
-      "broker_port": 1883,
       "client_id": "telemetry-processor",
-      "base_topic": "rov/telemetry",
-      "username": null,
-      "password": null
+      "base_topic": "hydrobotics/rov/<rov_id>/telemetry"
     }
   },
   "processing": {
     "filters": {
-      "depth_sensor": [
+      "depth": [
         {
           "type": "kalman",
           "process_variance": 1e-5,
@@ -24,6 +20,10 @@
         }
       ]
     },
+    "high_freq_sensors": ["attitude_roll", "attitude_pitch", "attitude_yaw",
+    "angular_velocity_x", "angular_velocity_y", "angular_velocity_z",
+    "acceleration_x", "acceleration_y", "acceleration_z",
+    "velocity_x", "velocity_y", "velocity_z"],
     "aggregation": {
       "enabled": false,
       "window_ms": 1000

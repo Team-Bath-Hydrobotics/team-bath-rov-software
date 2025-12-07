@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ROV Telemetry Message",
+  "version": "1.0.0",
+  "type": "object",
+  "properties": {
+    "timestamp": { "type": "number" },
+    "id": { "type": "string" },
+
+     "attitude_x": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "enum": ["deg"] },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "attitude_y": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "enum": ["deg"] },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "attitude_z": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "enum": ["deg"] },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+    "angular_velocity_x": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "rad/s" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "angular_velocity_y": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "rad/s" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "angular_velocity_z": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "rad/s" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "angular_acceleration_x": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "rad/s" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "angular_acceleration_y": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "rad/s" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "angular_acceleration_z": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "rad/s" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "acceleration_x": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "m/s²" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+    "acceleration_y": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "m/s²" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+    "acceleration_z": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "m/s²" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "velocity_x": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "m/s" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "velocity_y": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "m/s" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "velocity_z": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "m/s" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "depth": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "m" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "ambient_temperature": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "C" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "internal_temperature": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "C" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "ambient_pressure": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "Pa" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "cardinal_direction": { "type": "string" },
+    "grove_water_sensor": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "?" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+
+    "actuator_1": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "%" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+    "actuator_2": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "%" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+    "actuator_3": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "%" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+    "actuator_4": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "%" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+    "actuator_5": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "%" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
+    "actuator_6": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string", "const": "%" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    }
+  },
+  "required": ["timestamp", "id"],
+  "additionalProperties": false
+}
