@@ -76,9 +76,10 @@ class TelemetryProcessor:
             raise ValueError(f"No schema defined for topic {topic}")
         self.schema = schema
         print(f"Using env vars: {self.env}")  # Debug print to verify env vars
+        broker_host, broker_port = self.env["tls_url"].split(":")
         config = MqttConfig(
-            broker_host=self.env["tls_url"],
-            broker_port=mqtt_config.get("broker_port", 8883),
+            broker_host=broker_host,
+            broker_port=int(broker_port),
             username=self.env["mqtt_username"],
             password=self.env["mqtt_password"],
             id=mqtt_config.get("client_id", "telemetry-processor"),
