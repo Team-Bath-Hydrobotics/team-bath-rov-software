@@ -16,6 +16,7 @@ from filters.kalman_filter import KalmanFilter
 from input.telemetry_receiver import TelemetryReceiver
 
 from common.data_interface.telemetry_data import TelemetryData
+from common.mqtt.mqtt_config import MqttConfig
 from common.mqtt.publisher import MQTTPublisher
 from common.mqtt.schema_loader import get_schema_for_topic, load_schemas
 from common.network.network_type import NetworkEnum
@@ -75,13 +76,15 @@ class TelemetryProcessor:
             raise ValueError(f"No schema defined for topic {topic}")
         self.schema = schema
         print(f"Using env vars: {self.env}")  # Debug print to verify env vars
-        self.publisher = MQTTPublisher(
-            tls_url=self.env["tls_url"],
+        config = MqttConfig(
+            broker_host=self.env["tls_url"],
+            broker_port=mqtt_config.get("broker_port", 8883),
             username=self.env["mqtt_username"],
             password=self.env["mqtt_password"],
-            client_id=mqtt_config.get("client_id", "telemetry-processor"),
+            id=mqtt_config.get("client_id", "telemetry-processor"),
             base_topic=topic,
         )
+        self.publisher = MQTTPublisher(config=config)
 
         # Setup filters per sensor
         filter_config = self.processing_config.get("filters", {})
