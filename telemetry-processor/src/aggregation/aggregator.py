@@ -32,7 +32,7 @@ class TimeWindowAggregator:
         self.window_duration_ms = window_duration_ms
         self.emit_callback = emit_callback
 
-        # Store data per sensor_id
+        # Store data per sensor_name
         self._buffers: dict[str, deque] = {}
         self._last_emit: dict[str, float] = {}
 

@@ -1,4 +1,5 @@
 import json
+import ssl
 
 import jsonschema
 import paho.mqtt.client as mqtt
@@ -18,7 +19,8 @@ class MQTTPublisher:
         self.broker_port = config.broker_port
         self.id = f"publisher_{id(self)}"
         self.client.username_pw_set(username=config.username, password=config.password)
-        self.client.tls_set()
+        self.client.tls_set(cert_reqs=ssl.CERT_NONE)
+        self.client.tls_insecure_set(True)
         self.connected = False
         self.schemas = load_schemas()
         self.base_topic = config.base_topic

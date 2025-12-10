@@ -75,7 +75,6 @@ class TelemetryProcessor:
         if not schema:
             raise ValueError(f"No schema defined for topic {topic}")
         self.schema = schema
-        print(f"Using env vars: {self.env}")  # Debug print to verify env vars
         broker_host, broker_port = self.env["tls_url"].split(":")
         config = MqttConfig(
             broker_host=broker_host,
@@ -107,7 +106,7 @@ class TelemetryProcessor:
         self.high_freq_sensors = set(
             self.processing_config.get("high_freq_sensors", [])
         )
-        self.publish_interval = self.processing_config.get("window_ms", 50) / 1000.0
+        self.publish_interval = self.processing_config.get("window_ms", 1000.0) / 1000.0
 
     def _on_telemetry_received(self, rov_data):
         """Handle received telemetry data."""
@@ -247,12 +246,17 @@ class TelemetryProcessor:
 
     def _publish_loop(self):
         while self.running:
-            if self.last_received_time + 3 < time.time():
+            print("Publish loop iteration")
+            time_since_last_receive = time.time() - self.last_received_time
+            print(f"Time since last receive: {time_since_last_receive:.2f}s")
+            # Skip publishing if no data received in last 5 seconds
+            if time_since_last_receive > 5.0:
                 time.sleep(self.publish_interval)
                 continue
             packet = self._assemble_packet()
-            # ("Publishing packet:", packet)
-            self.publisher.publish(packet)
+            print("Publishing packet:", packet)
+            print(self.publish_interval)
+            # self.publisher.publish(packet)
             time.sleep(self.publish_interval)
 
     def get_field(
@@ -275,73 +279,38 @@ class TelemetryProcessor:
         """
 
         now = time.time()
+        print(self.telemetry_state)
         packet = {
             "timestamp": now,
             "id": "rov",
-            "attitude_roll": {
-                self.get_field("attitude_roll", "roll", 0, "deg", 0),
-            },
-            "attitude_pitch": {
-                self.get_field("attitude_pitch", "pitch", 0, "deg", 0),
-            },
-            "attitude_yaw": {
-                self.get_field("attitude_yaw", "yaw", 0, "deg", 0),
-            },
-            "angular_velocity_x": {
-                self.get_field("angular_velocity_x", "x", 0, "rad/s", 0),
-            },
-            "angular_velocity_y": {
-                self.get_field("angular_velocity_y", "y", 0, "rad/s", 0),
-            },
-            "angular_velocity_z": {
-                self.get_field("angular_velocity_z", "z", 0, "rad/s", 0),
-            },
-            "acceleration_x": {
-                self.get_field("linear_acceleration_x", "x", 0, "m/s²", 0),
-            },
-            "acceleration_y": {
-                self.get_field("linear_acceleration_y", "y", 0, "m/s²", 0),
-            },
-            "acceleration_z": {
-                self.get_field("linear_acceleration_z", "z", 0, "m/s²", 0),
-            },
-            "velocity_x": {
-                self.get_field("linear_velocity", "x", 0, "m/s", 0),
-            },
-            "velocity_y": {
-                self.get_field("linear_velocity", "y", 0, "m/s", 0),
-            },
-            "velocity_z": {
-                self.get_field("linear_velocity", "z", 0, "m/s", 0),
-            },
-            "depth": self.get_field("depth", None, 0, "m", 0),
-            "ambient_temperature": self.get_field(
-                "ambient_temperature", None, 0, "C", 0
+            "attitude_x": self.telemetry_state.get("attitude_x", None),
+            "attitude_y": self.telemetry_state.get("attitude_y", None),
+            "attitude_z": self.telemetry_state.get("attitude_z", None),
+            "angular_velocity_x": self.telemetry_state.get("angular_velocity_x", None),
+            "angular_velocity_y": self.telemetry_state.get("angular_velocity_y", None),
+            "angular_velocity_z": self.telemetry_state.get("angular_velocity_z", None),
+            "acceleration_x": self.telemetry_state.get("acceleration_x", None),
+            "acceleration_y": self.telemetry_state.get("acceleration_y", None),
+            "acceleration_z": self.telemetry_state.get("acceleration_z", None),
+            "velocity_x": self.telemetry_state.get("velocity_x", None),
+            "velocity_y": self.telemetry_state.get("velocity_y", None),
+            "velocity_z": self.telemetry_state.get("velocity_z", None),
+            "depth": self.telemetry_state.get("depth", None),
+            "ambient_temperature": self.telemetry_state.get(
+                "ambient_temperature", None
             ),
-            "internal_temperature": self.get_field(
-                "internal_temperature", None, 0, "C", 0
+            "internal_temperature": self.telemetry_state.get(
+                "internal_temperature", None
             ),
-            "ambient_pressure": self.get_field("ambient_pressure", None, 0, "Pa", 0),
-            "cardinal_direction": self.telemetry_state.get("cardinal_direction", ""),
-            "grove_water_sensor": self.get_field("grove_water_sensor", None, 0, "?", 0),
-            "actuator_1": {
-                self.get_field("actuator_1", "a1", 0, "%", 0),
-            },
-            "actuator_2": {
-                self.get_field("actuator_2", "a2", 0, "%", 0),
-            },
-            "actuator_3": {
-                self.get_field("actuator_3", "a3", 0, "%", 0),
-            },
-            "actuator_4": {
-                self.get_field("actuator_4", "a4", 0, "%", 0),
-            },
-            "actuator_5": {
-                self.get_field("actuator_5", "a5", 0, "%", 0),
-            },
-            "actuator_6": {
-                self.get_field("actuator_6", "a6", 0, "%", 0),
-            },
+            "ambient_pressure": self.telemetry_state.get("ambient_pressure", None),
+            "cardinal_direction": self.telemetry_state.get("cardinal_direction", None),
+            "grove_water_sensor": self.telemetry_state.get("grove_water_sensor", None),
+            "actuator_1": self.telemetry_state.get("actuator_1", None),
+            "actuator_2": self.telemetry_state.get("actuator_2", None),
+            "actuator_3": self.telemetry_state.get("actuator_3", None),
+            "actuator_4": self.telemetry_state.get("actuator_4", None),
+            "actuator_5": self.telemetry_state.get("actuator_5", None),
+            "actuator_6": self.telemetry_state.get("actuator_6", None),
         }
 
         try:

@@ -62,13 +62,11 @@ class TelemetryReceiver:
         """Main receive loop."""
         print("Starting telemetry receive loop")
         while self.running:
-            print("Waiting to receive data...")
             try:
                 if self.network_type == NetworkEnum.UDP:
                     data, addr = self.socket.recvfrom(self.buffer_size)
                     self._process_data(data)
                 elif self.network_type == NetworkEnum.TCP:
-                    print("Waiting to receive data on TCP socket...")
                     data = self.socket.recv(self.buffer_size)
                     if not data:
                         print("Connection closed by server")

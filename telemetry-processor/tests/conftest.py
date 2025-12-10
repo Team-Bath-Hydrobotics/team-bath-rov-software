@@ -29,10 +29,9 @@ def sample_telemetry_data():
 
     return TelemetryData(
         timestamp=1000.0,
-        sensor_id="depth_sensor",
+        sensor_name="depth_sensor",
         value=15.5,
         unit="meters",
-        metadata={"location": "bow"},
     )
 
 

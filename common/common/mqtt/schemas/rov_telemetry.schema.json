@@ -194,7 +194,15 @@
       "required": ["value", "unit", "timestamp"]
     },
 
-    "cardinal_direction": { "type": "string" },
+    "cardinal_direction": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "string" },
+        "unit": { "type": "string", "const": "?" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["value", "unit", "timestamp"]
+    },
     "grove_water_sensor": {
       "type": "object",
       "properties": {
