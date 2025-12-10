@@ -246,17 +246,14 @@ class TelemetryProcessor:
 
     def _publish_loop(self):
         while self.running:
-            print("Publish loop iteration")
             time_since_last_receive = time.time() - self.last_received_time
-            print(f"Time since last receive: {time_since_last_receive:.2f}s")
-            # Skip publishing if no data received in last 5 seconds
             if time_since_last_receive > 5.0:
                 time.sleep(self.publish_interval)
                 continue
             packet = self._assemble_packet()
-            print("Publishing packet:", packet)
-            print(self.publish_interval)
-            # self.publisher.publish(packet)
+            # print("Publishing packet:", packet)
+            # print(self.publish_interval)
+            self.publisher.publish(packet)
             time.sleep(self.publish_interval)
 
     def get_field(

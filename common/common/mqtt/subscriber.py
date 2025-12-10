@@ -1,3 +1,4 @@
+import json
 import ssl
 
 import jsonschema
@@ -58,3 +59,9 @@ class MQTTSubscriber:
     def is_connected(self) -> bool:
         """Returns whether the client is connected to the broker."""
         return self.connected
+
+    def validate_message(self, msg, schema):
+        """Validates and returns the message payload."""
+        message = json.loads(msg.payload)
+        jsonschema.validate(instance=message, schema=schema)
+        return message

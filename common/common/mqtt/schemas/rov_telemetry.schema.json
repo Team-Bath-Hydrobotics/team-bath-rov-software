@@ -197,7 +197,7 @@
     "cardinal_direction": {
       "type": "object",
       "properties": {
-        "value": { "type": "string" },
+        "value": { "type": "number" },
         "unit": { "type": "string", "const": "?" },
         "timestamp": { "type": "number" }
       },
