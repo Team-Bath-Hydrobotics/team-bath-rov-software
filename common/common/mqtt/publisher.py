@@ -9,7 +9,8 @@ from .schema_loader import get_schema_for_topic, load_schemas
 class MQTTPublisher:
     def __init__(
         self,
-        tls_url: str,
+        broker_host: str,
+        broker_port: int,
         username: str,
         password: str,
         client_id: str,
@@ -17,10 +18,12 @@ class MQTTPublisher:
     ):
         """Initializes the MQTT publisher with connection details."""
         self.client = mqtt.Client(client_id=client_id)
-        self.tls_url = tls_url
+        self.broker_host = broker_host
+        self.broker_port = broker_port
         self.id = f"publisher_{id(self)}"
         self.client.username_pw_set(username=username, password=password)
         self.client.tls_set()
+        self.client.tls_insecure_set(True)
         self.client.on_connect = self._on_connect
         self.client.on_disconnect = self._on_disconnect
         self.connected = False
@@ -54,9 +57,7 @@ class MQTTPublisher:
     def connect(self):
         """Connect to the MQTT broker."""
         try:
-            host, port = self.tls_url.split(":")
-            port = int(port)
-            self.client.connect(host, port)
+            self.client.connect(self.broker_host, self.broker_port)
             self.client.loop_start()
         except Exception as e:
             print(f"Failed to connect to MQTT broker: {e}")
@@ -65,7 +66,7 @@ class MQTTPublisher:
     def _on_connect(self, client, userdata, flags, rc, properties=None):
         """Callback when connected to broker."""
         if rc == 0:
-            print(f"Connected to MQTT broker at {self.tls_url}")
+            print(f"Connected to MQTT broker at {self.broker_host}:{self.broker_port}")
             self.connected = True
         else:
             print(f"Failed to connect to MQTT broker: {rc}")
