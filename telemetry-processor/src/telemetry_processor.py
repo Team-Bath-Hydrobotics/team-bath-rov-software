@@ -108,6 +108,7 @@ class TelemetryProcessor:
         )
         self.publish_interval = self.processing_config.get("window_ms", 50) / 1000.0
         print(f"Publish interval set to {self.publish_interval} seconds.")
+
     def _on_telemetry_received(self, rov_data):
         """Handle received telemetry data."""
         self.last_received_time = time.time()
@@ -123,25 +124,21 @@ class TelemetryProcessor:
             if "_" in prop_name:
                 parts = prop_name.rsplit("_", 1)
                 base_name = parts[0]
-                component_name = parts[1]  # x, y, z, roll, pitch, yaw
+                component_name = parts[1]  # x, y, z
 
-                # Check if ROVData has the base attribute (e.g., "acceleration", "attitude")
                 if hasattr(rov_data, base_name):
                     base_value = getattr(rov_data, base_name)
 
-                    # Check if it's a Vector3 object with the component
                     if hasattr(base_value, component_name):
                         value = getattr(base_value, component_name)
 
                         if prop_type == "object":
                             nested_props = prop_schema.get("properties", {})
-                            # Pass prop_name (e.g., "acceleration_x") not component_name (e.g., "x")
                             self.handle_low_high_frequency(
                                 nested_props, prop_name, value, now
                             )
                         continue
 
-            # Handle direct scalar attributes (depth, ambient_temperature, etc.)
             self.handle_object(prop_name, prop_schema, prop_type, rov_data, now)
 
     def handle_object(self, prop_name, prop_schema, prop_type, data, now):
@@ -255,60 +252,48 @@ class TelemetryProcessor:
             print(f"Published telemetry packet at {time.time()}")
             time.sleep(self.publish_interval)
 
-    def get_field(
-        self, sensor, subfield=None, default_value=0, default_unit="", default_ts=0
-    ):
-        entry = self.telemetry_state.get(sensor, {})
-        if subfield:
-            entry = entry.get(subfield, {})
-        return {
-            "value": entry.get("value", default_value),
-            "unit": entry.get("unit", default_unit),
-            "timestamp": entry.get("timestamp", default_ts),
-        }
-
     def _assemble_packet(self) -> dict:
         """
         Assemble the telemetry state into a JSON-compliant packet for publishing.
         For high-frequency sensors, use the aggregated value if available.
         For low-frequency sensors, keep the last received value with original timestamp.
         """
-
+        print(f"Current telemetry state: {self.telemetry_state}")
         now = time.time()
+        
+        # Default structure for missing fields
+        default_field = {"value": 0, "unit": "", "timestamp": 0}
+        
         packet = {
             "timestamp": now,
             "id": "rov",
-            "attitude_x": self.get_field("attitude_x", "roll", 0, "deg", 0),
-            "attitude_y": self.get_field("attitude_y", "pitch", 0, "deg", 0),
-            "attitude_z": self.get_field("attitude_z", "yaw", 0, "deg", 0),
-            "angular_velocity_x": self.get_field("angular_velocity_x", "x", 0, "rad/s", 0),
-            "angular_velocity_y": self.get_field("angular_velocity_y", "y", 0, "rad/s", 0),
-            "angular_velocity_z": self.get_field("angular_velocity_z", "z", 0, "rad/s", 0),
-            "angular_acceleration_x": self.get_field("angular_acceleration_x", "x", 0, "rad/s²", 0),
-            "angular_acceleration_y": self.get_field("angular_acceleration_y", "y", 0, "rad/s²", 0),
-            "angular_acceleration_z": self.get_field("angular_acceleration_z", "z", 0, "rad/s²", 0),
-            "acceleration_x": self.get_field("linear_acceleration_x", "x", 0, "m/s²", 0),
-            "acceleration_y": self.get_field("linear_acceleration_y", "y", 0, "m/s²", 0),
-            "acceleration_z": self.get_field("linear_acceleration_z", "z", 0, "m/s²", 0),
-            "velocity_x": self.get_field("linear_velocity", "x", 0, "m/s", 0),
-            "velocity_y": self.get_field("linear_velocity", "y", 0, "m/s", 0),
-            "velocity_z": self.get_field("linear_velocity", "z", 0, "m/s", 0),
-            "depth": self.get_field("depth", None, 0, "m", 0),
-            "ambient_temperature": self.get_field(
-                "ambient_temperature", None, 0, "C", 0
-            ),
-            "internal_temperature": self.get_field(
-                "internal_temperature", None, 0, "C", 0
-            ),
-            "ambient_pressure": self.get_field("ambient_pressure", None, 0, "Pa", 0),
+            "attitude_x": self.telemetry_state.get("attitude_x", {"value": 0, "unit": "deg", "timestamp": 0}),
+            "attitude_y": self.telemetry_state.get("attitude_y", {"value": 0, "unit": "deg", "timestamp": 0}),
+            "attitude_z": self.telemetry_state.get("attitude_z", {"value": 0, "unit": "deg", "timestamp": 0}),
+            "angular_velocity_x": self.telemetry_state.get("angular_velocity_x", {"value": 0, "unit": "rad/s", "timestamp": 0}),
+            "angular_velocity_y": self.telemetry_state.get("angular_velocity_y", {"value": 0, "unit": "rad/s", "timestamp": 0}),
+            "angular_velocity_z": self.telemetry_state.get("angular_velocity_z", {"value": 0, "unit": "rad/s", "timestamp": 0}),
+            "angular_acceleration_x": self.telemetry_state.get("angular_acceleration_x", {"value": 0, "unit": "rad/s²", "timestamp": 0}),
+            "angular_acceleration_y": self.telemetry_state.get("angular_acceleration_y", {"value": 0, "unit": "rad/s²", "timestamp": 0}),
+            "angular_acceleration_z": self.telemetry_state.get("angular_acceleration_z", {"value": 0, "unit": "rad/s²", "timestamp": 0}),
+            "acceleration_x": self.telemetry_state.get("acceleration_x", {"value": 0, "unit": "m/s²", "timestamp": 0}),
+            "acceleration_y": self.telemetry_state.get("acceleration_y", {"value": 0, "unit": "m/s²", "timestamp": 0}),
+            "acceleration_z": self.telemetry_state.get("acceleration_z", {"value": 0, "unit": "m/s²", "timestamp": 0}),
+            "velocity_x": self.telemetry_state.get("velocity_x", {"value": 0, "unit": "m/s", "timestamp": 0}),
+            "velocity_y": self.telemetry_state.get("velocity_y", {"value": 0, "unit": "m/s", "timestamp": 0}),
+            "velocity_z": self.telemetry_state.get("velocity_z", {"value": 0, "unit": "m/s", "timestamp": 0}),
+            "depth": self.telemetry_state.get("depth", {"value": 0, "unit": "m", "timestamp": 0}),
+            "ambient_temperature": self.telemetry_state.get("ambient_temperature", {"value": 0, "unit": "C", "timestamp": 0}),
+            "internal_temperature": self.telemetry_state.get("internal_temperature", {"value": 0, "unit": "C", "timestamp": 0}),
+            "ambient_pressure": self.telemetry_state.get("ambient_pressure", {"value": 0, "unit": "Pa", "timestamp": 0}),
             "cardinal_direction": self.telemetry_state.get("cardinal_direction", ""),
-            "grove_water_sensor": self.get_field("grove_water_sensor", None, 0, "?", 0),
-            "actuator_1": self.get_field("actuator_1", "a1", 0, "%", 0),
-            "actuator_2": self.get_field("actuator_2", "a2", 0, "%", 0),
-            "actuator_3": self.get_field("actuator_3", "a3", 0, "%", 0),
-            "actuator_4": self.get_field("actuator_4", "a4", 0, "%", 0),
-            "actuator_5": self.get_field("actuator_5", "a5", 0, "%", 0),
-            "actuator_6": self.get_field("actuator_6", "a6", 0, "%", 0),
+            "grove_water_sensor": self.telemetry_state.get("grove_water_sensor", {"value": 0, "unit": "?", "timestamp": 0}),
+            "actuator_1": self.telemetry_state.get("actuator_1", {"value": 0, "unit": "%", "timestamp": 0}),
+            "actuator_2": self.telemetry_state.get("actuator_2", {"value": 0, "unit": "%", "timestamp": 0}),
+            "actuator_3": self.telemetry_state.get("actuator_3", {"value": 0, "unit": "%", "timestamp": 0}),
+            "actuator_4": self.telemetry_state.get("actuator_4", {"value": 0, "unit": "%", "timestamp": 0}),
+            "actuator_5": self.telemetry_state.get("actuator_5", {"value": 0, "unit": "%", "timestamp": 0}),
+            "actuator_6": self.telemetry_state.get("actuator_6", {"value": 0, "unit": "%", "timestamp": 0}),
         }
 
         try:
