@@ -75,10 +75,13 @@ class TelemetryProcessor:
             raise ValueError(f"No schema defined for topic {topic}")
         self.schema = schema
         print(f"Using env vars: {self.env}")  # Debug print to verify env vars
+        broker_host = self.env.get("mqtt_broker_host") or mqtt_config.get("broker_host", "localhost")
+        broker_port = self.env.get("mqtt_broker_port") or mqtt_config.get("broker_port", 1883)
         self.publisher = MQTTPublisher(
-            tls_url=self.env["tls_url"],
-            username=self.env["mqtt_username"],
-            password=self.env["mqtt_password"],
+            broker_host=broker_host,
+            broker_port=int(broker_port),
+            username=self.env.get("mqtt_username"),
+            password=self.env.get("mqtt_password"),
             client_id=mqtt_config.get("client_id", "telemetry-processor"),
             base_topic=topic,
         )
@@ -104,7 +107,7 @@ class TelemetryProcessor:
             self.processing_config.get("high_freq_sensors", [])
         )
         self.publish_interval = self.processing_config.get("window_ms", 50) / 1000.0
-
+        print(f"Publish interval set to {self.publish_interval} seconds.")
     def _on_telemetry_received(self, rov_data):
         """Handle received telemetry data."""
         self.last_received_time = time.time()
@@ -249,6 +252,7 @@ class TelemetryProcessor:
             packet = self._assemble_packet()
             # ("Publishing packet:", packet)
             self.publisher.publish(packet)
+            print(f"Published telemetry packet at {time.time()}")
             time.sleep(self.publish_interval)
 
     def get_field(
@@ -274,42 +278,18 @@ class TelemetryProcessor:
         packet = {
             "timestamp": now,
             "id": "rov",
-            "attitude_roll": {
-                self.get_field("attitude_roll", "roll", 0, "deg", 0),
-            },
-            "attitude_pitch": {
-                self.get_field("attitude_pitch", "pitch", 0, "deg", 0),
-            },
-            "attitude_yaw": {
-                self.get_field("attitude_yaw", "yaw", 0, "deg", 0),
-            },
-            "angular_velocity_x": {
-                self.get_field("angular_velocity_x", "x", 0, "rad/s", 0),
-            },
-            "angular_velocity_y": {
-                self.get_field("angular_velocity_y", "y", 0, "rad/s", 0),
-            },
-            "angular_velocity_z": {
-                self.get_field("angular_velocity_z", "z", 0, "rad/s", 0),
-            },
-            "acceleration_x": {
-                self.get_field("linear_acceleration_x", "x", 0, "m/s²", 0),
-            },
-            "acceleration_y": {
-                self.get_field("linear_acceleration_y", "y", 0, "m/s²", 0),
-            },
-            "acceleration_z": {
-                self.get_field("linear_acceleration_z", "z", 0, "m/s²", 0),
-            },
-            "velocity_x": {
-                self.get_field("linear_velocity", "x", 0, "m/s", 0),
-            },
-            "velocity_y": {
-                self.get_field("linear_velocity", "y", 0, "m/s", 0),
-            },
-            "velocity_z": {
-                self.get_field("linear_velocity", "z", 0, "m/s", 0),
-            },
+            "attitude_x": self.get_field("attitude_x", "roll", 0, "deg", 0),
+            "attitude_y": self.get_field("attitude_y", "pitch", 0, "deg", 0),
+            "attitude_z": self.get_field("attitude_z", "yaw", 0, "deg", 0),
+            "angular_velocity_x": self.get_field("angular_velocity_x", "x", 0, "rad/s", 0),
+            "angular_velocity_y": self.get_field("angular_velocity_y", "y", 0, "rad/s", 0),
+            "angular_velocity_z": self.get_field("angular_velocity_z", "z", 0, "rad/s", 0),
+            "acceleration_x": self.get_field("linear_acceleration_x", "x", 0, "m/s²", 0),
+            "acceleration_y": self.get_field("linear_acceleration_y", "y", 0, "m/s²", 0),
+            "acceleration_z": self.get_field("linear_acceleration_z", "z", 0, "m/s²", 0),
+            "velocity_x": self.get_field("linear_velocity", "x", 0, "m/s", 0),
+            "velocity_y": self.get_field("linear_velocity", "y", 0, "m/s", 0),
+            "velocity_z": self.get_field("linear_velocity", "z", 0, "m/s", 0),
             "depth": self.get_field("depth", None, 0, "m", 0),
             "ambient_temperature": self.get_field(
                 "ambient_temperature", None, 0, "C", 0
@@ -320,24 +300,12 @@ class TelemetryProcessor:
             "ambient_pressure": self.get_field("ambient_pressure", None, 0, "Pa", 0),
             "cardinal_direction": self.telemetry_state.get("cardinal_direction", ""),
             "grove_water_sensor": self.get_field("grove_water_sensor", None, 0, "?", 0),
-            "actuator_1": {
-                self.get_field("actuator_1", "a1", 0, "%", 0),
-            },
-            "actuator_2": {
-                self.get_field("actuator_2", "a2", 0, "%", 0),
-            },
-            "actuator_3": {
-                self.get_field("actuator_3", "a3", 0, "%", 0),
-            },
-            "actuator_4": {
-                self.get_field("actuator_4", "a4", 0, "%", 0),
-            },
-            "actuator_5": {
-                self.get_field("actuator_5", "a5", 0, "%", 0),
-            },
-            "actuator_6": {
-                self.get_field("actuator_6", "a6", 0, "%", 0),
-            },
+            "actuator_1": self.get_field("actuator_1", "a1", 0, "%", 0),
+            "actuator_2": self.get_field("actuator_2", "a2", 0, "%", 0),
+            "actuator_3": self.get_field("actuator_3", "a3", 0, "%", 0),
+            "actuator_4": self.get_field("actuator_4", "a4", 0, "%", 0),
+            "actuator_5": self.get_field("actuator_5", "a5", 0, "%", 0),
+            "actuator_6": self.get_field("actuator_6", "a6", 0, "%", 0),
         }
 
         try:
@@ -353,13 +321,11 @@ def parse_config_and_env(config_path: str) -> dict:
     load_dotenv(dotenv_path=os.path.join(os.path.dirname(config_path), ".env"))
     with open(config_path, "r") as f:
         config = json.load(f)
-    os.getenv("MQTT_USERNAME")
-    os.getenv("MQTT_PASSWORD")
-    os.getenv("MQTT_TLS_WEBSOCKET_URL")
     env = {
         "mqtt_username": os.getenv("MQTT_USERNAME"),
         "mqtt_password": os.getenv("MQTT_PASSWORD"),
-        "tls_url": os.getenv("MQTT_TLS_WEBSOCKET_URL"),
+        "mqtt_broker_host": os.getenv("MQTT_BROKER_HOST"),
+        "mqtt_broker_port": os.getenv("MQTT_BROKER_PORT"),
     }
     return config, env
 

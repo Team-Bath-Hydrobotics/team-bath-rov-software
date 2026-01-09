@@ -15,6 +15,7 @@ class MQTTSubscriber:
         self.id = f"subscriber_{id(self)}"
         self.client.username_pw_set(username=username, password=password)
         self.client.tls_set()
+        self.client.tls_insecure_set(True)
         self.client.connect(broker_address, broker_port)
         self.schemas = load_schemas()
         if not self.schemas:
