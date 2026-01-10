@@ -6,6 +6,8 @@
   },
   "output": {
     "mqtt": {
+      "broker_host": "localhost",
+      "broker_port": 1883,
       "client_id": "telemetry-processor",
       "base_topic": "hydrobotics/rov/<rov_id>/telemetry"
     }
@@ -25,8 +27,7 @@
     "acceleration_x", "acceleration_y", "acceleration_z",
     "velocity_x", "velocity_y", "velocity_z"],
     "aggregation": {
-      "enabled": false,
-      "window_ms": 1000
-    }
+      "enabled": false
+    },"window_ms": 1000
   }
 }
