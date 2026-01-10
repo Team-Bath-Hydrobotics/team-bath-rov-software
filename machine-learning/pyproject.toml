@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "machine-learning"
+version = "0.1.0"
+description = "ROV Machine Learning"
+authors = ["mc2862 <mc2862@bath.ac.uk>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+common = {path = "../common"}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [".git", "__pycache__", "venv", ".venv"]
