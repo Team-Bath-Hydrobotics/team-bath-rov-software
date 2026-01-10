@@ -4,6 +4,7 @@ import pickle
 import socket
 import struct
 import threading
+import time
 from typing import Callable, Optional
 
 from common.data_interface import TelemetryData
@@ -36,15 +37,39 @@ class TelemetryReceiver:
     def start(self):
         """Start receiving telemetry data."""
         self.running = True
-        self.socket = self._network_handler.get_input_network_socket()
-
-        if self.network_type == NetworkEnum.UDP:
-            self.socket.connect((self.host, self.port))
-            print(f"Telemetry receiver listening on UDP {self.host}:{self.port}")
-        elif self.network_type == NetworkEnum.TCP:
-            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.socket.connect((self.host, self.port))
-            print(f"Telemetry receiver listening on TCP {self.host}:{self.port}")
+        
+        # Try to connect with retries
+        max_retries = 5
+        retry_delay = 2  # seconds
+        
+        for attempt in range(max_retries):
+            try:
+                self.socket = self._network_handler.get_input_network_socket()
+                
+                if self.network_type == NetworkEnum.UDP:
+                    self.socket.connect((self.host, self.port))
+                    print(f"Telemetry receiver connected via UDP to {self.host}:{self.port}")
+                    break
+                elif self.network_type == NetworkEnum.TCP:
+                    self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    self.socket.connect((self.host, self.port))
+                    print(f"Telemetry receiver connected via TCP to {self.host}:{self.port}")
+                    break
+            except ConnectionRefusedError:
+                if attempt < max_retries - 1:
+                    print(f"Connection refused. Retrying in {retry_delay} seconds... (attempt {attempt + 1}/{max_retries})")
+                    time.sleep(retry_delay)
+                else:
+                    print(f"Failed to connect after {max_retries} attempts. Starting in disconnected mode...")
+                    # Continue anyway - will try to reconnect in receive loop
+                    break
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    print(f"Connection error: {e}. Retrying in {retry_delay} seconds... (attempt {attempt + 1}/{max_retries})")
+                    time.sleep(retry_delay)
+                else:
+                    print(f"Failed to connect after {max_retries} attempts: {e}")
+                    break
 
         print("Starting telemetry receive loop...")
         self.receive_thread = threading.Thread(target=self._receive_loop)
@@ -61,23 +86,45 @@ class TelemetryReceiver:
     def _receive_loop(self):
         """Main receive loop."""
         print("Starting telemetry receive loop")
+        reconnect_delay = 5  # seconds between reconnection attempts
+        
         while self.running:
-            print("Waiting to receive data...")
+            # Check if we have a valid socket connection
+            if not self.socket:
+                try:
+                    print(f"Attempting to connect to {self.host}:{self.port}...")
+                    self.socket = self._network_handler.get_input_network_socket()
+                    
+                    if self.network_type == NetworkEnum.TCP:
+                        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    
+                    self.socket.connect((self.host, self.port))
+                    print(f"Successfully connected to {self.host}:{self.port}")
+                except Exception as e:
+                    print(f"Connection failed: {e}. Retrying in {reconnect_delay} seconds...")
+                    time.sleep(reconnect_delay)
+                    continue
+            
             try:
                 if self.network_type == NetworkEnum.UDP:
                     data, addr = self.socket.recvfrom(self.buffer_size)
                     self._process_data(data)
                 elif self.network_type == NetworkEnum.TCP:
-                    print("Waiting to receive data on TCP socket...")
                     data = self.socket.recv(self.buffer_size)
                     if not data:
-                        print("Connection closed by server")
-                        break
+                        print("Connection closed by server. Will attempt to reconnect...")
+                        self.socket.close()
+                        self.socket = None
+                        time.sleep(reconnect_delay)
+                        continue
                     self._process_data(data)
             except socket.error as e:
                 if self.running:
-                    print(f"Socket error (connection failed): {e}")
-                    break
+                    print(f"Socket error: {e}. Will attempt to reconnect...")
+                    if self.socket:
+                        self.socket.close()
+                        self.socket = None
+                    time.sleep(reconnect_delay)
             except Exception as e:
                 if self.running:
                     print(f"Receive error (skipping packet): {e}")

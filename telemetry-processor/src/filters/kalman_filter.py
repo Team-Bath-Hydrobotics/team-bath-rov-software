@@ -61,10 +61,9 @@ class KalmanFilter(BaseFilter):
         # Return filtered data
         return TelemetryData(
             timestamp=data.timestamp,
-            sensor_id=data.sensor_id,
+            sensor_name=data.sensor_name,
             value=float(self.x),
             unit=data.unit,
-            metadata=data.metadata,
         )
 
     def reset(self):
