@@ -8,8 +8,8 @@ from back_pressure_queue import BackpressureQueue
 from mpegts.mpegts_client import MPEGTSClient
 from mpegts.mpegts_server import MPEGTSServer
 
-from common.common.metrics.metrics_monitor import MetricsMonitor
-from common.common.network.network_type import NetworkEnum
+from common.metrics.metrics_monitor import MetricsMonitor
+from common.network.network_type import NetworkEnum
 
 
 class VideoProcessor:
@@ -238,13 +238,13 @@ def parse_client_resilience_args(network_config):
     max_consecutive_failures = resilience_config.get("max_consecutive_failures", 10)
     extended_cooldown_ms = resilience_config.get("extended_cooldown_ms", 60000)
     max_frame_errors = resilience_config.get("max_frame_errors", 100)
-    return (
-        base_delay_ms,
-        max_delay_ms,
-        max_consecutive_failures,
-        extended_cooldown_ms,
-        max_frame_errors,
-    )
+    return {
+        "base_delay_ms": base_delay_ms,
+        "max_delay_ms": max_delay_ms,
+        "max_consecutive_failures": max_consecutive_failures,
+        "extended_cooldown_ms": extended_cooldown_ms,
+        "max_frame_errors": max_frame_errors,
+    }
 
 
 def main():

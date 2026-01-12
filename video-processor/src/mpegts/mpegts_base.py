@@ -5,7 +5,7 @@ from typing import Dict
 
 from back_pressure_queue import BackpressureQueue
 
-from common.common.network.network_type import NetworkEnum
+from common.network.network_type import NetworkEnum
 
 
 class MPEGTSBase(ABC):
