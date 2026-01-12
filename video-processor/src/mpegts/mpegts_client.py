@@ -11,7 +11,7 @@ from back_pressure_queue import BackpressureQueue
 from data_interface.frame_metadata import FrameMetadata
 from mpegts.mpegts_base import MPEGTSBase
 
-from common.common.network.network_type import NetworkEnum, NetworkHandler
+from common.network.network_type import NetworkEnum, NetworkHandler
 
 
 class MPEGTSClient(MPEGTSBase):
@@ -32,6 +32,7 @@ class MPEGTSClient(MPEGTSBase):
             stream_id, port, input_config, output_config, frame_queue, network_type
         )
         self.host_ip = host_ip
+        print(resilience_config)
         self.max_frame_errors = resilience_config.get("max_frame_errors", 100)
         self.base_delay_ms = resilience_config.get("base_delay_ms", 500)
         self.max_delay_ms = resilience_config.get("max_delay_ms", 30000)
@@ -165,25 +166,25 @@ class MPEGTSClient(MPEGTSBase):
             self.frame_queue.put((frame, metadata))
             last_status_time = self.log_status(frames_processed, last_status_time)
 
-        def _read_frame_data(self, frame_size):
-            remaining = frame_size
-            chunks = []
-            while remaining > 0:
-                chunk = self.ffmpeg_process.stdout.read(remaining)
-                if not chunk:
-                    break
-                chunks.append(chunk)
-                remaining -= len(chunk)
-            frame_data = b"".join(chunks)
-            if len(frame_data) != frame_size:
-                if len(frame_data) == 0:
-                    print(f"No more data from FFmpeg for stream {self.stream_id}")
-                else:
-                    print(
-                        f"Incomplete frame data for stream {self.stream_id}: {len(frame_data)}/{frame_size}"
-                    )
-                return None
-            return frame_data
+    def _read_frame_data(self, frame_size):
+        remaining = frame_size
+        chunks = []
+        while remaining > 0:
+            chunk = self.ffmpeg_process.stdout.read(remaining)
+            if not chunk:
+                break
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        frame_data = b"".join(chunks)
+        if len(frame_data) != frame_size:
+            if len(frame_data) == 0:
+                print(f"No more data from FFmpeg for stream {self.stream_id}")
+            else:
+                print(
+                    f"Incomplete frame data for stream {self.stream_id}: {len(frame_data)}/{frame_size}"
+                )
+            return None
+        return frame_data
 
     def _parse_frame(self, frame_data):
         try:
