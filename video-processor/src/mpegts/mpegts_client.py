@@ -1,9 +1,9 @@
-import random
 import socket
 import subprocess
 import sys
 import threading
 import time
+import random
 from typing import Dict
 
 import numpy as np
@@ -40,6 +40,7 @@ class MPEGTSClient(MPEGTSBase):
             "max_consecutive_failures", 10
         )
         self.extended_cooldown_ms = resilience_config.get("extended_cooldown_ms", 60000)
+        self.target_ip = output_config.get("target_ip", "")
 
     def start(self):
         """Start receiving MPEGTS stream"""
@@ -49,7 +50,7 @@ class MPEGTSClient(MPEGTSBase):
         )
         thread.start()
 
-    def forward_to_ffmpeg(self, ffmpeg_process, client_socket):
+    def forward_to_ffmpeg(self, decoder_ffmpeg_process, client_socket):
         """Forward data from socket to FFmpeg stdin — robust to races"""
         try:
             while self.running:
@@ -64,7 +65,7 @@ class MPEGTSClient(MPEGTSBase):
 
                 # Acquire lock and check stdin is alive before writing
                 with self.lock:
-                    proc = self.ffmpeg_process
+                    proc = self.decoder_ffmpeg_process
                     stdin = None
                     if proc:
                         stdin = proc.stdin
@@ -94,44 +95,45 @@ class MPEGTSClient(MPEGTSBase):
             print(f"Error forwarding data to FFmpeg for stream {self.stream_id}: {e}")
         finally:
             with self.lock:
-                proc = getattr(self, "ffmpeg_process", None)
+                proc = getattr(self, "decoder_ffmpeg_process", None)
                 if proc and proc.stdin:
                     try:
                         proc.stdin.close()
                     except Exception:
                         pass
 
-    def start_ffmpeg(self):
+    def start_decoder_ffmpeg(self):
         """Start a fresh FFmpeg process for decoding (thread-safe)"""
         with self.lock:
-            print(f"Stream {self.stream_id}: Acquired lock in start_ffmpeg()")
+            print(f"Stream {self.stream_id}: Acquired lock in start_decoder_ffmpeg()")
 
             try:
-                print(f"Stream {self.stream_id}: Starting cleanup_ffmpeg()")
-                self.cleanup_ffmpeg()
+                print(f"Stream {self.stream_id}: Starting cleanup_decoder_ffmpeg()")
+                self.cleanup_decoder_ffmpeg()
                 print(f"Stream {self.stream_id}: Cleanup completed")
             except Exception as e:
                 print(f"Stream {self.stream_id}: Cleanup exception: {e}")
 
-            ffmpeg_cmd = self.get_ffmpeg_decode_cmd()
-            print(f"Stream {self.stream_id}: FFmpeg command: {' '.join(ffmpeg_cmd)}")
+            cmd = [
+            "ffmpeg",
+            "-loglevel", "error",
+            "-i", "pipe:0",
+            "-f", "rawvideo",
+            "-pix_fmt", "bgr24",
+            "pipe:1",
+            ]
+            print(f"Stream {self.stream_id}: FFmpeg command: {' '.join(cmd)}")
 
             try:
-                self.ffmpeg_process = subprocess.Popen(
-                    ffmpeg_cmd,
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    bufsize=0,  # unbuffered for pipes
-                )
-                print(f"Stream {self.stream_id}: FFmpeg PID: {self.ffmpeg_process.pid}")
+                self.decoder_ffmpeg_process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                print(f"Stream {self.stream_id}: FFmpeg PID: {self.decoder_ffmpeg_process.pid}")
 
-                self.ffmpeg_alive = True
+                self.decoder_ffmpeg_alive = True
 
             except Exception as e:
                 print(f"Stream {self.stream_id}: Exception in subprocess.Popen: {e}")
-                self.ffmpeg_process = None
-                self.ffmpeg_alive = False
+                self.decoder_ffmpeg_process = None
+                self.decoder_ffmpeg_alive = False
                 raise
 
     def decode_frames(self, frame_size):
@@ -140,7 +142,7 @@ class MPEGTSClient(MPEGTSBase):
         last_status_time = time.time()
         print(f"Starting frame decode loop for stream {self.stream_id}")
         while (
-            self.running and self.ffmpeg_process and self.ffmpeg_process.poll() is None
+            self.running and self.decoder_ffmpeg_process and self.decoder_ffmpeg_process.poll() is None
         ):
             frame_data = self._read_frame_data(frame_size)
             if frame_data is None:
@@ -158,7 +160,7 @@ class MPEGTSClient(MPEGTSBase):
                     break
                 continue
 
-            self.frame_counters[self.stream_id] += 1
+            self.frame_counter += 1
             frames_processed += 1
             frame_errors = 0  # Reset on success
 
@@ -169,8 +171,8 @@ class MPEGTSClient(MPEGTSBase):
     def _read_frame_data(self, frame_size):
         remaining = frame_size
         chunks = []
-        while remaining > 0:
-            chunk = self.ffmpeg_process.stdout.read(remaining)
+        while remaining > 0 and self.running:
+            chunk = self.decoder_ffmpeg_process.stdout.read(remaining)
             if not chunk:
                 break
             chunks.append(chunk)
@@ -203,7 +205,7 @@ class MPEGTSClient(MPEGTSBase):
 
     def _create_frame_metadata(self):
         return FrameMetadata(
-            frame_id=self.frame_counters[self.stream_id],
+            frame_id=self.frame_counter,
             timestamp_received=time.time(),
             camera_type=self.input_format,
             stream_id=self.stream_id,
@@ -225,7 +227,6 @@ class MPEGTSClient(MPEGTSBase):
         current_delay = self.base_delay_ms / 1000.0
 
         while self.running:
-            print("Trying to receive MPEGTS stream...")
             client_socket = None
             try:
                 client_socket = self._setup_network_socket()
@@ -234,15 +235,11 @@ class MPEGTSClient(MPEGTSBase):
                 self._start_and_check_ffmpeg()
                 self._start_forwarding_thread(client_socket)
                 frame_size = self.get_frame_size(is_input=True)
-                print(f"Stream {self.stream_id}: Calculating frame size: {frame_size}")
                 if frame_size <= 0:
                     print(
                         f"Invalid frame size {frame_size} for stream {self.stream_id}; aborting decode."
                     )
                     break
-                print(
-                    f"Stream {self.stream_id}: About to call decode_frames({frame_size})"
-                )
                 self.decode_frames(frame_size)
                 consecutive_failures = 0
                 current_delay = self.base_delay_ms / 1000.0
@@ -289,26 +286,25 @@ class MPEGTSClient(MPEGTSBase):
 
     def _start_and_check_ffmpeg(self):
         print(f"Stream {self.stream_id}: Connection established, starting FFmpeg...")
-        self.start_ffmpeg()
+        self.start_decoder_ffmpeg()
         print(f"Stream {self.stream_id}: FFmpeg started, checking process...")
-        if self.ffmpeg_process:
+        if self.decoder_ffmpeg_process:
             print(
-                f"Stream {self.stream_id}: FFmpeg process PID: {self.ffmpeg_process.pid}"
+                f"Stream {self.stream_id}: FFmpeg process PID: {self.decoder_ffmpeg_process.pid}"
             )
             print(
-                f"Stream {self.stream_id}: FFmpeg poll status: {self.ffmpeg_process.poll()}"
+                f"Stream {self.stream_id}: FFmpeg poll status: {self.decoder_ffmpeg_process.poll()}"
             )
         else:
             print(f"Stream {self.stream_id}: ERROR - FFmpeg process is None!")
             raise RuntimeError("FFmpeg process is None")
 
     def _start_forwarding_thread(self, client_socket):
-        forward_thread = threading.Thread(
+        self.forward_thread = threading.Thread(
             target=self.forward_to_ffmpeg,
-            args=(self.ffmpeg_process, client_socket),
-            daemon=True,
+            args=(self.decoder_ffmpeg_process, client_socket)
         )
-        forward_thread.start()
+        self.forward_thread.start()
 
     def _handle_failure(self, consecutive_failures, current_delay, extended_cooldown):
         if consecutive_failures >= self.max_consecutive_failures:
@@ -333,7 +329,7 @@ class MPEGTSClient(MPEGTSBase):
             except Exception as e:
                 print(f"Error closing socket for stream {self.stream_id}: {e}")
         with self.lock:
-            self.cleanup_ffmpeg()
+            self.cleanup_decoder_ffmpeg()
         if self.running:
             print(f"Stream {self.stream_id}: Attempting to reconnect in 2 seconds...")
             time.sleep(2)

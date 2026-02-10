@@ -82,10 +82,20 @@ The config should be in the form:
 
 This will try to connect to an MPEGTS encoded stream using whatever protocol is specified in the config file, remember this must match the config of the simulator or rov data source.
 
-
 It will then apply back pressure resilience as configured eg downsampling to maximum 30fps, on a stream by stream basis as outlined in the config file.
 
-
 Then it will re-encode these frames using MPEGTS and send them over whatever output protocol is specified in the config, this must match all clients of this stream eg the UI.
+
+To connect to a browser based UI you must enable the websocket relay, as browsers cannot connect directly to UDP or TCP sockets for security reasons, to enable this set the following in the processor config file.
+```
+"network": {
+    ... other network settings
+    "websocket_relay": {
+      "enabled": true,
+      "base_port": Whatever base port you want
+    }
+  },
+```
+
 
 To visualise the results you can then also run the pilot UI following the steps in the readme.

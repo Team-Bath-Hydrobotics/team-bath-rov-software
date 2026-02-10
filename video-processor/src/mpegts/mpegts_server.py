@@ -3,12 +3,12 @@ import select
 import subprocess
 import time
 from typing import Dict
-
+import threading
 from back_pressure_queue import BackpressureQueue
 from mpegts.mpegts_base import MPEGTSBase
 
 from common.network.network_type import NetworkEnum
-
+from .websocket_broadcaster import WebSocketBroadcaster
 
 class MPEGTSServer(MPEGTSBase):
     """MPEGTS server using FFmpeg"""
@@ -22,90 +22,134 @@ class MPEGTSServer(MPEGTSBase):
         output_config: Dict,
         frame_queue: BackpressureQueue,
         network_type: NetworkEnum,
+        ws_relay_enabled: bool = False,
+        ws_relay_base_port: int = None,
     ):
         super().__init__(
             stream_id, port, input_config, output_config, frame_queue, network_type
         )
         self.target_ip = target_ip
+        self.ws_broadcaster = None
+        if ws_relay_enabled and ws_relay_base_port:
+            self.ws_broadcaster = WebSocketBroadcaster(stream_id, ws_relay_base_port)
+            self.ws_broadcaster.start()
+            if not self.ws_broadcaster._loop_ready.wait(timeout=5):
+                raise RuntimeError("WebSocketBroadcaster failed to start")
 
     def start(self):
         """Start the MPEGTS server"""
         self.running = True
-        self.start_server()
+        self.ffmpeg_thread = threading.Thread(target=self._run_ffmpeg)
+        self.ffmpeg_thread.start()
 
-    def start_server(self):
+    def _run_ffmpeg(self):
         """Start the MPEGTS server using FFmpeg"""
         print(f"Starting MPEGTS server for stream {self.stream_id} on port {self.port}")
 
         print(f"Target IP: {self.target_ip}, Network Type: {self.network_type.name}")
         # Get FFmpeg encode command and add UDP output
-        ffmpeg_cmd = self.get_ffmpeg_encode_cmd() + [
-            f"{self.network_type.value}://{self.target_ip}:{self.port}"
-        ]
+        outputs = []
+        if self.target_ip:
+            outputs.append(f"[f=mpegts]udp://{self.target_ip}:{self.port}")
+        if self.ws_broadcaster:
+            outputs.append("[f=mpegts]pipe:1")
 
+        tee = "|".join(outputs)
+        print(f"Stream {self.stream_id}, expected width height fps: {self.output_width}x{self.output_height} @ {self.output_fps}fps")
+        cmd = [
+            "ffmpeg",
+            "-loglevel", "error",
+
+            "-f", "rawvideo",
+            "-pix_fmt", "bgr24",
+            "-s", f"{self.input_width}x{self.input_height}",
+            "-r", str(self.input_fps),
+            "-i", "pipe:0",
+
+            "-map", "0:v:0",              # <-- REQUIRED
+            "-c:v", "mpeg1video",
+            "-b:v", "1000k",
+
+            "-f", "tee",
+            tee,                           # <-- NO quotes
+        ]
+        
         try:
             # Start FFmpeg process
-            self.ffmpeg_process = subprocess.Popen(
-                ffmpeg_cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE
+            assert "-f" in cmd and "tee" in cmd, "Encoder FFmpeg command corrupted"
+            print(f"Stream {self.stream_id} ENCODER CMD:", " ".join(cmd))
+            self.encoder_ffmpeg_process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE if self.ws_broadcaster else None,
             )
-
-            frames_sent = 0
-            last_status_time = time.time()
-            last_frame_time = time.time()
 
             print(f"MPEGTS stream {self.stream_id} started")
 
-            while self.running and self.ffmpeg_process.poll() is None:
+            self.writer_thread = threading.Thread(target=self._write_frames)
+            self.writer_thread.start()
+            if self.ws_broadcaster:
+                self.std_out_thread = threading.Thread(target=self._read_stdout)
+                self.std_out_thread.start()
+        except Exception as e:
+            print(f"Failed to start MPEGTS server for stream {self.stream_id}: {e}")
+            self.running = False
+
+    def _write_frames(self):
+        """Write frames from backpressure queue to FFmpeg stdin at target FPS"""
+        frames_sent = 0
+        last_status_time = time.time()
+        last_frame_time = time.time()
+
+        while self.running and self.encoder_ffmpeg_process and self.encoder_ffmpeg_process.stdin:
+            try:
                 try:
                     # Get frame and metadata from queue
                     frame_data, metadata = self.frame_queue.get(timeout=1.0)
+                    if frame_data is None:
+                        continue
 
                     # Throttle to target FPS
                     last_frame_time = self.throttle_fps(last_frame_time)
-
                     # Check if FFmpeg stdin is ready for writing
-                    if (
-                        self.ffmpeg_process.stdin
-                        and not self.ffmpeg_process.stdin.closed
-                    ):
+                    if self.encoder_ffmpeg_process.stdin and not self.encoder_ffmpeg_process.stdin.closed:
                         try:
-                            # Use select to check if we can write without blocking
-                            ready = select.select(
-                                [], [self.ffmpeg_process.stdin], [], 0.01
-                            )
-                            if ready[1]:  # stdin is ready for writing
-                                frame_bytes = frame_data.tobytes()
-                                self.ffmpeg_process.stdin.write(frame_bytes)
-                                self.ffmpeg_process.stdin.flush()
+                            ready = select.select([], [self.encoder_ffmpeg_process.stdin], [], 0.01)
+                            if ready[1]:  # stdin is ready
+                                self.encoder_ffmpeg_process.stdin.write(frame_data.tobytes())
+                                self.encoder_ffmpeg_process.stdin.flush()
                                 frames_sent += 1
-
-                                # Log status periodically
-                                last_status_time = self.log_status(
-                                    frames_sent, last_status_time
-                                )
+                                last_status_time = self.log_status(frames_sent, last_status_time)
                             else:
-                                # FFmpeg isn't ready, skip this frame
+                                # stdin not ready, skip frame
                                 pass
                         except (BrokenPipeError, OSError) as e:
-                            print(
-                                f"FFmpeg process ended for stream {self.stream_id}: {e}"
-                            )
+                            print(f"FFmpeg process ended for stream {self.stream_id}: {e}")
                             break
                     else:
                         print(f"FFmpeg stdin closed for stream {self.stream_id}")
                         break
 
                 except queue.Empty:
-                    # No frames available, continue waiting
                     continue
                 except Exception as e:
                     print(f"Error in server for stream {self.stream_id}: {e}")
                     break
+            except Exception as e:
+                print(f"Unexpected error writing to FFmpeg stdin: {e}")
 
-        except Exception as e:
-            print(f"Error starting server for stream {self.stream_id}: {e}")
-        finally:
-            self.cleanup_ffmpeg()
+    def _read_stdout(self):
+        """Read FFmpeg stdout and broadcast over WebSocket"""
+        while self.running and self.encoder_ffmpeg_process and self.encoder_ffmpeg_process.stdout:
+            try:
+                chunk = self.encoder_ffmpeg_process.stdout.read(1316)
+                if not chunk:
+                    break
+                #print(f"Stream {self.stream_id} read {len(chunk)} bytes from stdout")
+                self.ws_broadcaster.broadcast(chunk)
+            except Exception as e:
+                print(f"Error broadcasting stdout: {e}")
+                break
 
     def throttle_fps(self, last_frame_time):
         """Throttle frame processing to target FPS"""
@@ -116,3 +160,4 @@ class MPEGTSServer(MPEGTSBase):
             time.sleep(self.frame_interval - time_since_last)
 
         return time.time()
+    
