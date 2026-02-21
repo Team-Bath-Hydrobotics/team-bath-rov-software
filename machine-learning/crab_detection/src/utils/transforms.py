@@ -21,12 +21,10 @@ def get_train_transforms(height=640, width=640):
             A.MedianBlur(blur_limit=3, p=0.1),
             A.Blur(blur_limit=3, p=0.1),
         ], p=0.2),
-        # Replaced ShiftScaleRotate with Affine (faster/safer)
         A.Affine(scale=(0.8, 1.2), translate_percent=(0.0, 0.0625), rotate=(-45, 45), p=0.2),
         
         # Colour/Underwater Effects
         A.OneOf([
-            # Replaced slow distortions with ElasticTransform
             A.ElasticTransform(p=0.3),
         ], p=0.2),
         A.OneOf([
@@ -44,20 +42,19 @@ def get_train_transforms(height=640, width=640):
 def get_val_transforms(height=640, width=640):
     """
     Returns the Albumentations transform pipeline for validation/inference.
-    Mainly resizing and normalization.
+    Mainly resizing and normalisation.
     """
     return A.Compose([
         A.Resize(height, width),
     ], bbox_params=A.BboxParams(format='yolo', label_fields=['class_labels']))
 
-def apply_copy_paste(background_img, object_img, mask_img=None, bbox=None, paste_x=None, paste_y=None):
+def apply_copy_paste(background_img, object_img, paste_x=None, paste_y=None):
     """
     Simulates Copy-Paste augmentation by pasting an object onto a background.
     
     Args:
         background_img: The background image (e.g., underwater scene).
         object_img: The object image (e.g., crab).
-        mask_img: (Optional) Mask of the object for better blending.
         paste_x, paste_y: Coordinates to paste top-left corner. Random if None.
         
     Returns:

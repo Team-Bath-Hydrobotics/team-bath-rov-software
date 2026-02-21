@@ -1,16 +1,17 @@
-import unittest
-import numpy as np
-import cv2
-import sys
 import os
 import shutil
+import sys
+import unittest
+
+import cv2
+import numpy as np
 
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.utils.transforms import get_train_transforms, get_val_transforms, apply_copy_paste
+from src.utils.transforms import get_train_transforms, apply_copy_paste
 from src.utils.dataset import SyntheticCrabDataset
-from src.utils.helpers import count_green_crabs, draw_bounding_boxes
+from src.utils.helpers import count_green_crabs
 from src.pipeline import CrabPipeline
 
 class TestTransforms(unittest.TestCase):
@@ -56,14 +57,13 @@ class TestDataset(unittest.TestCase):
         self.assertIsInstance(img, np.ndarray)
         self.assertIsInstance(bboxes, list)
         self.assertIsInstance(labels, list)
-        # Bboxes should be normalized (0-1)
+        # Bboxes should be normalised (0-1)
         if len(bboxes) > 0:
             self.assertLessEqual(np.max(bboxes), 1.0)
             self.assertGreaterEqual(np.min(bboxes), 0.0)
 
     def test_overlap_prevention(self):
         # Force a small background and large object to ensure overlap is likely if unchecked
-        # This is hard to deterministically test without mocking internals, but we can check basic execution
         bg_files = [os.path.join(self.test_dir, 'bg.jpg')]
         ds = SyntheticCrabDataset(bg_files, self.crab_imgs, num_samples=5)
         # Just ensure it runs without crashing and produces valid bboxes
@@ -100,7 +100,7 @@ class TestPipeline(unittest.TestCase):
             pipeline = CrabPipeline(model_type='yolov8', mode='multi')
             self.assertIsNotNone(pipeline.detector)
         except Exception as e:
-            # In CI/No-Internet env, this might fail on download. 
+            # In No-Internet env, this might fail on download.
             pass
 
 if __name__ == '__main__':

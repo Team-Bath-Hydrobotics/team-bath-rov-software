@@ -2,7 +2,7 @@
 
 This directory contains the data generation, training, and inference scripts for training a machine learning model to detect and count invasive European Green Crabs, whilst differentiating them from Jonah and Rock crabs.
 
-The pipeline is designed to be highly robust to underwater environments and is specifically tailored for applications running on ROV cameras capturing high-resolution (1080p+) images. It uses advanced data augmentation techniques (importantly, copy-paste augmentations) to synthesise varied training data based on a small set of source images.
+The pipeline is designed to be highly robust to underwater environments and is specifically tailored for applications running on ROV cameras capturing high-resolution (1080p+) images. It uses advanced data augmentation techniques (including copy-paste augmentations) to synthesise varied training data based on a small set of source images.
 
 ## Project Structure
 

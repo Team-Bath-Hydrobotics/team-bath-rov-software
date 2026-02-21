@@ -53,7 +53,7 @@ class TrainingLogger:
         """
         Run inference on sample images and log to TensorBoard.
         """
-        print(f"\nGeneratinig visualization for epoch {epoch}...")
+        print(f"\nGeneratinig visualisation for epoch {epoch}...")
         for img_path in self.valid_images:
             # Inference
             # Ultralytics model(img) returns list of Results
@@ -86,9 +86,8 @@ def main():
             model = RFDETRMedium()
     
     # 2. Setup Logging
-    # We need to find where the validation images are to visualise them
-    # Assuming data.yaml points to a dir structure. We'll parse it simply or require user arg.
-    # For now, let's assume 'dataset/valid' exists based on generate_data.py
+    # Locate validation images for visualisation.
+    # Assumes 'dataset/valid' exists based on data generation structure.
     valid_dir = os.path.join(os.path.dirname(args.data), 'valid')
     
     logger = TrainingLogger(

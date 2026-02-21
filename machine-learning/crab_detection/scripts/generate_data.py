@@ -54,11 +54,8 @@ def main():
     args = parser.parse_args()
     
     # 1. Setup Crab Images
-    # We need to map class IDs to file paths.
-    # Assuming standard filenames or structure. 
-    # Let's map based on filename patterns for now or explicit dict.
-    # User mentioned: "green_crab.jpg", "jonah_crab.jpg", "rock_crab.jpg"
-    # Helper.py maps: 0: Jonah, 1: Green, 2: Rock
+    # Map class IDs to file paths based on filenames.
+    # 0: Jonah, 1: Green, 2: Rock
     
     # Check source dir content
     if not os.path.exists(args.src_dir):
@@ -94,7 +91,7 @@ def main():
     # 2. Setup Backgrounds
     if not os.path.exists(args.bg_dir):
         print(f"Error: Background directory {args.bg_dir} not found.")
-        # Create it to be helpful
+        # Create directory automatically
         os.makedirs(args.bg_dir, exist_ok=True)
         print(f"Created {args.bg_dir}. Please add images.")
         return

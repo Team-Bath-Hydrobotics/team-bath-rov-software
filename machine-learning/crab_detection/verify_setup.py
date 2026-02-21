@@ -18,7 +18,7 @@ def test_pipeline():
         
         # 1. Test YOLOv8
         print("\nTesting YOLOv8 initialisation...")
-        # We perform a try-except here because the user might not have 'yolov8n.pt' downloaded yet,
+        # We perform a try-except here because the weights might not be downloaded yet,
         # but Ultralytics usually downloads it automatically.
         yolo_pipeline = CrabPipeline(model_type='yolov8')
         print("YOLOv8 initialised.")

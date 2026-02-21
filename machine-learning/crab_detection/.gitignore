@@ -13,7 +13,6 @@ dataset/
 output/
 output_predictions/
 backgrounds/
-source_images/
 
 # Ignore large weights/models unless specifically committed
 *.pt

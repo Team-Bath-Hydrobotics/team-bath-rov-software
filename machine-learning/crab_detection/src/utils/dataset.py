@@ -91,26 +91,10 @@ class SyntheticCrabDataset(Dataset):
             # Pick a random image of that class
             crab_img = self.loaded_crabs[cls_id][np.random.randint(0, len(self.loaded_crabs[cls_id]))]
             
-            # Try to paste with overlap check
+            # Attempt to paste object while ensuring minimum overlap
             placed = False
             for attempt in range(MAX_RETRIES):
-                # Temporary paste to get candidate bbox
-                # We need to access apply_copy_paste's logic without modifying image yet, 
-                # OR we modify a temp image. 
-                # Optimised way: modify apply_copy_paste to accept coords, or just try-and-discard
-                
-                # Let's generate random coords first to check against existing bboxes?
-                # The bbox depends on the resized object size which apply_copy_paste calculates.
-                # Simplest robust way: perform paste on a temp/copy, check bbox, if good, commit.
-                
-                # Check valid candidate
-                # Note: apply_copy_paste handles random placement if we don't supply coords.
-                # To check overlap BEFORE pasting, we'd need to reproduce that logic.
-                # For simplicity/correctness, let's paste to a dummy variable to get the bbox, 
-                # check it, and if valid, re-paste (or use the result).
-                
-                # BUT pasting is expensive-ish.
-                # Let's just let apply_copy_paste do it, check result, and if bad, revert.
+                # Perform copy-paste on a temporary duplicate image to validate candidate bounding box
                 
                 temp_img, candidate_bbox = apply_copy_paste(current_img.copy(), crab_img)
                 
