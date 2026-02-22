@@ -4,5 +4,9 @@ __pycache__/
 .vscode/
 .idea/
 *.pyc
+<<<<<<< HEAD
 packet-simulator/src/fake_videos/
+=======
+packet-simulator/fake_videos/
+>>>>>>> origin/main
 .mp4
