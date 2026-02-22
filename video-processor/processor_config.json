@@ -14,7 +14,7 @@
           "queue_timeout_ms": 500
         },
         "filter_settings":{
-          "filters":[]
+          "filters":["brightness", "contrast"]
         }
       },
       {
@@ -30,7 +30,7 @@
           "queue_timeout_ms": 500
         },
         "filter_settings":{
-          "filters":[]
+          "filters":["greyscale"]
         }
       }
     ],

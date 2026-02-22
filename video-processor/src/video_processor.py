@@ -3,6 +3,7 @@ import signal
 import sys
 import threading
 import time
+import cv2
 
 from back_pressure_queue import BackpressureQueue
 from mpegts.mpegts_client import MPEGTSClient
@@ -10,6 +11,7 @@ from mpegts.mpegts_server import MPEGTSServer
 
 from common.metrics.metrics_monitor import MetricsMonitor
 from common.network.network_type import NetworkEnum
+from filters.basic_filters import Filter
 
 
 class VideoProcessor:
@@ -104,6 +106,7 @@ class VideoProcessor:
             input_port = self.input_base_video_port + idx
             output_port = self.output_base_video_port + idx
 
+            filter
             # Create MPEGTS client (receives from simulator)
             client = MPEGTSClient(
                 host_ip=self.host_ip,
@@ -114,6 +117,7 @@ class VideoProcessor:
                 frame_queue=frame_queue,
                 network_type=NetworkEnum(self.input_network_type),
                 resilience_config=self.client_resilience_config,
+                filter=parse_filter_args(input_cfg),
             )
             self.clients[feed_id] = client
 
@@ -231,7 +235,10 @@ def parse_network_args(network_config):
 
 def parse_filter_args(feed_config):
     filter_settings = feed_config.get("filter_settings", {"filters": []})
-    return filter_settings
+    filter_funcs = filter_settings.get("filters", [])
+
+    filter = Filter(filter_funcs)
+    return filter
 
 
 def parse_client_resilience_args(network_config):

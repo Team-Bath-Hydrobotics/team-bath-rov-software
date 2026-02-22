@@ -12,7 +12,7 @@ from data_interface.frame_metadata import FrameMetadata
 from mpegts.mpegts_base import MPEGTSBase
 
 from common.network.network_type import NetworkEnum, NetworkHandler
-
+from filters.basic_filters import Filter
 
 class MPEGTSClient(MPEGTSBase):
     """MPEGTS client to receive and decode video streams"""
@@ -27,11 +27,13 @@ class MPEGTSClient(MPEGTSBase):
         network_type: NetworkEnum,
         frame_queue: BackpressureQueue,
         resilience_config: Dict,
+        filter: Filter
     ):
         super().__init__(
             stream_id, port, input_config, output_config, frame_queue, network_type
         )
         self.host_ip = host_ip
+        self.filter = filter
         print(resilience_config)
         self.max_frame_errors = resilience_config.get("max_frame_errors", 100)
         self.base_delay_ms = resilience_config.get("base_delay_ms", 500)
@@ -192,6 +194,7 @@ class MPEGTSClient(MPEGTSBase):
         try:
             frame = np.frombuffer(frame_data, dtype=np.uint8)
             frame = frame.reshape((self.input_height, self.input_width, 3))
+            frame = self.filter.apply(frame)
             return frame
         except Exception as e:
             print(f"Failed to parse frame for stream {self.stream_id}: {e}")
