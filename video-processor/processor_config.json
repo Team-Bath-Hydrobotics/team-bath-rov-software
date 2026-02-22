@@ -14,7 +14,7 @@
           "queue_timeout_ms": 500
         },
         "filter_settings":{
-          "filters":[]
+          "filters":["brightness", "contrast"]
         }
       },
       {
@@ -30,7 +30,7 @@
           "queue_timeout_ms": 500
         },
         "filter_settings":{
-          "filters":[]
+          "filters":["greyscale"]
         }
       }
     ],
@@ -47,8 +47,8 @@
       {
         "id": "2",
         "feed_settings": {    
-          "width": 1000,
-          "height": 500,
+          "width": 1920,
+          "height": 1080,
           "fps": 60,
           "format": "stereo"
         }
@@ -61,7 +61,11 @@
     "target_ip": "127.0.0.1",
     "output_base_video_port": 8554,
     "input_network_type": "tcp",
-    "output_network_type": "udp"
+    "output_network_type": "udp",
+    "websocket_relay": {
+      "enabled": true,
+      "base_port": 50000
+    }
   },
   "client_resilience":{
     "base_delay_ms": 500,

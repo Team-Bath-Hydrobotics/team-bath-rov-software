@@ -3,6 +3,7 @@ import signal
 import sys
 import threading
 import time
+import cv2
 
 from back_pressure_queue import BackpressureQueue
 from mpegts.mpegts_client import MPEGTSClient
@@ -10,6 +11,7 @@ from mpegts.mpegts_server import MPEGTSServer
 
 from common.metrics.metrics_monitor import MetricsMonitor
 from common.network.network_type import NetworkEnum
+from filters.basic_filters import Filter
 
 
 class VideoProcessor:
@@ -31,6 +33,8 @@ class VideoProcessor:
             self.output_base_video_port,
             self.input_network_type,
             self.output_network_type,
+            self.ws_relay_enabled,
+            self.ws_relay_base_port
         ) = parse_network_args(network_config)
 
         self.running = False
@@ -102,6 +106,7 @@ class VideoProcessor:
             input_port = self.input_base_video_port + idx
             output_port = self.output_base_video_port + idx
 
+            filter
             # Create MPEGTS client (receives from simulator)
             client = MPEGTSClient(
                 host_ip=self.host_ip,
@@ -112,6 +117,7 @@ class VideoProcessor:
                 frame_queue=frame_queue,
                 network_type=NetworkEnum(self.input_network_type),
                 resilience_config=self.client_resilience_config,
+                filter=parse_filter_args(input_cfg),
             )
             self.clients[feed_id] = client
 
@@ -124,6 +130,8 @@ class VideoProcessor:
                 output_config={},
                 frame_queue=frame_queue,
                 network_type=NetworkEnum(self.output_network_type),
+                ws_relay_enabled=self.ws_relay_enabled,
+                ws_relay_base_port=self.ws_relay_base_port
             )
             self.servers[feed_id] = server
 
@@ -153,7 +161,7 @@ class VideoProcessor:
                 queue_size = self.frame_queues[feed_id].queue.qsize()
                 dropped = self.frame_queues[feed_id].dropped_frames
                 print(f"Feed {feed_id}: Queue size: {queue_size}, Dropped: {dropped}")
-
+        print("Stopping Video Processor...")
         # Cleanup servers and clients
         for server in self.servers.values():
             server.stop()
@@ -165,13 +173,7 @@ class VideoProcessor:
         client.start()
 
     def signal_handler(self, sig, frame):
-        print("\nReceived interrupt signal...")
         self.running = False
-        for server in self.servers.values():
-            server.stop()
-        for client in self.clients.values():
-            client.stop()
-        sys.exit(0)
 
     def extract_feed_id(self, feed_config):
         return feed_config.get("id", -1)
@@ -216,6 +218,9 @@ def parse_network_args(network_config):
     output_video_base_port = network_config.get("output_base_video_port", 8554)
     input_network_type = network_config.get("input_network_type", "")
     output_network_type = network_config.get("output_network_type", "")
+    ws_relay_config = network_config.get("websocket_relay", {})
+    ws_relay_enabled = ws_relay_config.get("enabled", False)
+    ws_relay_base_port = ws_relay_config.get("base_port", None)
     return (
         host_ip,
         target_ip,
@@ -223,12 +228,17 @@ def parse_network_args(network_config):
         output_video_base_port,
         input_network_type,
         output_network_type,
+        ws_relay_enabled,
+        ws_relay_base_port,
     )
 
 
 def parse_filter_args(feed_config):
     filter_settings = feed_config.get("filter_settings", {"filters": []})
-    return filter_settings
+    filter_funcs = filter_settings.get("filters", [])
+
+    filter = Filter(filter_funcs)
+    return filter
 
 
 def parse_client_resilience_args(network_config):
@@ -266,6 +276,7 @@ def main():
         video_feeds, network_config, client_resilience_config
     )
     video_processor.start()
+    metrics_monitor.stop()
 
 
 if __name__ == "__main__":
