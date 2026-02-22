@@ -1,0 +1,31 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Project paths
+runs/
+dataset/
+output/
+output_predictions/
+backgrounds/
+
+# Ignore large weights/models unless specifically committed
+*.pt
+*.pth
+*.onnx
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
