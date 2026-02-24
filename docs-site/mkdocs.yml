@@ -1,1 +1,18 @@
 site_name: Team Bath ROV Software Documentation
+
+nav:
+  - Home: index.md
+  - General:
+      - Getting Started: general/getting-started.md
+      - Architecture: general/architecture.md
+      - Development: general/development.md
+      - Git: general/git.md
+      - Pull Requests: general/pr.md
+      - Roadmap: general/roadmap.md
+  - Projects:
+      - DB Writer: projects/db-writer/db-writer.md
+      - Preprocessor: projects/preprocessor/preprocessor.md
+      - Schema Registry: projects/schema-registry/schema-registry.md
+      - UI: projects/ui/ui.md
+  - Other:
+      - "25-26 Team": other/25-26/team.md
