@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Architecture - Team Bath ROV Software Documentation</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../css/brands.min.css" rel="stylesheet">
+        <link href="../../css/solid.min.css" rel="stylesheet">
+        <link href="../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">Team Bath ROV Software Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">General</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../getting-started/" class="dropdown-item">Getting Started</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active" aria-current="page">Architecture</a>
+</li>
+                                    
+<li>
+    <a href="../development/" class="dropdown-item">Development</a>
+</li>
+                                    
+<li>
+    <a href="../git/" class="dropdown-item">Git</a>
+</li>
+                                    
+<li>
+    <a href="../pr/" class="dropdown-item">Pull Requests</a>
+</li>
+                                    
+<li>
+    <a href="../roadmap/" class="dropdown-item">Roadmap</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Projects</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../projects/db-writer/db-writer/" class="dropdown-item">DB Writer</a>
+</li>
+                                    
+<li>
+    <a href="../../projects/preprocessor/preprocessor/" class="dropdown-item">Preprocessor</a>
+</li>
+                                    
+<li>
+    <a href="../../projects/schema-registry/schema-registry/" class="dropdown-item">Schema Registry</a>
+</li>
+                                    
+<li>
+    <a href="../../projects/ui/ui/" class="dropdown-item">UI</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Other</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../other/25-26/team/" class="dropdown-item">25-26 Team</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../getting-started/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../development/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#responsibilities-of-services" class="nav-link">Responsibilities of services</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#preprocesser" class="nav-link">Preprocesser</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#mqtt-broker" class="nav-link">MQTT Broker</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#video-ingest-service" class="nav-link">Video ingest service</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#schema-registry" class="nav-link">Schema registry</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#ui" class="nav-link">UI</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#secondary-ui" class="nav-link">Secondary UI</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#db-writer" class="nav-link">DB writer</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#replay-engine" class="nav-link">Replay engine</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#ml-consumers" class="nav-link">ML consumers</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#archive" class="nav-link">Archive</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<p>The teams goal for 2026 is to enable this architecture
+<img alt="Rov architecture diagram" src="../../images/rov-arch.png" /></p>
+<h1 id="responsibilities-of-services">Responsibilities of services</h1>
+<h2 id="preprocesser">Preprocesser</h2>
+<ul>
+<li>parse raw sensor data/frames</li>
+<li>validate and annotate with mission_id, device, ingest_timestamp, schema_version, producer_id</li>
+<li>smooth or filter eg low pass</li>
+<li>compute derived metrics (velocity etc)</li>
+<li>publish to mqtt topics</li>
+<li>optionally provide rest endpoint for - <ul>
+<li><code>/health</code> – system heartbeat</li>
+<li><code>/schema</code> – current telemetry schema (JSON Schema)</li>
+<li><code>/status</code> – CPU/GPU/memory metrics</li>
+</ul>
+</li>
+</ul>
+<h2 id="mqtt-broker">MQTT Broker</h2>
+<ul>
+<li>real time message bus for telemetry and status</li>
+<li>retain latest message for new subscribers (eg after ui disconnect)</li>
+<li>Topics such as rov/{rov_id}/{mission_id}/telemetry/{sensor}</li>
+<li>Allow multiple pub subs</li>
+<li>Bidirectional communication if necessary (might be for float)</li>
+</ul>
+<h2 id="video-ingest-service">Video ingest service</h2>
+<ul>
+<li>capture and encode video stream, stream low latency </li>
+<li>Avoid routing frames through mqtt, publish metadata to mqtt</li>
+<li>jetson nano, encode/decode and stream video using ffmpeg</li>
+<li>allow concurrent subscribers eg UI, recorder</li>
+<li>optionally provide rest endpoint for - <ul>
+<li><code>/health</code> – system heartbeat</li>
+<li><code>/schema</code> – current telemetry schema (JSON Schema)</li>
+<li><code>/status</code> – CPU/GPU/memory metrics</li>
+</ul>
+</li>
+</ul>
+<h2 id="schema-registry">Schema registry</h2>
+<ul>
+<li>json schema with pydantic models accessed by fast api</li>
+<li>retrieve by version and allow ui to request a schema for decoding rather than hard coupling and redefining in all applications</li>
+</ul>
+<h2 id="ui">UI</h2>
+<ul>
+<li>queries schema registry for data format based on schema present in packets</li>
+<li>subscribe to cleaned topics via async mqtt clients</li>
+<li>decode video on seperate thread</li>
+<li>connect to video ingest service for low latency video</li>
+<li>show mission critical indicators</li>
+<li>display tasks lists, timers, alerts</li>
+<li>potentially allow limited controls input</li>
+<li>be able to render replay streams</li>
+<li>offload analysis to dashboards</li>
+</ul>
+<h2 id="secondary-ui">Secondary UI</h2>
+<ul>
+<li>queries schema registry for data format based on schema present in packets</li>
+<li>Subscribe to telemetry + ML topics</li>
+<li>Display system diagnostics</li>
+<li>Display graphs</li>
+<li>Show ML inference output, species count, iceberg tracking, edna estimates, could be a web dashboard eg grafana</li>
+</ul>
+<h2 id="db-writer">DB writer</h2>
+<ul>
+<li>queries schema registry for data format based on schema present in packets</li>
+<li>consumes telemetry stream/meta data from mqtt topic</li>
+<li>writes to postgres and influx or similar</li>
+</ul>
+<h2 id="replay-engine">Replay engine</h2>
+<ul>
+<li>runs anywhere</li>
+<li>reconstruct past missions from db</li>
+<li>publish to mqtt</li>
+<li>optionally stream timestamped synced video</li>
+</ul>
+<h2 id="ml-consumers">ML consumers</h2>
+<ul>
+<li>subscribe to video data</li>
+<li>run inference tasks</li>
+<li>publish results back to mqtt</li>
+<li>archived processed annotations/images for training</li>
+</ul>
+<h2 id="archive">Archive</h2>
+<ul>
+<li>s3/minio store for processed video</li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
