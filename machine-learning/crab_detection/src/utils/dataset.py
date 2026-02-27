@@ -2,26 +2,28 @@ import os
 import cv2
 import numpy as np
 from torch.utils.data import Dataset
-from .transforms import get_train_transforms, get_val_transforms, apply_copy_paste
+from .transforms import apply_copy_paste
 
 class SyntheticCrabDataset(Dataset):
     """
-    A synthetic dataset that generates training images on the fly by pasting
+    A synthetic dataset that generates training images by pasting
     transformed crab images onto random backgrounds.
     """
-    def __init__(self, background_files, crab_images, num_samples=1000, transform=None):
+    def __init__(self, background_files, crab_images, num_samples=1000, crab_transform=None, bg_transform=None):
         """
         Args:
             background_files (list): List of file paths to background images.
             crab_images (dict): Dictionary mapping class_id to a list of crab image paths/arrays.
                                 e.g., {0: ['path/to/jonah.jpg'], 1: ['path/to/green.jpg'], ...}
             num_samples (int): Number of synthetic images to generate per epoch.
-            transform (A.Compose): Albumentations transform pipeline.
+            crab_transform (A.Compose): Transform pipeline for individual crabs.
+            bg_transform (A.Compose): Transform pipeline for the full background image.
         """
         self.background_files = background_files
         self.crab_images = crab_images
         self.num_samples = num_samples
-        self.transform = transform
+        self.crab_transform = crab_transform
+        self.bg_transform = bg_transform
         
         # Load crab images into memory if paths are provided
         self.loaded_crabs = {}
@@ -78,10 +80,10 @@ class SyntheticCrabDataset(Dataset):
                 return 0.0
             
             intersection_area = (x_right - x_left) * (y_bottom - y_top)
-            # Union area (not needed for simple overlap check, just intersection ratio relative to the smaller box is safer)
-            # Let's just check if intersection covers a significant portion of the NEW box
+            box1_area = (b1_x2 - b1_x1) * (b1_y2 - b1_y1)
             box2_area = (b2_x2 - b2_x1) * (b2_y2 - b2_y1)
-            return intersection_area / (box2_area + 1e-6)
+            min_area = min(box1_area, box2_area)
+            return intersection_area / (min_area + 1e-6)
 
         MAX_RETRIES = 50
         
@@ -91,6 +93,10 @@ class SyntheticCrabDataset(Dataset):
             # Pick a random image of that class
             crab_img = self.loaded_crabs[cls_id][np.random.randint(0, len(self.loaded_crabs[cls_id]))]
             
+            if self.crab_transform:
+                transformed_crab = self.crab_transform(image=crab_img)
+                crab_img = transformed_crab['image']
+                
             # Attempt to paste object while ensuring minimum overlap
             placed = False
             for attempt in range(MAX_RETRIES):
@@ -117,8 +123,8 @@ class SyntheticCrabDataset(Dataset):
                 pass
             
         # 4. Apply global transformations (underwater effects, etc.)
-        if self.transform:
-            transformed = self.transform(image=current_img, bboxes=bboxes, class_labels=class_labels)
+        if self.bg_transform:
+            transformed = self.bg_transform(image=current_img, bboxes=bboxes, class_labels=class_labels)
             current_img = transformed['image']
             bboxes = transformed['bboxes']
             class_labels = transformed['class_labels']

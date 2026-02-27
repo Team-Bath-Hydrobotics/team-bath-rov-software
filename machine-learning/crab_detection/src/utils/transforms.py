@@ -2,17 +2,25 @@ import albumentations as A
 import cv2
 import numpy as np
 
-def get_train_transforms(height=640, width=640):
+def get_crab_transforms():
     """
-    Returns the Albumentations transform pipeline for training.
-    Includes Copy-Paste, Geometric, and Underwater-specific augmentations.
+    Returns the Albumentations transform pipeline for individual crab images.
+    Applies geometric augmentations to individual crabs before pasting.
     """
     return A.Compose([
-        # Geometric Transforms
         A.RandomRotate90(p=0.5),
         A.HorizontalFlip(p=0.5),
         A.VerticalFlip(p=0.5),
         A.Transpose(p=0.5),
+        A.Affine(scale=(0.8, 1.2), translate_percent=(0.0, 0.0625), rotate=(-45, 45), p=0.2),
+    ])
+
+def get_bg_transforms(height=640, width=640):
+    """
+    Returns the Albumentations transform pipeline for the final composite image.
+    Applies global effects like blur, colour changes, and resizing.
+    """
+    return A.Compose([
         A.OneOf([
             A.GaussNoise(),
         ], p=0.2),
@@ -21,9 +29,6 @@ def get_train_transforms(height=640, width=640):
             A.MedianBlur(blur_limit=3, p=0.1),
             A.Blur(blur_limit=3, p=0.1),
         ], p=0.2),
-        A.Affine(scale=(0.8, 1.2), translate_percent=(0.0, 0.0625), rotate=(-45, 45), p=0.2),
-        
-        # Colour/Underwater Effects
         A.OneOf([
             A.ElasticTransform(p=0.3),
         ], p=0.2),
@@ -34,15 +39,13 @@ def get_train_transforms(height=640, width=640):
             A.RandomBrightnessContrast(),
         ], p=0.3),
         A.HueSaturationValue(p=0.3),
-        
-        # Resize to model input size
         A.Resize(height, width),
     ], bbox_params=A.BboxParams(format='yolo', label_fields=['class_labels']))
 
 def get_val_transforms(height=640, width=640):
     """
-    Returns the Albumentations transform pipeline for validation/inference.
-    Mainly resizing and normalisation.
+    Returns the Albumentations transform pipeline for validation or inference.
+    Mainly applies resizing and normalisation.
     """
     return A.Compose([
         A.Resize(height, width),
