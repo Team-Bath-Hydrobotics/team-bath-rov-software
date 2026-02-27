@@ -10,3 +10,5 @@ packet-simulator/src/fake_videos/
 packet-simulator/fake_videos/
 >>>>>>> origin/main
 .mp4
+machine-learning/crab_detection/scripts/test_e2e.py
+/machine-learning/crab_detection/tests
