@@ -1,81 +1,91 @@
 import socket
+import threading
+import os
+import time
 
-ESP_IP = "192.168.4.1"
+ESP32_IP = "192.168.4.1"
 PORT = 1234
+outputPath = "telemetry.csv"
+running = False
+class Client():
+    def __init__(self, ip=ESP32_IP, port=PORT, output=outputPath):
+        self.ESP32_IP = ip
+        self.PORT = port
+        self.outputPath = output
+        self.running = False
 
-def send_command(command: str):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        print(f"Connecting to ESP32 at {ESP_IP}:{PORT}...")
-        s.connect((ESP_IP, PORT))
-        s.sendall(f"{command}\n".encode())
-        response = s.recv(1024)
-        print("ESP32:", response.decode())
+    def start(self):
+        if os.path.dirname(self.outputPath):
+            os.makedirs(os.path.dirname(self.outputPath), exist_ok=True)
+        print("Connecting to ESP32...")
 
-send_command("START")  # Start control loop
-#send_command("STOP")  # Stop control loop
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.sock.connect((self.ESP32_IP, self.PORT))
+        except Exception as e:
+            print("Connection failed:", e)
+            return
+        self.running = True
+        print("Connected to ESP32\n")
+        print("Commands:")
+        print("starttest, stoptest, pumpin, pumpout, readPressure, stopPressure\n")
+        # Start receiver thread
+        print("Starting telemetry receiver...")
+        threading.Thread(target=self.receive_loop, args=(self.sock,), daemon=True).start()
 
-"""
-#include <WiFi.h>
+        # Run send loop in main thread
+        print("Ready to send commands. Type 'exit' to quit.")
+        self.send_loop(self.sock)
 
-const char* ssid = "ESP32_AP";       // Network name you choose
-const char* password = "12345678";   // Network password you choose
+    def receive_loop(self, sock):
+        """Continuously receive telemetry from ESP32."""
+        with open(self.outputPath, "a") as f:
+          while self.running:
+              try:
+                  data = sock.recv(1024)
+                  if not data:
+                      print("Connection closed")
+                      self.running = False
+                      break
+                  for line in data.decode(errors="ignore").splitlines():
+                    f.write(f"{time.time()},{line.strip()}\n")
+                    f.flush()
 
-WiFiServer server(1234); // TCP port
-bool loopActive = false;
+              except Exception as e:
+                  print("Receive error:", e)
+                  self.running = False
+                  break
 
-void setup() {
-  Serial.begin(115200);
+    def send_loop(self, sock):
+        """Allow user to send commands."""
+        while self.running:
+            try:
+                cmd = input("> ")
 
-  // Start ESP32 as access point
-  WiFi.softAP(ssid, password);
-  Serial.println("Access Point started");
-  Serial.print("Connect to Wi-Fi SSID: ");
-  Serial.println(ssid);
-  Serial.print("AP IP address: ");
-  Serial.println(WiFi.softAPIP());
+                if cmd.lower() == "exit":
+                    try:
+                        sock.shutdown(socket.SHUT_RDWR)
+                    except:
+                        pass
+                    sock.close()
+                    self.running = False
+                    break
 
-  server.begin();
-  Serial.println("TCP server started");
-}
+                sock.sendall((cmd + "\n").encode())
 
-void startControlLoop() { loopActive = true; }
-void stopControlLoop() { loopActive = false; }
+            except Exception as e:
+                print("Send error:", e)
+                self.running = False
+                break
 
-void loop() {
-  WiFiClient client = server.available();
-  if (client) {
-    while (client.connected()) {
-      if (client.available()) {
-        String cmd = client.readStringUntil('\n');
-        cmd.trim();
-        if (cmd == "START") {
-          client.println("Starting control loop...");
-          startControlLoop();
-        } else if (cmd == "STOP") {
-          client.println("Stopping control loop...");
-          stopControlLoop();
-        } else {
-          client.println("Unknown command");
-        }
-      }
-    }
-    client.stop();
-  }
-
-  if (loopActive) {
-    int val = analogRead(34);
-    Serial.println(val);
-    delay(100);
-  }
-}
-"""
-
-"""
-Flash the ESP32 sketch that sets it up as an AP and runs the TCP server.
-
-On your computer, connect to the Wi-Fi network broadcast by the ESP32 (SSID/password you defined in the sketch, e.g., ESP32_AP / 12345678).
-
-Run your Python client code while connected. The Python script talks to the ESP32 over the TCP port (e.g., 1234) using the ESP32’s AP IP — usually 192.168.4.1 by default.
-
-Send commands like "START" or "STOP" — the ESP32 receives them and toggles the control loop.
-"""
+client = Client(ip=ESP32_IP, port=PORT, output=outputPath)
+try:
+    client.start()
+except KeyboardInterrupt:
+    print("\nExiting...")
+    client.running = False
+    try:
+        client.sock.shutdown(socket.SHUT_RDWR)
+    except:
+        pass
+    client.sock.close()
