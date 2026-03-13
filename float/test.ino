@@ -46,8 +46,8 @@ void setup() {
   //start data transmission
   Serial.begin(115200);
 
-  pinMode(D3, OUTPUT);
-  pinMode(D4, OUTPUT);
+  pinMode(A3, OUTPUT);
+  pinMode(A2, OUTPUT);
 
   //start WiFi as server 
   WiFi.mode(WIFI_AP);
@@ -89,11 +89,11 @@ void testSequence() {
 
   switch (step) {
     case 0: // Pump in 20 sec
-    //write pump to go in one direction, check this before testing in water, if opposite, swap d3 to low and d4 to high 
-    //swap d3 to high and d4 to low in the second case for when the pump swaps direction
+    //write pump to go in one direction, check this before testing in water, if opposite, swap A3 to low and A2 to high 
+    //swap A3 to high and A2 to low in the second case for when the pump swaps direction
     //do similar swaps in loop function below where i have marked
-      digitalWrite(D3, HIGH);
-      digitalWrite(D4, LOW);
+      digitalWrite(A3, HIGH);
+      digitalWrite(A2, LOW);
 
       if (currentTime - stepStartTime >= 20000) {
         step = 1;
@@ -101,8 +101,8 @@ void testSequence() {
       }
       break;
     case 1: // Wait 5 sec
-      digitalWrite(D3, LOW);
-      digitalWrite(D4, LOW);
+      digitalWrite(A3, LOW);
+      digitalWrite(A2, LOW);
 
       if (currentTime - stepStartTime >= 5000) {
         step = 2;
@@ -110,8 +110,8 @@ void testSequence() {
       }
       break;
     case 2: //pump in opposite direction to first test case to pump water out
-      digitalWrite(D3, LOW);
-      digitalWrite(D4, HIGH);
+      digitalWrite(A3, LOW);
+      digitalWrite(A2, HIGH);
 
       if (currentTime - stepStartTime >= 20000) {
         stopSequence();
@@ -122,8 +122,8 @@ void testSequence() {
 
 //sequence to stop the test midway
 void stopSequence() {
-  digitalWrite(D3, LOW);
-  digitalWrite(D4, LOW);
+  digitalWrite(A3, LOW);
+  digitalWrite(A2, LOW);
   sequenceRunning = false;
   step = 0;
 }
@@ -224,33 +224,33 @@ void loop() {
 
   } else if (pumpIn) {
     //swap high with low and vice versa if the pump is pumping out instead of in
-    digitalWrite(D3, HIGH);
-    digitalWrite(D4, LOW);
+    digitalWrite(A3, HIGH);
+    digitalWrite(A2, LOW);
 
   //if the time since starting the pump sequence and current time is greater than the duration of the manual control, then stop the pumps
     if (millis() - manualStartTime >= MANUAL_DURATION) {
       pumpIn = false;
-      digitalWrite(D3, LOW);
-      digitalWrite(D4, LOW);
+      digitalWrite(A3, LOW);
+      digitalWrite(A2, LOW);
       Serial.println("Pump in complete");
     }
   } else if (pumpOut) {
     //swap high with low and vice versa if the pump is pumping in instead of out
-    digitalWrite(D3, LOW);
-    digitalWrite(D4, HIGH);
+    digitalWrite(A3, LOW);
+    digitalWrite(A2, HIGH);
 
     //if the time since starting the pump sequence and current time is greater than the duration of the manual control, then stop the pumps
     if (millis() - manualStartTime >= MANUAL_DURATION) {
       pumpOut = false;
-      digitalWrite(D3, LOW);
-      digitalWrite(D4, LOW);
+      digitalWrite(A3, LOW);
+      digitalWrite(A2, LOW);
       Serial.println("Pump out complete");
     }
 
   } else {
 
-    digitalWrite(D3, LOW);
-    digitalWrite(D4, LOW);
+    digitalWrite(A3, LOW);
+    digitalWrite(A2, LOW);
   }
 
   // read pressure telemetry at 20hz
