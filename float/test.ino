@@ -8,6 +8,20 @@
 #define CMD_CONVERT_D2 0x58
 #define CMD_ADC_READ 0x00
 uint16_t C[7];
+// ── Ring buffer for offline storage ───────────────────────
+#define BUFFER_SIZE 300  // 5 minutes at 1hz
+
+struct DataPoint {
+  uint32_t timestamp;
+  float temperature;
+  float pressure;
+  float depth;
+};
+
+DataPoint ringBuffer[BUFFER_SIZE];
+int bufferHead = 0;      // where next write goes
+int bufferCount = 0;     // how many valid entries
+unsigned long lastBuffered = 0;
 
 const char* ssid = "hydroboticsDataTransmission";
 const char* password = "controlfloat";
@@ -119,6 +133,12 @@ void loop() {
 
   // Accept new client only if none is connected
   if (!client.connected()) {
+    // Clean up old connection if there was one
+    if (client) {
+        client.stop();
+        msgBuffer = ""; // clear any partial messages
+        Serial.println("Client disconnected, cleaning up...");
+    }
     //initiates a new client if there is no client currently connected 
     WiFiClient newClient = server.available();
     if (newClient) {
@@ -126,6 +146,7 @@ void loop() {
       //outputs connected to esp32 on client network
       Serial.println("Client connected!");
       client.println("Connected to ESP32");
+      dumpBuffer();  // send any stored data first
       for (int i = 0; i < 7; i++) {
         client.println(C[i]);
       }
@@ -319,4 +340,36 @@ void readPressureSensor() {
       ",TIME:" + String(millis())
     );
   }
+  // 1hz buffer save (always runs, connected or not)
+  if (millis() - lastBuffered >= 1000) {
+    lastBuffered = millis();
+    saveToBuffer(temperature_C, pressure_mbar, depth_m);
+  }
+}
+
+void saveToBuffer(float temp, float pressure, float depth) {
+  ringBuffer[bufferHead] = { millis(), temp, pressure, depth };
+  bufferHead = (bufferHead + 1) % BUFFER_SIZE;
+  if (bufferCount < BUFFER_SIZE) bufferCount++;
+}
+
+void dumpBuffer() {
+  if (bufferCount == 0) return;
+  client.println("BUFFER_START:" + String(bufferCount));
+  // walk from oldest to newest
+  int start = (bufferHead - bufferCount + BUFFER_SIZE) % BUFFER_SIZE;
+  for (int i = 0; i < bufferCount; i++) {
+    int idx = (start + i) % BUFFER_SIZE;
+    DataPoint& p = ringBuffer[idx];
+    client.println(
+      "BUF,TIME:" + String(p.timestamp) +
+      ",T:" + String(p.temperature, 2) +
+      ",P:" + String(p.pressure, 2) +
+      ",D:" + String(p.depth, 2)
+    );
+  }
+  client.println("BUFFER_END");
+  // clear after sending
+  bufferCount = 0;
+  bufferHead = 0;
 }
