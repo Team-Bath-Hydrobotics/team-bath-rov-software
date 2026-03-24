@@ -14,7 +14,9 @@ nav:
       - Preprocessor: projects/preprocessor/preprocessor.md
       - Schema Registry: projects/schema-registry/schema-registry.md
       - Photogrammetry: projects/photogrammetry/photogrammetry.md
-      - Pilot Operations Guide: projects/photogrammetry/pilot-operations-guide.md
+      - Photogrammetry Pilot Guide: projects/photogrammetry/pilot-operations-guide.md
+      - Iceberg Threat Calculator: projects/iceberg/iceberg.md
+      - Iceberg Pilot Guide: projects/iceberg/pilot-operations-guide.md
       - UI: projects/ui/ui.md
   - Other:
       - "25-26 Team": other/25-26/team.md
