@@ -16,5 +16,8 @@ nav:
       - Photogrammetry: projects/photogrammetry/photogrammetry.md
       - Pilot Operations Guide: projects/photogrammetry/pilot-operations-guide.md
       - UI: projects/ui/ui.md
+  - ADRS:
+      - 2026: 
+            - DB-ADR: adrs/2026/db-adr.md
   - Other:
       - "25-26 Team": other/25-26/team.md

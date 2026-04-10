@@ -1,5 +1,10 @@
+import sys
 import argparse
 import os
+
+# Add project root to path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import cv2
 import glob
 from src.pipeline import CrabPipeline

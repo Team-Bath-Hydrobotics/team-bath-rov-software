@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.utils.dataset import SyntheticCrabDataset
-from src.utils.transforms import get_train_transforms, get_val_transforms
+from src.utils.transforms import get_crab_transforms, get_bg_transforms, get_val_transforms
 
 def generate_split(dataset, output_dir, split_name):
     """
@@ -124,7 +124,8 @@ def main():
         background_files=bg_files,
         crab_images=crab_images,
         num_samples=n_train,
-        transform=get_train_transforms(640, 640)
+        crab_transform=get_crab_transforms(),
+        bg_transform=get_bg_transforms(640, 640)
     )
     generate_split(train_ds, args.output, 'train')
     
@@ -133,7 +134,8 @@ def main():
         background_files=bg_files,
         crab_images=crab_images,
         num_samples=n_val,
-        transform=get_val_transforms(640, 640)
+        crab_transform=None,
+        bg_transform=get_val_transforms(640, 640)
     )
     generate_split(val_ds, args.output, 'val')
     
@@ -142,7 +144,8 @@ def main():
         background_files=bg_files,
         crab_images=crab_images,
         num_samples=n_test,
-        transform=get_val_transforms(640, 640)
+        crab_transform=None,
+        bg_transform=get_val_transforms(640, 640)
     )
     generate_split(test_ds, args.output, 'test')
     

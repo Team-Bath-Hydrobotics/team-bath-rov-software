@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - "photogrammetry-backend/**"
+      - ".github/workflows/build-photogrammetry.yml"
 
 env:
   REGISTRY: ghcr.io
@@ -65,13 +66,13 @@ jobs:
         run: docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} colmap help
 
       - name: Verify OpenMVS TextureMesh binary
-        run: docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} /usr/local/bin/OpenMVS/TextureMesh --help
+        run: docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} /usr/local/bin/OpenMVS/TextureMesh --help 2>&1 | grep -q "Available options"
 
       - name: Verify OpenMVS DensifyPointCloud binary
-        run: docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} /usr/local/bin/OpenMVS/DensifyPointCloud --help
+        run: docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} /usr/local/bin/OpenMVS/DensifyPointCloud --help 2>&1 | grep -q "Available options"
 
       - name: Verify OpenMVS ReconstructMesh binary
-        run: docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} /usr/local/bin/OpenMVS/ReconstructMesh --help
+        run: docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} /usr/local/bin/OpenMVS/ReconstructMesh --help 2>&1 | grep -q "Available options"
 
       - name: Verify API starts
         run: |
