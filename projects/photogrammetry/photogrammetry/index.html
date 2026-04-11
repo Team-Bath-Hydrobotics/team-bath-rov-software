@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../../img/favicon.ico">
+        <title>Photogrammetry - Team Bath ROV Software Documentation</title>
+        <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../../css/brands.min.css" rel="stylesheet">
+        <link href="../../../css/solid.min.css" rel="stylesheet">
+        <link href="../../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../../..">Team Bath ROV Software Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">General</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../general/getting-started/" class="dropdown-item">Getting Started</a>
+</li>
+                                    
+<li>
+    <a href="../../../general/architecture/" class="dropdown-item">Architecture</a>
+</li>
+                                    
+<li>
+    <a href="../../../general/development/" class="dropdown-item">Development</a>
+</li>
+                                    
+<li>
+    <a href="../../../general/git/" class="dropdown-item">Git</a>
+</li>
+                                    
+<li>
+    <a href="../../../general/pr/" class="dropdown-item">Pull Requests</a>
+</li>
+                                    
+<li>
+    <a href="../../../general/roadmap/" class="dropdown-item">Roadmap</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Projects</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../db-writer/db-writer/" class="dropdown-item">DB Writer</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active" aria-current="page">Photogrammetry</a>
+</li>
+                                    
+<li>
+    <a href="../../crab-detection/crab-detection/" class="dropdown-item">Crab-Detection</a>
+</li>
+                                    
+<li>
+    <a href="../pilot-operations-guide/" class="dropdown-item">Pilot Operations Guide</a>
+</li>
+                                    
+<li>
+    <a href="../../ui/ui/" class="dropdown-item">UI</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">ADRS</a>
+                                <ul class="dropdown-menu">
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">2026</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../../adrs/2026/db-adr/" class="dropdown-item">DB-ADR</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Other</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../other/25-26/team/" class="dropdown-item">25-26 Team</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../../db-writer/db-writer/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../../crab-detection/crab-detection/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#photogrammetry-backend" class="nav-link">Photogrammetry Backend</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#what-is-this" class="nav-link">What is this?</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#architecture-overview" class="nav-link">Architecture Overview</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#quick-start" class="nav-link">Quick Start</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#how-to-test-the-pipeline" class="nav-link">How to Test the Pipeline</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#api-endpoints" class="nav-link">API Endpoints</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#how-the-pipeline-works" class="nav-link">How the Pipeline Works</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#project-structure" class="nav-link">Project Structure</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#docker-explained" class="nav-link">Docker Explained</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#cicd-automatic-image-builds" class="nav-link">CI/CD: Automatic Image Builds</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#competition-deployment" class="nav-link">Competition Deployment</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#troubleshooting" class="nav-link">Troubleshooting</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="photogrammetry-backend">Photogrammetry Backend</h1>
+<h2 id="what-is-this">What is this?</h2>
+<p>This is a FastAPI microservice for <strong>MATE 2026 Task 1.2</strong> (Coral Garden Ridge Modelling) that turns a set of overlapping photos into a 3D model (<code>.glb</code> file). It uses <a href="https://colmap.github.io/">COLMAP</a> (Structure from Motion) for sparse reconstruction and <a href="https://github.com/cdcseacave/openMVS">OpenMVS</a> for dense reconstruction, producing high-quality meshes with hundreds of thousands of points.</p>
+<p>The whole thing runs inside a <strong>Docker container</strong> — a lightweight, isolated environment that packages the app along with COLMAP and OpenMVS (both compiled from source, CPU-only) and all Python dependencies. This means you don't need to install anything on your machine except Docker.</p>
+<h3 id="competition-context">Competition Context</h3>
+<p>The coral garden is a PVC structure (1-2.5 m long, ~36 cm wide, unknown height) with eight 10 cm x 10 cm colored target squares. The scoring flow:</p>
+<ol>
+<li><strong>Pilot measures length</strong> with ROV tools → reports to judge → <strong>judge gives TRUE length</strong> (10 pts if within 5 cm)</li>
+<li><strong>3D model</strong> generated from photos → scored by target visibility (5-20 pts)</li>
+<li><strong>True length entered</strong> → model is scaled → <strong>height estimated</strong> digitally (5 pts for scaling + 5 pts if height within 5 cm)</li>
+</ol>
+<p>Option A (photogrammetry): up to <strong>40 pts</strong>. Option B (manual CAD with physical measurements): up to <strong>30 pts</strong>. Teams can attempt both and take the higher score. See the <a href="../pilot-operations-guide/">Pilot Operations Guide</a> for the full competition procedure.</p>
+<hr />
+<h2 id="architecture-overview">Architecture Overview</h2>
+<pre><code>┌─────────────┐     ┌──────────────────────────────────────────┐
+│   Frontend   │────&gt;│         Docker Container (port 8100)     │
+│  (React app) │&lt;────│                                          │
+│  :5173       │     │  FastAPI Server (uvicorn, 2 workers)     │
+└─────────────┘     │    ├── /api/upload        (receive imgs) │
+                     │    ├── /api/jobs          (track status) │
+                     │    ├── /api/photogrammetry/run  (start)  │
+                     │    └── /api/jobs/{id}/model (get .glb)   │
+                     │                                          │
+                     │  COLMAP Pipeline (background thread)     │
+                     │    └── feature_extractor → matcher →     │
+                     │        mapper → undistort                │
+                     │                                          │
+                     │  OpenMVS Dense Pipeline                  │
+                     │    └── densify → mesh → texture → .glb   │
+                     │                                          │
+                     │  /app/data/                              │
+                     │    ├── uploads/{job_id}/  (input images) │
+                     │    ├── outputs/{job_id}/  (model.glb)    │
+                     │    └── jobs.json          (job state)    │
+                     └──────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li><a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a> installed and running</li>
+<li><a href="https://cli.github.com/">GitHub CLI</a> (<code>gh</code>) for pulling the image</li>
+</ul>
+<h3 id="1-authenticate-with-github-container-registry">1. Authenticate with GitHub Container Registry</h3>
+<pre><code class="language-bash"># One-time setup: ensure your gh token has packages scope
+gh auth refresh -h github.com -s read:packages,write:packages
+
+# Login Docker to GHCR
+echo $(gh auth token) | docker login ghcr.io -u $(gh api user -q .login) --password-stdin
+</code></pre>
+<h3 id="2-start-the-container">2. Start the container</h3>
+<pre><code class="language-bash">docker compose -f docker-compose.photogrammetry.yml up
+</code></pre>
+<p>This pulls the pre-built image from <code>ghcr.io/team-bath-hydrobotics/photogrammetry-backend:latest</code> and starts the server on <strong>http://localhost:8100</strong>.</p>
+<h3 id="3-verify-its-running">3. Verify it's running</h3>
+<pre><code class="language-bash">curl http://localhost:8100/api/health
+# → {&quot;status&quot;:&quot;ok&quot;,&quot;version&quot;:&quot;1.0.0&quot;}
+</code></pre>
+<h3 id="4-stop-the-container">4. Stop the container</h3>
+<p>Press <code>Ctrl+C</code> in the terminal, or:</p>
+<pre><code class="language-bash">docker compose -f docker-compose.photogrammetry.yml down
+</code></pre>
+<hr />
+<h2 id="how-to-test-the-pipeline">How to Test the Pipeline</h2>
+<h3 id="automated-test-with-coral-reef-images">Automated test with coral reef images</h3>
+<p>The easiest way to test end-to-end. Downloads real underwater coral images from the <a href="https://huggingface.co/datasets/wildflow/sweet-corals">wildflow/sweet-corals</a> HuggingFace dataset:</p>
+<pre><code class="language-bash"># Run with 15 images (default)
+./photogrammetry-backend/scripts/test_coral_pipeline.sh
+
+# Or specify a number
+./photogrammetry-backend/scripts/test_coral_pipeline.sh 20
+</code></pre>
+<p>The script creates a job, downloads images, uploads them, starts the pipeline, and polls until completion. The output model will be saved as instructed.</p>
+<h3 id="interactive-api-docs">Interactive API docs</h3>
+<p>Open <strong>http://localhost:8100/docs</strong> in your browser — this gives you a Swagger UI where you can try every endpoint.</p>
+<h3 id="step-by-step-with-curl">Step-by-step with curl</h3>
+<pre><code class="language-bash"># 1. Create a job
+curl -X POST http://localhost:8100/api/jobs
+# → {&quot;id&quot;: &quot;abc-123&quot;, &quot;status&quot;: &quot;PENDING&quot;, ...}
+
+# 2. Upload images (at least 3 overlapping photos of the same object)
+curl -X POST http://localhost:8100/api/upload \
+  -F &quot;job_id=abc-123&quot; \
+  -F &quot;files=@photo1.jpg&quot; \
+  -F &quot;files=@photo2.jpg&quot; \
+  -F &quot;files=@photo3.jpg&quot;
+
+# 3. Start the photogrammetry pipeline
+curl -X POST http://localhost:8100/api/photogrammetry/run \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;job_id&quot;: &quot;abc-123&quot;}'
+# → {&quot;job_id&quot;: &quot;abc-123&quot;, &quot;status&quot;: &quot;reconstructing&quot;}
+
+# 4. Poll for progress
+curl http://localhost:8100/api/jobs/abc-123
+# → {&quot;id&quot;: &quot;abc-123&quot;, &quot;status&quot;: &quot;RECONSTRUCTING&quot;, &quot;progress&quot;: 45, &quot;stage&quot;: &quot;feature_matching&quot;, ...}
+# Keep polling until status is &quot;COMPLETE&quot; or &quot;error&quot;
+
+# 5. Download the 3D model
+curl http://localhost:8100/api/jobs/abc-123/model -o model.glb
+</code></pre>
+<h3 id="tips-for-good-results">Tips for good results</h3>
+<ul>
+<li>Use <strong>at least 10-20 photos</strong> with significant overlap (60-80%)</li>
+<li>Shoot from different angles around the object</li>
+<li>Consistent lighting, avoid motion blur</li>
+<li>The minimum is 3 images, but more = better reconstruction</li>
+<li>On 8GB RAM machines, the pipeline limits images to 2000px and uses 1 thread to avoid OOM</li>
+</ul>
+<hr />
+<h2 id="api-endpoints">API Endpoints</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/health</code></td>
+<td>Health check</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/jobs</code></td>
+<td>Create a new job</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/jobs</code></td>
+<td>List all jobs</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/jobs/{job_id}</code></td>
+<td>Get job status and progress</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/upload</code></td>
+<td>Upload images to a job</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/photogrammetry/run</code></td>
+<td>Start the reconstruction pipeline</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/jobs/{job_id}/model</code></td>
+<td>Download the generated <code>.glb</code> model</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/manual-cad/generate</code></td>
+<td>Generate a CAD model from manual measurements</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/scaling/estimate</code></td>
+<td>Estimate scale from a reference object</td>
+</tr>
+</tbody>
+</table>
+<h3 id="job-statuses">Job Statuses</h3>
+<pre><code>PENDING → RECONSTRUCTING → MESHING → EXPORTING → COMPLETE
+                                                    or
+                                               → error
+</code></pre>
+<p>The <code>progress</code> field (0-100) and <code>stage</code> field give finer-grained tracking:</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Progress</th>
+<th>What's happening</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feature_extraction</code></td>
+<td>0-15%</td>
+<td>COLMAP extracts SIFT features from each image</td>
+</tr>
+<tr>
+<td><code>feature_matching</code></td>
+<td>15-35%</td>
+<td>Matches features between all image pairs</td>
+</tr>
+<tr>
+<td><code>reconstruction</code></td>
+<td>35-55%</td>
+<td>Solves camera positions and builds sparse 3D point cloud</td>
+</tr>
+<tr>
+<td><code>undistort</code></td>
+<td>55-60%</td>
+<td>Prepares images for dense matching</td>
+</tr>
+<tr>
+<td><code>convert_to_mvs</code></td>
+<td>60-62%</td>
+<td>Converts COLMAP model to OpenMVS format</td>
+</tr>
+<tr>
+<td><code>densify</code></td>
+<td>62-80%</td>
+<td>OpenMVS computes dense depth maps on CPU</td>
+</tr>
+<tr>
+<td><code>reconstruct_mesh</code></td>
+<td>80-90%</td>
+<td>Creates mesh surface from dense points</td>
+</tr>
+<tr>
+<td><code>texture_mesh</code></td>
+<td>90-97%</td>
+<td>Projects photos onto mesh for photorealistic texturing</td>
+</tr>
+<tr>
+<td><code>exporting</code></td>
+<td>97-100%</td>
+<td>Exports final GLB file</td>
+</tr>
+<tr>
+<td><code>complete</code></td>
+<td>100%</td>
+<td>Done — model is ready to download</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="how-the-pipeline-works">How the Pipeline Works</h2>
+<h3 id="1-colmap-structure-from-motion">1. COLMAP (Structure from Motion)</h3>
+<p>COLMAP takes overlapping images and figures out where each camera was when the photo was taken, then builds a sparse 3D point cloud:</p>
+<ol>
+<li><strong>Feature Extraction</strong> (<code>feature_extractor</code>) — finds distinctive SIFT keypoints in each image (up to 8192 per image, downscaled to max 2400px, first_octave=0 for memory safety on 8GB machines)</li>
+<li><strong>Feature Matching</strong> (<code>exhaustive_matcher</code>) — compares every pair of images to find matching keypoints. This is O(n²) so 20 images = 190 pairs</li>
+<li><strong>Sparse Reconstruction</strong> (<code>mapper</code>) — uses the matches to solve for camera poses (position + orientation) and triangulate 3D points</li>
+</ol>
+<p>Each stage runs as a subprocess with a 20-minute timeout. GPU is disabled (<code>use_gpu=0</code>) because the Docker image is built CPU-only for broad compatibility.</p>
+<h3 id="2-openmvs-dense-reconstruction">2. OpenMVS Dense Reconstruction</h3>
+<p>If OpenMVS is available in the Docker image (it is by default), the pipeline continues with dense reconstruction instead of using the sparse point cloud directly. This dramatically improves model quality — going from ~5k sparse points to hundreds of thousands of dense points with proper texture.</p>
+<ol>
+<li><strong>Undistort Images</strong> (<code>colmap image_undistorter</code>) — prepares images for dense matching</li>
+<li><strong>Convert to MVS</strong> (<code>InterfaceCOLMAP</code>) — converts the COLMAP model to OpenMVS format</li>
+<li><strong>Densify Point Cloud</strong> (<code>DensifyPointCloud</code>) — computes dense depth maps for each image on CPU, producing a much denser point cloud (resolution-level 2 for memory safety)</li>
+<li><strong>Reconstruct Mesh</strong> (<code>ReconstructMesh</code>) — creates a mesh surface from the dense points</li>
+<li><strong>Texture Mesh</strong> (<code>TextureMesh</code>) — projects the original photos onto the mesh surface for photorealistic texturing, exports to GLB</li>
+</ol>
+<h3 id="3-fallback-sparse-mesh-processing-open3d-trimesh">3. Fallback: Sparse Mesh Processing (Open3D + trimesh)</h3>
+<p>If OpenMVS is not available, the pipeline falls back to sparse-only meshing:</p>
+<ol>
+<li><strong>PLY Export</strong> (<code>model_converter</code>) — exports the sparse point cloud as a <code>.ply</code> file</li>
+<li><strong>Outlier removal</strong> — removes statistical outliers (noisy points)</li>
+<li><strong>Downsample</strong> — if &gt;200k points, voxel-downsamples for memory safety</li>
+<li><strong>Estimate normals</strong> — calculates surface direction at each point using KDTree</li>
+<li><strong>Poisson reconstruction</strong> — creates a watertight mesh surface (depth 8-10 depending on point count)</li>
+<li><strong>Density trimming</strong> — removes the bottom 1% low-density vertices (noise)</li>
+<li><strong>Export GLB</strong> — saves as <code>.glb</code> via trimesh (viewable in any 3D viewer or browser)</li>
+</ol>
+<p>A Google Colab notebook for GPU-accelerated dense reconstruction (using COLMAP's <code>patch_match_stereo</code> instead of OpenMVS) is also available at <code>scripts/colmap_dense_colab.ipynb</code>.</p>
+<hr />
+<h2 id="project-structure">Project Structure</h2>
+<pre><code>photogrammetry-backend/
+├── app/
+│   ├── main.py                    # FastAPI app, startup, CORS, routes
+│   ├── config.py                  # Settings (port, dirs, CORS origins)
+│   ├── models/
+│   │   └── job.py                 # Job model and status enum
+│   ├── routers/
+│   │   ├── photogrammetry.py      # POST /api/photogrammetry/run
+│   │   ├── jobs.py                # Job CRUD endpoints
+│   │   ├── upload.py              # Streaming image upload endpoint
+│   │   ├── manual_cad.py          # Manual CAD generation
+│   │   └── scaling.py             # Scale estimation
+│   └── services/
+│       ├── colmap_pipeline.py     # COLMAP SfM + OpenMVS dense reconstruction
+│       ├── mesh_processor.py      # Point cloud → mesh → GLB (sparse fallback)
+│       └── job_manager.py         # File-based job store with flock
+├── scripts/
+│   ├── test_coral_pipeline.sh     # End-to-end test with coral reef images
+│   └── colmap_dense_colab.ipynb   # GPU dense reconstruction notebook
+├── Dockerfile                     # Multi-stage build (compile COLMAP + runtime)
+├── .dockerignore                  # Excludes data/, cache, etc from build
+├── requirements.txt               # Python dependencies
+└── PHOTOGRAMMETRY.md              # This file
+</code></pre>
+<hr />
+<h2 id="docker-explained">Docker Explained</h2>
+<h3 id="what-is-docker">What is Docker?</h3>
+<p>Docker packages an application and all its dependencies into a <strong>container</strong> — like a lightweight virtual machine. This means:</p>
+<ul>
+<li><strong>"It works on my machine"</strong> → it works everywhere</li>
+<li>No need to install COLMAP, Open3D, Ceres Solver, etc. on your laptop</li>
+<li>The container is isolated from your system</li>
+</ul>
+<h3 id="key-concepts">Key concepts</h3>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Image</strong></td>
+<td>A snapshot of the app + dependencies (like a template)</td>
+</tr>
+<tr>
+<td><strong>Container</strong></td>
+<td>A running instance of an image</td>
+</tr>
+<tr>
+<td><strong>Volume</strong></td>
+<td>Persistent storage that survives container restarts</td>
+</tr>
+<tr>
+<td><strong>GHCR</strong></td>
+<td>GitHub Container Registry — where our image is stored</td>
+</tr>
+<tr>
+<td><strong>docker compose</strong></td>
+<td>Tool to define and run multi-container apps with a YAML file</td>
+</tr>
+</tbody>
+</table>
+<h3 id="our-docker-setup">Our Docker setup</h3>
+<p>The Dockerfile uses a <strong>multi-stage build</strong>:</p>
+<ol>
+<li><strong>Builder stage</strong> (Ubuntu 22.04) — installs build dependencies (cmake, Boost, Eigen, Ceres, OpenCV, etc.), then compiles both <strong>COLMAP 3.9.1</strong> (CPU-only, <code>-DCUDA_ENABLED=OFF</code>) and <strong>OpenMVS v2.3.0</strong> (CPU-only, <code>-DOpenMVS_USE_CUDA=OFF</code>) from source</li>
+<li><strong>Runtime stage</strong> (Ubuntu 22.04) — installs only runtime libraries, copies the compiled COLMAP and OpenMVS binaries from the builder, installs Python deps, copies the app</li>
+</ol>
+<p>The image is built in the cloud via <strong>GitHub Actions</strong> because compiling COLMAP from source needs significant RAM and time (~1 hour for multi-arch). The image supports both <code>linux/amd64</code> and <code>linux/arm64</code>.</p>
+<ul>
+<li>Image: <code>ghcr.io/team-bath-hydrobotics/photogrammetry-backend</code></li>
+<li>Volume: <code>photogrammetry-data</code> persists uploaded images and output models</li>
+<li>Port: <code>8100</code> inside the container → <code>8100</code> on your machine</li>
+<li>Workers: 2 uvicorn workers (one can serve API requests while the other runs reconstruction)</li>
+</ul>
+<h3 id="useful-docker-commands">Useful Docker commands</h3>
+<pre><code class="language-bash"># Start the service
+docker compose -f docker-compose.photogrammetry.yml up
+
+# Start in background (detached)
+docker compose -f docker-compose.photogrammetry.yml up -d
+
+# View logs when running in background
+docker compose -f docker-compose.photogrammetry.yml logs -f
+
+# Stop the service
+docker compose -f docker-compose.photogrammetry.yml down
+
+# Pull the latest image
+docker pull ghcr.io/team-bath-hydrobotics/photogrammetry-backend:latest
+
+# See running containers
+docker ps
+
+# Shell into the running container (for debugging)
+docker exec -it team-bath-rov-software-photogrammetry-backend-1 bash
+
+# Check container memory usage
+docker stats --no-stream
+</code></pre>
+<hr />
+<h2 id="cicd-automatic-image-builds">CI/CD: Automatic Image Builds</h2>
+<p>The Docker image is automatically rebuilt when any file in <code>photogrammetry-backend/</code> changes on push, via GitHub Actions (<code>.github/workflows/build-photogrammetry.yml</code>).</p>
+<p>The build:
+- Triggers on push to <code>photogrammetry-backend/**</code> or manual dispatch
+- Uses QEMU + buildx for multi-arch (<code>linux/amd64</code> + <code>linux/arm64</code>)
+- Pushes to <code>ghcr.io/team-bath-hydrobotics/photogrammetry-backend</code>
+- Tags with both <code>latest</code> and the commit SHA</p>
+<p>You can also trigger a build manually:
+1. Go to <strong>Actions</strong> → <strong>Build Photogrammetry Backend</strong> → <strong>Run workflow</strong></p>
+<hr />
+<h2 id="competition-deployment">Competition Deployment</h2>
+<h3 id="what-happens-when-you-click-generate-model">What happens when you click "Generate Model"</h3>
+<p>The frontend makes three API calls in sequence:</p>
+<ol>
+<li><strong><code>POST /api/jobs</code></strong> — creates a job with a UUID</li>
+<li><strong><code>POST /api/upload</code></strong> — uploads the images as multipart form data</li>
+<li><strong><code>POST /api/photogrammetry/run</code></strong> — triggers reconstruction</li>
+</ol>
+<p>The backend returns immediately and runs the heavy reconstruction pipeline in a <strong>background thread</strong> inside the same Docker container. No new containers are started, no cloud services are involved.</p>
+<p>The frontend then <strong>polls every 2 seconds</strong> (<code>GET /api/jobs/{id}</code>) to get the progress percentage and stage name, updating the progress bar in real time. When the job reaches <code>complete</code>, it fetches the GLB model from <code>/api/jobs/{id}/model</code> and displays it in the 3D viewer.</p>
+<h3 id="how-long-will-it-take">How long will it take?</h3>
+<p>The pipeline is <strong>CPU-only</strong> (no GPU). Approximate times on a typical laptop:</p>
+<table>
+<thead>
+<tr>
+<th>Images</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10-20</td>
+<td>~5-15 minutes</td>
+</tr>
+<tr>
+<td>50+</td>
+<td>30-60+ minutes</td>
+</tr>
+</tbody>
+</table>
+<p>Feature matching is the bottleneck — it compares every pair of images (O(n²)), so 20 images = 190 pairs. Each stage has a 20-minute timeout to prevent hangs.</p>
+<h3 id="getting-it-running-at-competition">Getting it running at competition</h3>
+<p>Everything runs on <strong>one machine</strong> — no cloud, no separate servers. The competition laptop needs:</p>
+<ol>
+<li><strong>Docker</strong> installed and running</li>
+<li><strong>The Docker image</strong> available (pulled from GHCR or pre-loaded)</li>
+<li><strong>The frontend</strong> running (Vite dev server or built static files)</li>
+</ol>
+<h4 id="if-the-venue-has-internet">If the venue has internet</h4>
+<pre><code class="language-bash"># Pull the latest image and start the backend
+docker compose -f docker-compose.photogrammetry.yml up
+
+# In another terminal, start the frontend
+cd ../team-bath-rov-secondary-ui
+npm run dev
+</code></pre>
+<p>Docker will pull the pre-built image from <code>ghcr.io/team-bath-hydrobotics/photogrammetry-backend:latest</code> automatically.</p>
+<h4 id="if-the-venue-has-no-internet">If the venue has no internet</h4>
+<p>Pre-load the image before you go:</p>
+<pre><code class="language-bash"># On a machine with internet — save the image to a file
+docker pull ghcr.io/team-bath-hydrobotics/photogrammetry-backend:latest
+docker save ghcr.io/team-bath-hydrobotics/photogrammetry-backend:latest -o photogrammetry-backend.tar
+
+# Transfer photogrammetry-backend.tar to the competition laptop (USB stick, etc.)
+
+# On the competition laptop — load the image from file
+docker load -i photogrammetry-backend.tar
+
+# Then start normally
+docker compose -f docker-compose.photogrammetry.yml up
+</code></pre>
+<h4 id="how-the-frontend-finds-the-backend">How the frontend finds the backend</h4>
+<p>The frontend uses <strong>relative URLs</strong> (<code>/api/jobs</code>, <code>/api/upload</code>, etc.) with no hardcoded host. In development, Vite proxies <code>/api/*</code> requests to <code>http://localhost:8100</code> where the Docker container serves the backend. As long as both run on the same machine, it just works:</p>
+<ul>
+<li>Frontend: <code>http://localhost:5173</code> (Vite dev server)</li>
+<li>Backend: <code>http://localhost:8100</code> (Docker container)</li>
+</ul>
+<h3 id="pre-competition-checklist">Pre-competition checklist</h3>
+<ul>
+<li>[ ] Docker Desktop installed and running on the competition laptop</li>
+<li>[ ] Image pulled or pre-loaded (<code>docker images</code> should show <code>ghcr.io/team-bath-hydrobotics/photogrammetry-backend</code>)</li>
+<li>[ ] <code>node_modules</code> installed in the frontend repo (<code>npm install</code>)</li>
+<li>[ ] Test the full flow: upload images, generate model, verify it displays</li>
+<li>[ ] Verify the laptop has at least 8 GB RAM available for reconstruction</li>
+</ul>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="unauthorized-when-pulling-the-image">"unauthorized" when pulling the image</h3>
+<pre><code class="language-bash">gh auth refresh -h github.com -s read:packages,write:packages
+echo $(gh auth token) | docker login ghcr.io -u $(gh api user -q .login) --password-stdin
+</code></pre>
+<h3 id="container-wont-start-port-already-in-use">Container won't start / port already in use</h3>
+<pre><code class="language-bash">lsof -i :8100
+# Kill the process, or change the port in docker-compose.photogrammetry.yml
+</code></pre>
+<h3 id="pipeline-fails-with-not-enough-images">Pipeline fails with "not enough images"</h3>
+<p>You need at least 3 images. For good results, use 10-20 with lots of overlap.</p>
+<h3 id="docker-desktop-crashes-wont-reopen-macos">Docker Desktop crashes / won't reopen (macOS)</h3>
+<p>If Docker becomes unresponsive (often from OOM during reconstruction):
+1. Quit Docker Desktop
+2. Kill lingering processes: <code>killall com.docker.backend com.docker.build com.docker.virtualization docker</code>
+3. If that's not enough: <code>rm -rf ~/Library/Containers/com.docker.docker/Data/vms/0/data</code> (this resets Docker's VM disk — containers/images will need to be re-pulled)
+4. Reopen Docker Desktop</p>
+<h3 id="texturemesh-fails-on-apple-silicon-macs-no-colored-squares-on-model">TextureMesh fails on Apple Silicon Macs (no colored squares on model)</h3>
+<p>OpenMVS's <code>TextureMesh</code> binary uses x86 SSE instructions that don't work properly under Docker's ARM emulation on Apple Silicon Macs. The logs will show:</p>
+<pre><code>warning: no SSE compatible CPU or OS detected
+</code></pre>
+<p>The pipeline gracefully falls back to an untextured mesh — you still get geometry (height estimation works), but the colored target squares won't be visible, meaning you'd score only 5 pts instead of up to 20 pts for model quality.</p>
+<p><strong>This only affects Apple Silicon Macs.</strong> On an x86/Intel machine (which most competition laptops are), TextureMesh runs natively and textures work fine.</p>
+<p><strong>Workarounds:</strong></p>
+<ul>
+<li><strong>Test on an Intel machine</strong> — any x86 laptop or Linux server will run TextureMesh correctly</li>
+<li><strong>CI pipeline test</strong> — the GitHub Actions workflow runs on x86 (<code>ubuntu-latest</code>) and includes an integration test that verifies texture output</li>
+<li><strong>Competition laptop</strong> — confirm it's x86/Intel before the event. If it is, textures will work with no changes</li>
+</ul>
+<h3 id="pipeline-fails-at-feature_extraction-with-memory-warning">Pipeline fails at "feature_extraction" with memory warning</h3>
+<p>COLMAP's SIFT extraction can use a lot of RAM. The pipeline is configured for 8GB machines with conservative settings (1 thread, 2000px max, first_octave=0). If you still get OOM, reduce <code>max_image_size</code> in <code>colmap_pipeline.py</code>.</p>
+<h3 id="pipeline-fails-at-meshing">Pipeline fails at "meshing"</h3>
+<p>The mesh processor may run out of memory on large point clouds. It automatically downsamples if &gt;50k points and uses Poisson depth 8-9 depending on point count.</p>
+<h3 id="job-state-not-updating-workers-out-of-sync">Job state not updating / workers out of sync</h3>
+<p>Jobs are stored in <code>data/jobs.json</code> with file locking (<code>fcntl.flock</code>). If the file gets corrupted, delete it and restart: <code>docker exec &lt;container&gt; rm /app/data/jobs.json</code></p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../../js/base.js"></script>
+        <script src="../../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
