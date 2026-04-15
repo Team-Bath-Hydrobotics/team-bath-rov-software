@@ -7,7 +7,7 @@ logger = setup_logger("main")
 
 def start_service():
     # Initialise client
-    client = mqtt.Client()
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     
     # Attach callbacks
     client.on_connect = on_connect

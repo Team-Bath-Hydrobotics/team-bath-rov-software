@@ -7,14 +7,14 @@ from logger import setup_logger
 
 logger = setup_logger("mqtt_client")
 
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
+def on_connect(client, userdata, flags, reason_code, properties):
+    if reason_code == 0:
         logger.info("Successfully connected to MQTT broker.")
         # Subscribe (QoS 1)
         client.subscribe("hydrobotics/rov/+/telemetry", qos=1)
         logger.info("Subscribed to hydrobotics/rov/+/telemetry")
     else:
-        logger.error(f"Failed to connect to MQTT broker with return code {rc}")
+        logger.error(f"Failed to connect to MQTT broker with return code {reason_code}")
 
 def on_message(client, userdata, msg):
     try:
