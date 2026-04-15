@@ -1,5 +1,6 @@
 import logging
 
+
 def setup_logger(name: str = "db_writer") -> logging.Logger:
     logging.basicConfig(
         level=logging.INFO,

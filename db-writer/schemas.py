@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 from typing import Literal, Optional
+
+from pydantic import BaseModel
+
 
 class MetaData(BaseModel):
     rov_id: str
@@ -98,3 +100,4 @@ class TelemetryData(BaseModel):
 class ValidatedPayload(BaseModel):
     meta: MetaData
     telemetry: TelemetryData
+    

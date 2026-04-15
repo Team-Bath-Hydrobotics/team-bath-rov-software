@@ -1,9 +1,10 @@
 import json
+
 import paho.mqtt.client as mqtt
-from pydantic import ValidationError
-from schemas import ValidatedPayload
 from database import insert_telemetry
 from logger import setup_logger
+from pydantic import ValidationError
+from schemas import ValidatedPayload
 
 logger = setup_logger("mqtt_client")
 
@@ -35,3 +36,4 @@ def on_message(client, userdata, msg):
         logger.warning(f"Discarded message: Schema validation failed.\nDetails: {e.errors()}")
     except Exception as e:
         logger.error(f"Unexpected error processing message: {str(e)}")
+        

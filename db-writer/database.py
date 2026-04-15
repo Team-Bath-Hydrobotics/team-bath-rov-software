@@ -1,25 +1,28 @@
-from supabase import create_client, Client
 from datetime import datetime, timezone
-from schemas import ValidatedPayload
-from config import SUPABASE_URL, SUPABASE_KEY
+
+from config import SUPABASE_KEY, SUPABASE_URL
 from logger import setup_logger
+from schemas import ValidatedPayload
+from supabase import Client, create_client
 
 logger = setup_logger("database")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+
 def extract_value(reading):
     return reading.value if reading is not None else None
 
+
 def insert_telemetry(payload: ValidatedPayload) -> None:
     try:
-        ## Cast types and format timestamps
+        # Cast types and format timestamps
         # Postgres requires an integer for mission_id and ISO 8601 for timestamptz
         mission_id = int(payload.meta.mission_id)
         dt = datetime.fromtimestamp(payload.telemetry.timestamp, tz=timezone.utc)
         timestamp_iso = dt.isoformat()
 
-        ## Prepare base telemetry row
+        # Prepare base telemetry row
         telemetry_row = {
             "mission_id": mission_id,
             "timestamp": timestamp_iso,
@@ -52,7 +55,7 @@ def insert_telemetry(payload: ValidatedPayload) -> None:
         # Insert base telemetry (Supabase expects array of objects)
         supabase.table("telemetry").insert([telemetry_row]).execute()
 
-        ## Prepare, insert actuator telemetry
+        # Prepare, insert actuator telemetry
         # Relational --> Go into own table
         actuator_rows = []
         for i in range(1, 7):
@@ -71,3 +74,4 @@ def insert_telemetry(payload: ValidatedPayload) -> None:
     except Exception as e:
         # Log error but do not raise --> Prevent service from crashing
         logger.error(f"Supabase write failure for mission {payload.meta.mission_id}: {str(e)}")
+        

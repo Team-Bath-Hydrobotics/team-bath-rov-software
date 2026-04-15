@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 from config import MQTT_HOST, MQTT_PORT
-from mqtt_client import on_connect, on_message
 from logger import setup_logger
+from mqtt_client import on_connect, on_message
 
 logger = setup_logger("main")
 
@@ -29,3 +29,4 @@ def start_service():
 
 if __name__ == "__main__":
     start_service()
+    
