@@ -1,6 +1,4 @@
 import json
-
-import paho.mqtt.client as mqtt
 from database import insert_telemetry
 from logger import setup_logger
 from pydantic import ValidationError
