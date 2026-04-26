@@ -3,18 +3,14 @@ import signal
 import sys
 import threading
 import time
-import cv2
 
 from back_pressure_queue import BackpressureQueue
+from filters.basic_filters import Filter
 from mpegts.mpegts_client import MPEGTSClient
 from mpegts.mpegts_server import MPEGTSServer
 
 from common.metrics.metrics_monitor import MetricsMonitor
 from common.network.network_type import NetworkEnum
-<<<<<<< Updated upstream
-from filters.basic_filters import Filter
-=======
->>>>>>> Stashed changes
 
 
 class VideoProcessor:
@@ -37,7 +33,7 @@ class VideoProcessor:
             self.input_network_type,
             self.output_network_type,
             self.ws_relay_enabled,
-            self.ws_relay_base_port
+            self.ws_relay_base_port,
         ) = parse_network_args(network_config)
 
         self.running = False
@@ -134,7 +130,7 @@ class VideoProcessor:
                 frame_queue=frame_queue,
                 network_type=NetworkEnum(self.output_network_type),
                 ws_relay_enabled=self.ws_relay_enabled,
-                ws_relay_base_port=self.ws_relay_base_port
+                ws_relay_base_port=self.ws_relay_base_port,
             )
             self.servers[feed_id] = server
 
@@ -246,7 +242,6 @@ def parse_filter_args(feed_config):
 
 def parse_client_resilience_args(network_config):
     resilience_config = network_config.get("client_resilience", {})
-<<<<<<< Updated upstream
     base_delay_ms = resilience_config.get("base_delay_ms", 500)
     max_delay_ms = resilience_config.get("max_delay_ms", 30000)
     max_consecutive_failures = resilience_config.get("max_consecutive_failures", 10)
@@ -258,14 +253,6 @@ def parse_client_resilience_args(network_config):
         "max_consecutive_failures": max_consecutive_failures,
         "extended_cooldown_ms": extended_cooldown_ms,
         "max_frame_errors": max_frame_errors,
-=======
-    return {
-        "base_delay_ms": resilience_config.get("base_delay_ms", 500),
-        "max_delay_ms": resilience_config.get("max_delay_ms", 30000),
-        "max_consecutive_failures": resilience_config.get("max_consecutive_failures", 10),
-        "extended_cooldown_ms": resilience_config.get("extended_cooldown_ms", 60000),
-        "max_frame_errors": resilience_config.get("max_frame_errors", 100),
->>>>>>> Stashed changes
     }
 
 
