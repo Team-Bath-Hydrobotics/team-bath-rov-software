@@ -1,5 +1,5 @@
-import threading
 import subprocess
+import threading
 import time
 from abc import ABC, abstractmethod
 from typing import Dict, Optional
@@ -86,10 +86,10 @@ class MPEGTSBase(ABC):
     def log_status(self, last_time: float, interval: float = 5.0):
         now = time.time()
         if now - last_time >= interval:
-            #print(f"[Stream {self.stream_id}] Frames processed: {self.frame_counter}")
+            # print(f"[Stream {self.stream_id}] Frames processed: {self.frame_counter}")
             return now
         return last_time
-    
+
     def get_frame_size(self, is_input=True):
         """Calculate frame size in bytes for BGR24 format"""
         if self.input_format in ("gray"):

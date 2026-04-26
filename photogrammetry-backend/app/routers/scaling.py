@@ -1,8 +1,7 @@
-from fastapi import APIRouter, HTTPException
-
 from app.models.scaling import ScaleRequest, ScaleResponse
 from app.services.job_manager import job_manager
 from app.services.scaling_service import ScalingService
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 scaling_service = ScalingService()

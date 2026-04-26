@@ -5,27 +5,29 @@ import unittest
 
 import cv2
 import numpy as np
-
-# Add project root to path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from src.utils.transforms import get_train_transforms, apply_copy_paste
+from src.pipeline import CrabPipeline
 from src.utils.dataset import SyntheticCrabDataset
 from src.utils.helpers import count_green_crabs
-from src.pipeline import CrabPipeline
+from src.utils.transforms import apply_copy_paste, get_train_transforms
+
+# Add project root to path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 
 class TestTransforms(unittest.TestCase):
     def setUp(self):
         self.img = np.random.randint(0, 255, (640, 640, 3), dtype=np.uint8)
-        self.bboxes = [[0.5, 0.5, 0.2, 0.2]] # YOLO format
+        self.bboxes = [[0.5, 0.5, 0.2, 0.2]]  # YOLO format
         self.labels = [1]
 
     def test_train_transforms(self):
         transform = get_train_transforms(640, 640)
-        augmented = transform(image=self.img, bboxes=self.bboxes, class_labels=self.labels)
-        self.assertIn('image', augmented)
-        self.assertEqual(augmented['image'].shape, (640, 640, 3))
-    
+        augmented = transform(
+            image=self.img, bboxes=self.bboxes, class_labels=self.labels
+        )
+        self.assertIn("image", augmented)
+        self.assertEqual(augmented["image"].shape, (640, 640, 3))
+
     def test_copy_paste(self):
         bg = np.zeros((100, 100, 3), dtype=np.uint8)
         obj = np.ones((10, 10, 3), dtype=np.uint8) * 255
@@ -36,14 +38,18 @@ class TestTransforms(unittest.TestCase):
         self.assertEqual(len(bbox), 4)
         # Check area > 0 if visible
         if bbox[2] > 0 and bbox[3] > 0:
-             self.assertTrue(bbox[0] >= 0)
+            self.assertTrue(bbox[0] >= 0)
+
 
 class TestDataset(unittest.TestCase):
     def setUp(self):
-        self.test_dir = 'tests/tmp_dataset'
+        self.test_dir = "tests/tmp_dataset"
         os.makedirs(self.test_dir, exist_ok=True)
         # Create dummy bg image
-        cv2.imwrite(os.path.join(self.test_dir, 'bg.jpg'), np.zeros((100, 100, 3), dtype=np.uint8))
+        cv2.imwrite(
+            os.path.join(self.test_dir, "bg.jpg"),
+            np.zeros((100, 100, 3), dtype=np.uint8),
+        )
         # Dummy crab image
         self.crab_imgs = {0: [np.zeros((10, 10, 3), dtype=np.uint8)]}
 
@@ -51,7 +57,7 @@ class TestDataset(unittest.TestCase):
         shutil.rmtree(self.test_dir)
 
     def test_synthetic_generation(self):
-        bg_files = [os.path.join(self.test_dir, 'bg.jpg')]
+        bg_files = [os.path.join(self.test_dir, "bg.jpg")]
         ds = SyntheticCrabDataset(bg_files, self.crab_imgs, num_samples=2)
         img, bboxes, labels = ds[0]
         self.assertIsInstance(img, np.ndarray)
@@ -64,44 +70,50 @@ class TestDataset(unittest.TestCase):
 
     def test_overlap_prevention(self):
         # Force a small background and large object to ensure overlap is likely if unchecked
-        bg_files = [os.path.join(self.test_dir, 'bg.jpg')]
+        bg_files = [os.path.join(self.test_dir, "bg.jpg")]
         ds = SyntheticCrabDataset(bg_files, self.crab_imgs, num_samples=5)
         # Just ensure it runs without crashing and produces valid bboxes
         img, bboxes, labels = ds[0]
-        self.assertTrue(len(bboxes) <= 6) # <= 6 because random 1-5 crabs, not num_samples
+        self.assertTrue(
+            len(bboxes) <= 6
+        )  # <= 6 because random 1-5 crabs, not num_samples
+
 
 class TestHelpers(unittest.TestCase):
     def test_counting_multi(self):
         # [x1, y1, x2, y2, score, class_id]
         dets = [
-            [0,0,10,10, 0.9, 0], # Jonah
-            [0,0,10,10, 0.9, 1], # Green
-            [0,0,10,10, 0.9, 2], # Rock
-            [0,0,10,10, 0.9, 1]  # Green
+            [0, 0, 10, 10, 0.9, 0],  # Jonah
+            [0, 0, 10, 10, 0.9, 1],  # Green
+            [0, 0, 10, 10, 0.9, 2],  # Rock
+            [0, 0, 10, 10, 0.9, 1],  # Green
         ]
-        count = count_green_crabs(dets, mode='multi')
+        count = count_green_crabs(dets, mode="multi")
         self.assertEqual(count, 2)
 
     def test_counting_binary(self):
         # In binary: 0=Green, 1=Not
         dets = [
-            [0,0,10,10, 0.9, 0], # Green
-            [0,0,10,10, 0.9, 1], # Not Green
-            [0,0,10,10, 0.9, 0]  # Green
+            [0, 0, 10, 10, 0.9, 0],  # Green
+            [0, 0, 10, 10, 0.9, 1],  # Not Green
+            [0, 0, 10, 10, 0.9, 0],  # Green
         ]
-        count = count_green_crabs(dets, mode='binary')
+        count = count_green_crabs(dets, mode="binary")
         self.assertEqual(count, 2)
+
 
 class TestPipeline(unittest.TestCase):
     def test_yolo_pipeline_init(self):
         try:
             # We don't have weights downloaded in test env usually, so expect possible creation or failure if download blocks
             # But class instantiation should be fine
-            pipeline = CrabPipeline(model_type='yolov8', mode='multi')
+            pipeline = CrabPipeline(model_type="yolov8", mode="multi")
             self.assertIsNotNone(pipeline.detector)
         except Exception as e:
+            print(f"Pipeline initialization failed: {e}")
             # In No-Internet env, this might fail on download.
             pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

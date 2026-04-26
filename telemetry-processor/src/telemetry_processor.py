@@ -75,8 +75,12 @@ class TelemetryProcessor:
             raise ValueError(f"No schema defined for topic {topic}")
         self.schema = schema
         print(f"Using env vars: {self.env}")  # Debug print to verify env vars
-        broker_host = self.env.get("mqtt_broker_host") or mqtt_config.get("broker_host", "localhost")
-        broker_port = self.env.get("mqtt_broker_port") or mqtt_config.get("broker_port", 1883)
+        broker_host = self.env.get("mqtt_broker_host") or mqtt_config.get(
+            "broker_host", "localhost"
+        )
+        broker_port = self.env.get("mqtt_broker_port") or mqtt_config.get(
+            "broker_port", 1883
+        )
         self.publisher = MQTTPublisher(
             broker_host=broker_host,
             broker_port=int(broker_port),
@@ -260,40 +264,89 @@ class TelemetryProcessor:
         """
         print(f"Current telemetry state: {self.telemetry_state}")
         now = time.time()
-        
-        # Default structure for missing fields
-        default_field = {"value": 0, "unit": "", "timestamp": 0}
-        
+
         packet = {
             "timestamp": now,
             "id": "rov",
-            "attitude_x": self.telemetry_state.get("attitude_x", {"value": 0, "unit": "deg", "timestamp": 0}),
-            "attitude_y": self.telemetry_state.get("attitude_y", {"value": 0, "unit": "deg", "timestamp": 0}),
-            "attitude_z": self.telemetry_state.get("attitude_z", {"value": 0, "unit": "deg", "timestamp": 0}),
-            "angular_velocity_x": self.telemetry_state.get("angular_velocity_x", {"value": 0, "unit": "rad/s", "timestamp": 0}),
-            "angular_velocity_y": self.telemetry_state.get("angular_velocity_y", {"value": 0, "unit": "rad/s", "timestamp": 0}),
-            "angular_velocity_z": self.telemetry_state.get("angular_velocity_z", {"value": 0, "unit": "rad/s", "timestamp": 0}),
-            "angular_acceleration_x": self.telemetry_state.get("angular_acceleration_x", {"value": 0, "unit": "rad/s²", "timestamp": 0}),
-            "angular_acceleration_y": self.telemetry_state.get("angular_acceleration_y", {"value": 0, "unit": "rad/s²", "timestamp": 0}),
-            "angular_acceleration_z": self.telemetry_state.get("angular_acceleration_z", {"value": 0, "unit": "rad/s²", "timestamp": 0}),
-            "acceleration_x": self.telemetry_state.get("acceleration_x", {"value": 0, "unit": "m/s²", "timestamp": 0}),
-            "acceleration_y": self.telemetry_state.get("acceleration_y", {"value": 0, "unit": "m/s²", "timestamp": 0}),
-            "acceleration_z": self.telemetry_state.get("acceleration_z", {"value": 0, "unit": "m/s²", "timestamp": 0}),
-            "velocity_x": self.telemetry_state.get("velocity_x", {"value": 0, "unit": "m/s", "timestamp": 0}),
-            "velocity_y": self.telemetry_state.get("velocity_y", {"value": 0, "unit": "m/s", "timestamp": 0}),
-            "velocity_z": self.telemetry_state.get("velocity_z", {"value": 0, "unit": "m/s", "timestamp": 0}),
-            "depth": self.telemetry_state.get("depth", {"value": 0, "unit": "m", "timestamp": 0}),
-            "ambient_temperature": self.telemetry_state.get("ambient_temperature", {"value": 0, "unit": "C", "timestamp": 0}),
-            "internal_temperature": self.telemetry_state.get("internal_temperature", {"value": 0, "unit": "C", "timestamp": 0}),
-            "ambient_pressure": self.telemetry_state.get("ambient_pressure", {"value": 0, "unit": "Pa", "timestamp": 0}),
+            "attitude_x": self.telemetry_state.get(
+                "attitude_x", {"value": 0, "unit": "deg", "timestamp": 0}
+            ),
+            "attitude_y": self.telemetry_state.get(
+                "attitude_y", {"value": 0, "unit": "deg", "timestamp": 0}
+            ),
+            "attitude_z": self.telemetry_state.get(
+                "attitude_z", {"value": 0, "unit": "deg", "timestamp": 0}
+            ),
+            "angular_velocity_x": self.telemetry_state.get(
+                "angular_velocity_x", {"value": 0, "unit": "rad/s", "timestamp": 0}
+            ),
+            "angular_velocity_y": self.telemetry_state.get(
+                "angular_velocity_y", {"value": 0, "unit": "rad/s", "timestamp": 0}
+            ),
+            "angular_velocity_z": self.telemetry_state.get(
+                "angular_velocity_z", {"value": 0, "unit": "rad/s", "timestamp": 0}
+            ),
+            "angular_acceleration_x": self.telemetry_state.get(
+                "angular_acceleration_x", {"value": 0, "unit": "rad/s²", "timestamp": 0}
+            ),
+            "angular_acceleration_y": self.telemetry_state.get(
+                "angular_acceleration_y", {"value": 0, "unit": "rad/s²", "timestamp": 0}
+            ),
+            "angular_acceleration_z": self.telemetry_state.get(
+                "angular_acceleration_z", {"value": 0, "unit": "rad/s²", "timestamp": 0}
+            ),
+            "acceleration_x": self.telemetry_state.get(
+                "acceleration_x", {"value": 0, "unit": "m/s²", "timestamp": 0}
+            ),
+            "acceleration_y": self.telemetry_state.get(
+                "acceleration_y", {"value": 0, "unit": "m/s²", "timestamp": 0}
+            ),
+            "acceleration_z": self.telemetry_state.get(
+                "acceleration_z", {"value": 0, "unit": "m/s²", "timestamp": 0}
+            ),
+            "velocity_x": self.telemetry_state.get(
+                "velocity_x", {"value": 0, "unit": "m/s", "timestamp": 0}
+            ),
+            "velocity_y": self.telemetry_state.get(
+                "velocity_y", {"value": 0, "unit": "m/s", "timestamp": 0}
+            ),
+            "velocity_z": self.telemetry_state.get(
+                "velocity_z", {"value": 0, "unit": "m/s", "timestamp": 0}
+            ),
+            "depth": self.telemetry_state.get(
+                "depth", {"value": 0, "unit": "m", "timestamp": 0}
+            ),
+            "ambient_temperature": self.telemetry_state.get(
+                "ambient_temperature", {"value": 0, "unit": "C", "timestamp": 0}
+            ),
+            "internal_temperature": self.telemetry_state.get(
+                "internal_temperature", {"value": 0, "unit": "C", "timestamp": 0}
+            ),
+            "ambient_pressure": self.telemetry_state.get(
+                "ambient_pressure", {"value": 0, "unit": "Pa", "timestamp": 0}
+            ),
             "cardinal_direction": self.telemetry_state.get("cardinal_direction", ""),
-            "grove_water_sensor": self.telemetry_state.get("grove_water_sensor", {"value": 0, "unit": "?", "timestamp": 0}),
-            "actuator_1": self.telemetry_state.get("actuator_1", {"value": 0, "unit": "%", "timestamp": 0}),
-            "actuator_2": self.telemetry_state.get("actuator_2", {"value": 0, "unit": "%", "timestamp": 0}),
-            "actuator_3": self.telemetry_state.get("actuator_3", {"value": 0, "unit": "%", "timestamp": 0}),
-            "actuator_4": self.telemetry_state.get("actuator_4", {"value": 0, "unit": "%", "timestamp": 0}),
-            "actuator_5": self.telemetry_state.get("actuator_5", {"value": 0, "unit": "%", "timestamp": 0}),
-            "actuator_6": self.telemetry_state.get("actuator_6", {"value": 0, "unit": "%", "timestamp": 0}),
+            "grove_water_sensor": self.telemetry_state.get(
+                "grove_water_sensor", {"value": 0, "unit": "?", "timestamp": 0}
+            ),
+            "actuator_1": self.telemetry_state.get(
+                "actuator_1", {"value": 0, "unit": "%", "timestamp": 0}
+            ),
+            "actuator_2": self.telemetry_state.get(
+                "actuator_2", {"value": 0, "unit": "%", "timestamp": 0}
+            ),
+            "actuator_3": self.telemetry_state.get(
+                "actuator_3", {"value": 0, "unit": "%", "timestamp": 0}
+            ),
+            "actuator_4": self.telemetry_state.get(
+                "actuator_4", {"value": 0, "unit": "%", "timestamp": 0}
+            ),
+            "actuator_5": self.telemetry_state.get(
+                "actuator_5", {"value": 0, "unit": "%", "timestamp": 0}
+            ),
+            "actuator_6": self.telemetry_state.get(
+                "actuator_6", {"value": 0, "unit": "%", "timestamp": 0}
+            ),
         }
 
         try:

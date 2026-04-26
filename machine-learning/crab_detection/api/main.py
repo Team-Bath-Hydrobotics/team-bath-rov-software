@@ -1,21 +1,23 @@
-import os
-import gc
-import threading
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 import base64
-import numpy as np
-import cv2
-from src.pipeline import CrabPipeline
+import gc
+import logging
+import os
+import threading
 import tomllib
 from pathlib import Path
-import logging
+
+import cv2
+import numpy as np
 from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from src.pipeline import CrabPipeline
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=False)
+
 
 def get_version():
     pyproject = Path(__file__).resolve().parents[1] / "pyproject.toml"
@@ -23,12 +25,13 @@ def get_version():
         data = tomllib.load(f)
     return data["tool"]["poetry"]["version"]
 
+
 APP_VERSION = get_version()
 
 app = FastAPI()
 
 pipeline = None
-model= None
+model = None
 pipeline_lock = threading.Lock()
 
 
@@ -42,6 +45,7 @@ def resolve_model_from_env():
         normalized = "yolov8"
     return normalized
 
+
 def to_jsonable(value):
     if isinstance(value, np.floating):
         return float(value)
@@ -54,6 +58,7 @@ def to_jsonable(value):
     if isinstance(value, (list, tuple)):
         return [to_jsonable(item) for item in value]
     return value
+
 
 @app.on_event("startup")
 def startup():
@@ -85,8 +90,10 @@ def shutdown():
     model = None
     gc.collect()
 
+
 class FrameRequest(BaseModel):
     frame: str
+
 
 @app.get("/model")
 def model_info():
@@ -97,9 +104,9 @@ def model_info():
         "model": model,
     }
 
+
 @app.post("/detect")
 def detect(request: FrameRequest):
-
     active_pipeline = get_pipeline()
 
     image_bytes = base64.b64decode(request.frame)
@@ -108,13 +115,15 @@ def detect(request: FrameRequest):
 
     if frame is None:
         raise HTTPException(status_code=400, detail="Could not decode image")
-    
+
     processed, count, detections = active_pipeline.process_frame(frame)
-    
+
     # Convert detections (list-based or dict-based) and numpy values for JSON serialization
     serializable_detections = to_jsonable(detections)
     return {
-        "processed_frame": base64.b64encode(cv2.imencode('.jpg', processed)[1]).decode('utf-8'),
+        "processed_frame": base64.b64encode(cv2.imencode(".jpg", processed)[1]).decode(
+            "utf-8"
+        ),
         "detections": serializable_detections,
-        "count": int(count)
+        "count": int(count),
     }

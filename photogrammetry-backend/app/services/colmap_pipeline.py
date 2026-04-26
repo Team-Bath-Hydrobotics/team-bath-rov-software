@@ -60,7 +60,11 @@ class ColmapPipeline:
         return self._run_cmd([COLMAP_BIN] + args, job_id, stage_name)
 
     def _run_openmvs(
-        self, binary: str, args: list[str], job_id: str, stage_name: str,
+        self,
+        binary: str,
+        args: list[str],
+        job_id: str,
+        stage_name: str,
         working_dir: Path | None = None,
     ) -> bool:
         """Run an OpenMVS command."""
@@ -129,42 +133,69 @@ class ColmapPipeline:
                 progress=0,
                 stage="feature_extraction",
             )
-            if not self._run_colmap([
-                "feature_extractor",
-                "--database_path", str(db_path),
-                "--image_path", str(image_dir),
-                "--ImageReader.single_camera", "1",
-                "--ImageReader.camera_model", "SIMPLE_RADIAL",
-                "--SiftExtraction.use_gpu", "0",
-                "--SiftExtraction.max_num_features", "8192",
-                "--SiftExtraction.max_image_size", "2400",
-                "--SiftExtraction.first_octave", "0",
-                "--SiftExtraction.num_threads", "2",
-            ], job_id, "feature_extraction"):
+            if not self._run_colmap(
+                [
+                    "feature_extractor",
+                    "--database_path",
+                    str(db_path),
+                    "--image_path",
+                    str(image_dir),
+                    "--ImageReader.single_camera",
+                    "1",
+                    "--ImageReader.camera_model",
+                    "SIMPLE_RADIAL",
+                    "--SiftExtraction.use_gpu",
+                    "0",
+                    "--SiftExtraction.max_num_features",
+                    "8192",
+                    "--SiftExtraction.max_image_size",
+                    "2400",
+                    "--SiftExtraction.first_octave",
+                    "0",
+                    "--SiftExtraction.num_threads",
+                    "2",
+                ],
+                job_id,
+                "feature_extraction",
+            ):
                 return
             job_manager.update_job(job_id, progress=15)
             logger.info("Completed feature_extraction for job %s", job_id)
 
             # ── Stage 2: Feature matching (15-35%) ──
             job_manager.update_job(job_id, progress=15, stage="feature_matching")
-            if not self._run_colmap([
-                "exhaustive_matcher",
-                "--database_path", str(db_path),
-                "--SiftMatching.use_gpu", "0",
-                "--SiftMatching.num_threads", "2",
-            ], job_id, "feature_matching"):
+            if not self._run_colmap(
+                [
+                    "exhaustive_matcher",
+                    "--database_path",
+                    str(db_path),
+                    "--SiftMatching.use_gpu",
+                    "0",
+                    "--SiftMatching.num_threads",
+                    "2",
+                ],
+                job_id,
+                "feature_matching",
+            ):
                 return
             job_manager.update_job(job_id, progress=35)
             logger.info("Completed feature_matching for job %s", job_id)
 
             # ── Stage 3: Sparse reconstruction (35-55%) ──
             job_manager.update_job(job_id, progress=35, stage="reconstruction")
-            if not self._run_colmap([
-                "mapper",
-                "--database_path", str(db_path),
-                "--image_path", str(image_dir),
-                "--output_path", str(sparse_dir),
-            ], job_id, "reconstruction"):
+            if not self._run_colmap(
+                [
+                    "mapper",
+                    "--database_path",
+                    str(db_path),
+                    "--image_path",
+                    str(image_dir),
+                    "--output_path",
+                    str(sparse_dir),
+                ],
+                job_id,
+                "reconstruction",
+            ):
                 return
             job_manager.update_job(job_id, progress=55)
             logger.info("Completed reconstruction for job %s", job_id)
@@ -185,9 +216,7 @@ class ColmapPipeline:
                     job_id, tmp_dir, sparse_model, image_dir
                 )
             else:
-                output_path = self._run_sparse_pipeline(
-                    job_id, tmp_dir, sparse_model
-                )
+                output_path = self._run_sparse_pipeline(job_id, tmp_dir, sparse_model)
 
             if output_path is None:
                 return  # Error already reported
@@ -227,12 +256,19 @@ class ColmapPipeline:
         # Export to PLY (55-65%)
         job_manager.update_job(job_id, progress=55, stage="export_ply")
         ply_path = tmp_dir / "reconstruction.ply"
-        if not self._run_colmap([
-            "model_converter",
-            "--input_path", str(sparse_model),
-            "--output_path", str(ply_path),
-            "--output_type", "PLY",
-        ], job_id, "export_ply"):
+        if not self._run_colmap(
+            [
+                "model_converter",
+                "--input_path",
+                str(sparse_model),
+                "--output_path",
+                str(ply_path),
+                "--output_type",
+                "PLY",
+            ],
+            job_id,
+            "export_ply",
+        ):
             return None
         job_manager.update_job(job_id, progress=65)
         logger.info("Completed export_ply for job %s", job_id)
@@ -258,13 +294,21 @@ class ColmapPipeline:
         # ── Stage 4: Undistort images (55-60%) ──
         job_manager.update_job(job_id, progress=55, stage="undistort")
         undistorted_dir = tmp_dir / "undistorted"
-        if not self._run_colmap([
-            "image_undistorter",
-            "--image_path", str(image_dir),
-            "--input_path", str(sparse_model),
-            "--output_path", str(undistorted_dir),
-            "--output_type", "COLMAP",
-        ], job_id, "undistort"):
+        if not self._run_colmap(
+            [
+                "image_undistorter",
+                "--image_path",
+                str(image_dir),
+                "--input_path",
+                str(sparse_model),
+                "--output_path",
+                str(undistorted_dir),
+                "--output_type",
+                "COLMAP",
+            ],
+            job_id,
+            "undistort",
+        ):
             return None
         logger.info("Completed undistort for job %s", job_id)
 
@@ -272,35 +316,64 @@ class ColmapPipeline:
         job_manager.update_job(job_id, progress=60, stage="convert_to_mvs")
         # InterfaceCOLMAP expects the undistorted sparse model inside the output dir
         mvs_path = tmp_dir / "scene.mvs"
-        if not self._run_openmvs("InterfaceCOLMAP", [
-            "--input-file", str(undistorted_dir),
-            "--output-file", str(mvs_path),
-            "--image-folder", str(undistorted_dir / "images"),
-        ], job_id, "convert_to_mvs", working_dir=tmp_dir):
+        if not self._run_openmvs(
+            "InterfaceCOLMAP",
+            [
+                "--input-file",
+                str(undistorted_dir),
+                "--output-file",
+                str(mvs_path),
+                "--image-folder",
+                str(undistorted_dir / "images"),
+            ],
+            job_id,
+            "convert_to_mvs",
+            working_dir=tmp_dir,
+        ):
             return None
         logger.info("Completed COLMAP→OpenMVS conversion for job %s", job_id)
 
         # ── Stage 6: Dense point cloud (62-80%) ──
         job_manager.update_job(job_id, progress=62, stage="densify")
         dense_mvs = tmp_dir / "scene_dense.mvs"
-        if not self._run_openmvs("DensifyPointCloud", [
-            "--input-file", str(mvs_path),
-            "--output-file", str(dense_mvs),
-            "--resolution-level", "2",
-            "--number-views", "4",
-            "--max-threads", "2",
-        ], job_id, "densify", working_dir=tmp_dir):
+        if not self._run_openmvs(
+            "DensifyPointCloud",
+            [
+                "--input-file",
+                str(mvs_path),
+                "--output-file",
+                str(dense_mvs),
+                "--resolution-level",
+                "2",
+                "--number-views",
+                "4",
+                "--max-threads",
+                "2",
+            ],
+            job_id,
+            "densify",
+            working_dir=tmp_dir,
+        ):
             return None
         logger.info("Completed densification for job %s", job_id)
 
         # ── Stage 7: Mesh reconstruction (80-90%) ──
         job_manager.update_job(job_id, progress=80, stage="reconstruct_mesh")
         mesh_mvs = tmp_dir / "scene_dense_mesh.mvs"
-        if not self._run_openmvs("ReconstructMesh", [
-            "--input-file", str(dense_mvs),
-            "--output-file", str(mesh_mvs),
-            "--max-threads", "2",
-        ], job_id, "reconstruct_mesh", working_dir=tmp_dir):
+        if not self._run_openmvs(
+            "ReconstructMesh",
+            [
+                "--input-file",
+                str(dense_mvs),
+                "--output-file",
+                str(mesh_mvs),
+                "--max-threads",
+                "2",
+            ],
+            job_id,
+            "reconstruct_mesh",
+            working_dir=tmp_dir,
+        ):
             return None
         logger.info("Completed mesh reconstruction for job %s", job_id)
 
@@ -308,11 +381,20 @@ class ColmapPipeline:
         # Try TextureMesh for photorealistic output; fall back to untextured if it fails
         job_manager.update_job(job_id, progress=90, stage="texture_mesh")
         textured_mvs = tmp_dir / "scene_dense_mesh_texture.mvs"
-        texture_ok = self._run_openmvs("TextureMesh", [
-            "--input-file", str(mesh_mvs),
-            "--output-file", str(textured_mvs),
-            "--max-threads", "2",
-        ], job_id, "texture_mesh", working_dir=tmp_dir)
+        texture_ok = self._run_openmvs(
+            "TextureMesh",
+            [
+                "--input-file",
+                str(mesh_mvs),
+                "--output-file",
+                str(textured_mvs),
+                "--max-threads",
+                "2",
+            ],
+            job_id,
+            "texture_mesh",
+            working_dir=tmp_dir,
+        )
 
         # ── Stage 9: Export GLB (95-100%) ──
         job_manager.update_job(job_id, progress=95, stage="exporting")

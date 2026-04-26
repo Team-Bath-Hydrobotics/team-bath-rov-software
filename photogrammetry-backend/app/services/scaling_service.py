@@ -1,7 +1,4 @@
-from pathlib import Path
-
 import trimesh
-
 from app.config import settings
 from app.models.scaling import BoundingBox, ScaleResponse
 
@@ -20,7 +17,11 @@ class ScalingService:
             mesh = scene
 
         bounds = mesh.bounding_box.extents
-        x_extent, y_extent, z_extent = float(bounds[0]), float(bounds[1]), float(bounds[2])
+        x_extent, y_extent, z_extent = (
+            float(bounds[0]),
+            float(bounds[1]),
+            float(bounds[2]),
+        )
 
         # The coral garden is much longer (1-2.5m) than it is wide (~36cm)
         # or tall (unknown). COLMAP/OpenMVS don't guarantee axis orientation,
@@ -29,9 +30,9 @@ class ScalingService:
         #   shortest = width  (~36cm, the narrow dimension)
         #   middle   = height (what we want to estimate)
         extents = sorted([x_extent, y_extent, z_extent])
-        model_width = extents[0]    # shortest
-        model_height = extents[1]   # middle
-        model_length = extents[2]   # longest
+        model_width = extents[0]  # shortest
+        model_height = extents[1]  # middle
+        model_length = extents[2]  # longest
 
         scale_factor = true_length_cm / model_length
         estimated_height_cm = model_height * scale_factor

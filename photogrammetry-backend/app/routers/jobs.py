@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException
-
 from app.models.job import Job
 from app.services.job_manager import job_manager
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 

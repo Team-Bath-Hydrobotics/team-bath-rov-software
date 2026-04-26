@@ -4,7 +4,6 @@ from pathlib import Path
 import numpy as np
 import open3d as o3d
 import trimesh
-
 from app.config import settings
 from app.models.job import JobStatus
 from app.services.job_manager import job_manager
@@ -82,7 +81,9 @@ class MeshProcessor:
         if num_points > 200000:
             voxel_size = 0.005
             pcd = pcd.voxel_down_sample(voxel_size)
-            logger.info("Downsampled to %d points (from %d)", len(pcd.points), num_points)
+            logger.info(
+                "Downsampled to %d points (from %d)", len(pcd.points), num_points
+            )
 
         # Estimate normals
         pcd.estimate_normals(

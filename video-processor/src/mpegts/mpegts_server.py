@@ -1,18 +1,17 @@
 import queue
 import select
 import subprocess
+import threading
 import time
 from typing import Dict
-import threading
+
 from back_pressure_queue import BackpressureQueue
 from mpegts.mpegts_base import MPEGTSBase
 
 from common.network.network_type import NetworkEnum
-<<<<<<< Updated upstream
-from .websocket_broadcaster import WebSocketBroadcaster
-=======
 
->>>>>>> Stashed changes
+from .websocket_broadcaster import WebSocketBroadcaster
+
 
 class MPEGTSServer(MPEGTSBase):
     """MPEGTS server using FFmpeg"""
@@ -59,25 +58,34 @@ class MPEGTSServer(MPEGTSBase):
             outputs.append("[f=mpegts]pipe:1")
 
         tee = "|".join(outputs)
-        print(f"Stream {self.stream_id}, expected width height fps: {self.output_width}x{self.output_height} @ {self.output_fps}fps")
+        print(
+            f"Stream {self.stream_id}, expected width height fps: {self.output_width}x{self.output_height} @ {self.output_fps}fps"
+        )
         cmd = [
             "ffmpeg",
-            "-loglevel", "error",
-
-            "-f", "rawvideo",
-            "-pix_fmt", "bgr24",
-            "-s", f"{self.input_width}x{self.input_height}",
-            "-r", str(self.input_fps),
-            "-i", "pipe:0",
-
-            "-map", "0:v:0",              # <-- REQUIRED
-            "-c:v", "mpeg1video",
-            "-b:v", "1000k",
-
-            "-f", "tee",
-            tee,                           # <-- NO quotes
+            "-loglevel",
+            "error",
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            "bgr24",
+            "-s",
+            f"{self.input_width}x{self.input_height}",
+            "-r",
+            str(self.input_fps),
+            "-i",
+            "pipe:0",
+            "-map",
+            "0:v:0",  # <-- REQUIRED
+            "-c:v",
+            "mpeg1video",
+            "-b:v",
+            "1000k",
+            "-f",
+            "tee",
+            tee,  # <-- NO quotes
         ]
-        
+
         try:
             # Start FFmpeg process
             assert "-f" in cmd and "tee" in cmd, "Encoder FFmpeg command corrupted"
@@ -105,7 +113,11 @@ class MPEGTSServer(MPEGTSBase):
         last_status_time = time.time()
         last_frame_time = time.time()
 
-        while self.running and self.encoder_ffmpeg_process and self.encoder_ffmpeg_process.stdin:
+        while (
+            self.running
+            and self.encoder_ffmpeg_process
+            and self.encoder_ffmpeg_process.stdin
+        ):
             try:
                 try:
                     # Get frame and metadata from queue
@@ -116,19 +128,30 @@ class MPEGTSServer(MPEGTSBase):
                     # Throttle to target FPS
                     last_frame_time = self.throttle_fps(last_frame_time)
                     # Check if FFmpeg stdin is ready for writing
-                    if self.encoder_ffmpeg_process.stdin and not self.encoder_ffmpeg_process.stdin.closed:
+                    if (
+                        self.encoder_ffmpeg_process.stdin
+                        and not self.encoder_ffmpeg_process.stdin.closed
+                    ):
                         try:
-                            ready = select.select([], [self.encoder_ffmpeg_process.stdin], [], 0.01)
+                            ready = select.select(
+                                [], [self.encoder_ffmpeg_process.stdin], [], 0.01
+                            )
                             if ready[1]:  # stdin is ready
-                                self.encoder_ffmpeg_process.stdin.write(frame_data.tobytes())
+                                self.encoder_ffmpeg_process.stdin.write(
+                                    frame_data.tobytes()
+                                )
                                 self.encoder_ffmpeg_process.stdin.flush()
                                 frames_sent += 1
-                                last_status_time = self.log_status(frames_sent, last_status_time)
+                                last_status_time = self.log_status(
+                                    frames_sent, last_status_time
+                                )
                             else:
                                 # stdin not ready, skip frame
                                 pass
                         except (BrokenPipeError, OSError) as e:
-                            print(f"FFmpeg process ended for stream {self.stream_id}: {e}")
+                            print(
+                                f"FFmpeg process ended for stream {self.stream_id}: {e}"
+                            )
                             break
                     else:
                         print(f"FFmpeg stdin closed for stream {self.stream_id}")
@@ -144,12 +167,16 @@ class MPEGTSServer(MPEGTSBase):
 
     def _read_stdout(self):
         """Read FFmpeg stdout and broadcast over WebSocket"""
-        while self.running and self.encoder_ffmpeg_process and self.encoder_ffmpeg_process.stdout:
+        while (
+            self.running
+            and self.encoder_ffmpeg_process
+            and self.encoder_ffmpeg_process.stdout
+        ):
             try:
                 chunk = self.encoder_ffmpeg_process.stdout.read(1316)
                 if not chunk:
                     break
-                #print(f"Stream {self.stream_id} read {len(chunk)} bytes from stdout")
+                # print(f"Stream {self.stream_id} read {len(chunk)} bytes from stdout")
                 self.ws_broadcaster.broadcast(chunk)
             except Exception as e:
                 print(f"Error broadcasting stdout: {e}")
@@ -164,4 +191,3 @@ class MPEGTSServer(MPEGTSBase):
             time.sleep(self.frame_interval - time_since_last)
 
         return time.time()
-    

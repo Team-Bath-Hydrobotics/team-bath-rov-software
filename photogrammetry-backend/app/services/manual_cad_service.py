@@ -1,6 +1,5 @@
 import numpy as np
 import trimesh
-
 from app.config import settings
 
 
@@ -32,8 +31,8 @@ class ManualCADService:
 
         # Three steps: left (medium), centre (tallest), right (shortest).
         steps = [
-            {"height_scale": 0.70, "color": [210, 125, 80, 255]},   # left
-            {"height_scale": 1.00, "color": [255, 127, 80, 255]},   # centre
+            {"height_scale": 0.70, "color": [210, 125, 80, 255]},  # left
+            {"height_scale": 1.00, "color": [255, 127, 80, 255]},  # centre
             {"height_scale": 0.45, "color": [233, 150, 122, 255]},  # right
         ]
 
@@ -48,9 +47,7 @@ class ManualCADService:
             z_centre = h / 2.0
             box.apply_translation([x_centre, 0, z_centre])
 
-            box.visual.vertex_colors = np.tile(
-                step["color"], (len(box.vertices), 1)
-            )
+            box.visual.vertex_colors = np.tile(step["color"], (len(box.vertices), 1))
             prisms.append(box)
 
         scene = trimesh.Scene(prisms)

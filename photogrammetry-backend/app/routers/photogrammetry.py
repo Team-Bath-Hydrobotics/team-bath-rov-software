@@ -1,11 +1,10 @@
 import threading
 
-from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException
-
 from app.config import settings
 from app.models.job import JobStatus
 from app.services.job_manager import job_manager
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -32,9 +31,7 @@ async def run_photogrammetry(request: RunRequest):
     from app.services.colmap_pipeline import ColmapPipeline
 
     pipeline = ColmapPipeline()
-    threading.Thread(
-        target=pipeline.run, args=(request.job_id,), daemon=True
-    ).start()
+    threading.Thread(target=pipeline.run, args=(request.job_id,), daemon=True).start()
 
     return {
         "job_id": request.job_id,

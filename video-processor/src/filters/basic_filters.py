@@ -1,5 +1,6 @@
 import cv2
 
+
 class Filter:
     def __init__(self, filter_funcs: list[str], **kwargs):
         self.filter_funcs = filter_funcs
@@ -8,7 +9,7 @@ class Filter:
     def apply(self, frame):
         if self.filter_funcs is None or len(self.filter_funcs) == 0:
             return frame
-        
+
         for filter_func in self.filter_funcs:
             if filter_func == "brightness":
                 frame = self.brightness_filter(frame, **self.params)
@@ -22,7 +23,7 @@ class Filter:
                 frame = self.contrast_filter(frame, **self.params)
 
         return frame
-    
+
     def brightness_filter(self, frame, delta=30):
         return cv2.convertScaleAbs(frame, alpha=1, beta=delta)
 

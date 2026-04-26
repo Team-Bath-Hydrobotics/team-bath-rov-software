@@ -1,12 +1,12 @@
 from ultralytics import YOLO
-import cv2
-import numpy as np
+
 
 class YOLOv8Detector:
     """
     Wrapper for YOLOv8 model using Ultralytics.
     """
-    def __init__(self, model_path='yolov8n.pt', confine_conf=0.25, iou_thres=0.45):
+
+    def __init__(self, model_path="yolov8n.pt", confine_conf=0.25, iou_thres=0.45):
         """
         Args:
             model_path (str): Path to the .pt model file or 'yolov8n.pt' for pretrained.
@@ -32,12 +32,12 @@ class YOLOv8Detector:
         Perform inference on the given image.
         Args:
             image (str or np.ndarray): The image path or numpy array (BGR).
-            
+
         Returns:
             detections (list): A list of [x1, y1, x2, y2, score, class_id]
         """
         results = self.model.predict(image, conf=self.conf, iou=self.iou, verbose=False)
-        
+
         detections = []
         for r in results:
             boxes = r.boxes.cpu().numpy()
@@ -46,5 +46,5 @@ class YOLOv8Detector:
                 conf = box.conf[0]
                 cls = box.cls[0]
                 detections.append([x1, y1, x2, y2, conf, cls])
-                
+
         return detections

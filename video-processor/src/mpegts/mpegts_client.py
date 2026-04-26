@@ -1,22 +1,19 @@
+import random
 import socket
 import subprocess
 import sys
 import threading
 import time
-import random
 from typing import Dict
 
 import numpy as np
 from back_pressure_queue import BackpressureQueue
 from data_interface.frame_metadata import FrameMetadata
+from filters.basic_filters import Filter
 from mpegts.mpegts_base import MPEGTSBase
 
 from common.network.network_type import NetworkEnum, NetworkHandler
-<<<<<<< Updated upstream
-from filters.basic_filters import Filter
-=======
 
->>>>>>> Stashed changes
 
 class MPEGTSClient(MPEGTSBase):
     """MPEGTS client to receive and decode video streams"""
@@ -31,7 +28,7 @@ class MPEGTSClient(MPEGTSBase):
         network_type: NetworkEnum,
         frame_queue: BackpressureQueue,
         resilience_config: Dict,
-        filter: Filter
+        filter: Filter,
     ):
         super().__init__(
             stream_id, port, input_config, output_config, frame_queue, network_type
@@ -121,18 +118,26 @@ class MPEGTSClient(MPEGTSBase):
                 print(f"Stream {self.stream_id}: Cleanup exception: {e}")
 
             cmd = [
-            "ffmpeg",
-            "-loglevel", "error",
-            "-i", "pipe:0",
-            "-f", "rawvideo",
-            "-pix_fmt", "bgr24",
-            "pipe:1",
+                "ffmpeg",
+                "-loglevel",
+                "error",
+                "-i",
+                "pipe:0",
+                "-f",
+                "rawvideo",
+                "-pix_fmt",
+                "bgr24",
+                "pipe:1",
             ]
             print(f"Stream {self.stream_id}: FFmpeg command: {' '.join(cmd)}")
 
             try:
-                self.decoder_ffmpeg_process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-                print(f"Stream {self.stream_id}: FFmpeg PID: {self.decoder_ffmpeg_process.pid}")
+                self.decoder_ffmpeg_process = subprocess.Popen(
+                    cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+                )
+                print(
+                    f"Stream {self.stream_id}: FFmpeg PID: {self.decoder_ffmpeg_process.pid}"
+                )
 
                 self.decoder_ffmpeg_alive = True
 
@@ -148,7 +153,9 @@ class MPEGTSClient(MPEGTSBase):
         last_status_time = time.time()
         print(f"Starting frame decode loop for stream {self.stream_id}")
         while (
-            self.running and self.decoder_ffmpeg_process and self.decoder_ffmpeg_process.poll() is None
+            self.running
+            and self.decoder_ffmpeg_process
+            and self.decoder_ffmpeg_process.poll() is None
         ):
             frame_data = self._read_frame_data(frame_size)
             if frame_data is None:
@@ -309,7 +316,7 @@ class MPEGTSClient(MPEGTSBase):
     def _start_forwarding_thread(self, client_socket):
         self.forward_thread = threading.Thread(
             target=self.forward_to_ffmpeg,
-            args=(self.decoder_ffmpeg_process, client_socket)
+            args=(self.decoder_ffmpeg_process, client_socket),
         )
         self.forward_thread.start()
 

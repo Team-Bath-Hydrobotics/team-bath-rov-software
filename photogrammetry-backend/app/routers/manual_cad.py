@@ -1,9 +1,8 @@
-from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException
-
 from app.models.job import JobStatus
 from app.services.job_manager import job_manager
 from app.services.manual_cad_service import ManualCADService
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 router = APIRouter()
 cad_service = ManualCADService()

@@ -1,10 +1,7 @@
-import shutil
-
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
-
 from app.config import settings
 from app.models.job import JobStatus
 from app.services.job_manager import job_manager
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 router = APIRouter()
 
@@ -41,8 +38,6 @@ async def upload_images(
     for f in files:
         file_path = upload_dir / f.filename
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(file_path, "wb") as dest:
-            size = shutil.copyfileobj(f.file, dest, length=CHUNK_SIZE)
         total_size += file_path.stat().st_size
 
     job_manager.update_job(job_id, status=JobStatus.PENDING)
