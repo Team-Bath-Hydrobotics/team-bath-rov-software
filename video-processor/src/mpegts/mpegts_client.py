@@ -12,7 +12,11 @@ from data_interface.frame_metadata import FrameMetadata
 from mpegts.mpegts_base import MPEGTSBase
 
 from common.network.network_type import NetworkEnum, NetworkHandler
+<<<<<<< Updated upstream
 from filters.basic_filters import Filter
+=======
+
+>>>>>>> Stashed changes
 
 class MPEGTSClient(MPEGTSBase):
     """MPEGTS client to receive and decode video streams"""

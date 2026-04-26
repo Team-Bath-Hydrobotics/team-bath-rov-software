@@ -11,7 +11,10 @@ from mpegts.mpegts_server import MPEGTSServer
 
 from common.metrics.metrics_monitor import MetricsMonitor
 from common.network.network_type import NetworkEnum
+<<<<<<< Updated upstream
 from filters.basic_filters import Filter
+=======
+>>>>>>> Stashed changes
 
 
 class VideoProcessor:
@@ -243,6 +246,7 @@ def parse_filter_args(feed_config):
 
 def parse_client_resilience_args(network_config):
     resilience_config = network_config.get("client_resilience", {})
+<<<<<<< Updated upstream
     base_delay_ms = resilience_config.get("base_delay_ms", 500)
     max_delay_ms = resilience_config.get("max_delay_ms", 30000)
     max_consecutive_failures = resilience_config.get("max_consecutive_failures", 10)
@@ -254,6 +258,14 @@ def parse_client_resilience_args(network_config):
         "max_consecutive_failures": max_consecutive_failures,
         "extended_cooldown_ms": extended_cooldown_ms,
         "max_frame_errors": max_frame_errors,
+=======
+    return {
+        "base_delay_ms": resilience_config.get("base_delay_ms", 500),
+        "max_delay_ms": resilience_config.get("max_delay_ms", 30000),
+        "max_consecutive_failures": resilience_config.get("max_consecutive_failures", 10),
+        "extended_cooldown_ms": resilience_config.get("extended_cooldown_ms", 60000),
+        "max_frame_errors": resilience_config.get("max_frame_errors", 100),
+>>>>>>> Stashed changes
     }
 
 
