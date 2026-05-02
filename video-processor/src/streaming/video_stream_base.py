@@ -5,8 +5,8 @@ from abc import ABC, abstractmethod
 from typing import Dict, Optional
 
 
-class MPEGTSBase(ABC):
-    """Base class for MPEG-TS streaming components"""
+class VideoStreamBase(ABC):
+    """Base class for video streaming components"""
 
     def __init__(
         self,
@@ -49,6 +49,7 @@ class MPEGTSBase(ABC):
     def stop(self):
         self.running = False
         self.cleanup_encoder_ffmpeg()
+        self.cleanup_decoder_ffmpeg()
 
     def _graceful_stop_ffmpeg(self, proc: Optional[subprocess.Popen], name: str):
         if not proc:

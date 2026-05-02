@@ -6,14 +6,14 @@ import time
 from typing import Dict
 
 from back_pressure_queue import BackpressureQueue
-from mpegts.mpegts_base import MPEGTSBase
+from streaming.video_stream_base import VideoStreamBase
 
 from common.network.network_type import NetworkEnum
 
 from .websocket_broadcaster import WebSocketBroadcaster
 
 
-class MPEGTSServer(MPEGTSBase):
+class MPEGTSServer(VideoStreamBase):
     """MPEGTS server using FFmpeg"""
 
     def __init__(

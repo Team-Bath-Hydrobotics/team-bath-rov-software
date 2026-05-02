@@ -6,8 +6,8 @@ import time
 
 from back_pressure_queue import BackpressureQueue
 from filters.basic_filters import Filter
-from mpegts.mpegts_client import MPEGTSClient
-from mpegts.mpegts_server import MPEGTSServer
+from streaming.mpegts_server import MPEGTSServer
+from streaming.rtp_client import RTPClient
 
 from common.metrics.metrics_monitor import MetricsMonitor
 from common.network.network_type import NetworkEnum
@@ -106,8 +106,8 @@ class VideoProcessor:
             output_port = self.output_base_video_port + idx
 
             filter
-            # Create MPEGTS client (receives from simulator)
-            client = MPEGTSClient(
+            # Create RTP client (receives from simulator or pi5)
+            client = RTPClient(
                 host_ip=self.host_ip,
                 stream_id=feed_id,
                 port=input_port,

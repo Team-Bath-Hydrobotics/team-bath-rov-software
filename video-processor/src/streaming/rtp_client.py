@@ -1,5 +1,4 @@
 import random
-import socket
 import subprocess
 import sys
 import threading
@@ -10,13 +9,13 @@ import numpy as np
 from back_pressure_queue import BackpressureQueue
 from data_interface.frame_metadata import FrameMetadata
 from filters.basic_filters import Filter
-from mpegts.mpegts_base import MPEGTSBase
+from streaming.video_stream_base import VideoStreamBase
 
-from common.network.network_type import NetworkEnum, NetworkHandler
+from common.network.network_type import NetworkEnum
 
 
-class MPEGTSClient(MPEGTSBase):
-    """MPEGTS client to receive and decode video streams"""
+class RTPClient(VideoStreamBase):
+    """RTP client to receive and decode video streams"""
 
     def __init__(
         self,
@@ -46,64 +45,10 @@ class MPEGTSClient(MPEGTSBase):
         self.target_ip = output_config.get("target_ip", "")
 
     def start(self):
-        """Start receiving MPEGTS stream"""
+        """Start receiving RTP stream"""
         self.running = True
-        thread = threading.Thread(
-            target=lambda: self.receive_mpegts_stream(), daemon=True
-        )
+        thread = threading.Thread(target=lambda: self.receive_rtp_stream(), daemon=True)
         thread.start()
-
-    def forward_to_ffmpeg(self, decoder_ffmpeg_process, client_socket):
-        """Forward data from socket to FFmpeg stdin — robust to races"""
-        try:
-            while self.running:
-                try:
-                    data = client_socket.recv(8192)
-                except OSError as e:
-                    print(f"Socket recv error for stream {self.stream_id}: {e}")
-                    break
-
-                if not data:
-                    break
-
-                # Acquire lock and check stdin is alive before writing
-                with self.lock:
-                    proc = self.decoder_ffmpeg_process
-                    stdin = None
-                    if proc:
-                        stdin = proc.stdin
-
-                    if not proc or not stdin:
-                        # FFmpeg went away while we were receiving data -> stop forwarding
-                        print(
-                            f"FFmpeg not available for stream {self.stream_id}, stopping forward thread."
-                        )
-                        break
-
-                    try:
-                        stdin.write(data)
-                        stdin.flush()
-                    except ValueError:
-                        # broken pipe / closed file
-                        print(
-                            f"Broken pipe to FFmpeg stdin for stream {self.stream_id}"
-                        )
-                        break
-                    except Exception as e:
-                        print(
-                            f"Error writing to FFmpeg stdin for stream {self.stream_id}: {e}"
-                        )
-                        break
-        except Exception as e:
-            print(f"Error forwarding data to FFmpeg for stream {self.stream_id}: {e}")
-        finally:
-            with self.lock:
-                proc = getattr(self, "decoder_ffmpeg_process", None)
-                if proc and proc.stdin:
-                    try:
-                        proc.stdin.close()
-                    except Exception:
-                        pass
 
     def start_decoder_ffmpeg(self):
         """Start a fresh FFmpeg process for decoding (thread-safe)"""
@@ -117,12 +62,28 @@ class MPEGTSClient(MPEGTSBase):
             except Exception as e:
                 print(f"Stream {self.stream_id}: Cleanup exception: {e}")
 
+            # RTP H264 input directly from UDP
             cmd = [
                 "ffmpeg",
                 "-loglevel",
                 "error",
+                # RTP jitter handling (important for WiFi / Pi)
+                "-fflags",
+                "nobuffer",
+                "-flags",
+                "low_delay",
+                "-max_delay",
+                "500000",  # allow jitter buffer (important)
+                "-probesize",
+                "10000",
+                "-analyzeduration",
+                "100000",
+                # INPUT: RTP stream
+                "-f",
+                "rtp",
                 "-i",
-                "pipe:0",
+                f"rtp://0.0.0.0:{self.port}",
+                # OUTPUT: raw frames to python
                 "-f",
                 "rawvideo",
                 "-pix_fmt",
@@ -133,7 +94,7 @@ class MPEGTSClient(MPEGTSBase):
 
             try:
                 self.decoder_ffmpeg_process = subprocess.Popen(
-                    cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+                    cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
                 )
                 print(
                     f"Stream {self.stream_id}: FFmpeg PID: {self.decoder_ffmpeg_process.pid}"
@@ -159,10 +120,7 @@ class MPEGTSClient(MPEGTSBase):
         ):
             frame_data = self._read_frame_data(frame_size)
             if frame_data is None:
-                frame_errors += 1
-                if frame_errors >= self.max_frame_errors:
-                    self._log_too_many_frame_errors()
-                    break
+                time.sleep(0.01)
                 continue
 
             frame = self._parse_frame(frame_data)
@@ -192,12 +150,10 @@ class MPEGTSClient(MPEGTSBase):
             remaining -= len(chunk)
         frame_data = b"".join(chunks)
         if len(frame_data) != frame_size:
-            if len(frame_data) == 0:
-                print(f"No more data from FFmpeg for stream {self.stream_id}")
-            else:
-                print(
-                    f"Incomplete frame data for stream {self.stream_id}: {len(frame_data)}/{frame_size}"
-                )
+            print(
+                f"Incomplete frame data for stream {self.stream_id}: "
+                f"{len(frame_data)}/{frame_size}"
+            )
             return None
         return frame_data
 
@@ -231,35 +187,32 @@ class MPEGTSClient(MPEGTSBase):
             output_height=self.output_height,
         )
 
-    def receive_mpegts_stream(self):
+    def receive_rtp_stream(self):
         """Main loop: connect, forward, decode, and reconnect if needed, with disconnect handling"""
-        print(
-            f"Starting MPEGTS receiver for stream {self.stream_id} on port {self.port}"
-        )
+        print(f"Starting RTP receiver for stream {self.stream_id} on port {self.port}")
         extended_cooldown = self.extended_cooldown_ms / 1000.0
         consecutive_failures = 0
         current_delay = self.base_delay_ms / 1000.0
 
         while self.running:
-            client_socket = None
             try:
-                client_socket = self._setup_network_socket()
-                if not self.running:
-                    break
-                self._start_and_check_ffmpeg()
-                self._start_forwarding_thread(client_socket)
+                if (
+                    self.decoder_ffmpeg_process is None
+                    or self.decoder_ffmpeg_process.poll() is not None
+                ):
+                    self._start_and_check_ffmpeg()
+
                 frame_size = self.get_frame_size(is_input=True)
                 if frame_size <= 0:
-                    print(
-                        f"Invalid frame size {frame_size} for stream {self.stream_id}; aborting decode."
-                    )
-                    break
+                    raise RuntimeError("Invalid frame size")
+
                 self.decode_frames(frame_size)
+
                 consecutive_failures = 0
                 current_delay = self.base_delay_ms / 1000.0
 
             except Exception as e:
-                print(f"Error in MPEGTS receiver for stream {self.stream_id}: {e}")
+                print(f"Error in RTP receiver for stream {self.stream_id}: {e}")
                 consecutive_failures += 1
                 self._handle_failure(
                     consecutive_failures, current_delay, extended_cooldown
@@ -270,33 +223,14 @@ class MPEGTSClient(MPEGTSBase):
                 else:
                     current_delay = min(current_delay * 2, self.max_delay_ms / 1000.0)
             finally:
-                self._cleanup_after_stream(client_socket)
-
-    def _setup_network_socket(self):
-        network_handler = NetworkHandler(self.network_type, NetworkEnum.NONE)
-        client_socket = network_handler.get_input_network_socket()
-        if client_socket is None:
-            raise RuntimeError("NetworkHandler returned no socket")
-        try:
-            client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        except Exception:
-            print(f"Could not set SO_REUSEADDR on socket for stream {self.stream_id}")
-        if self.network_type == NetworkEnum.UDP:
-            client_socket.bind((self.host_ip, self.port))
-            print(f"UDP listener bound for stream {self.stream_id} on port {self.port}")
-        else:
-            connected = False
-            while self.running and not connected:
-                try:
-                    client_socket.connect((self.host_ip, self.port))
-                    connected = True
-                    print(f"Connected to stream {self.stream_id} on port {self.port}")
-                except (ConnectionRefusedError, OSError):
+                if not self.running:
+                    with self.lock:
+                        self.cleanup_decoder_ffmpeg()
+                if self.running:
                     print(
-                        f"TCP: stream {self.stream_id} waiting for simulator on port {self.port}..."
+                        f"Stream {self.stream_id}: Attempting to reconnect in 1 second..."
                     )
                     time.sleep(1)
-        return client_socket
 
     def _start_and_check_ffmpeg(self):
         print(f"Stream {self.stream_id}: Connection established, starting FFmpeg...")
@@ -313,13 +247,6 @@ class MPEGTSClient(MPEGTSBase):
             print(f"Stream {self.stream_id}: ERROR - FFmpeg process is None!")
             raise RuntimeError("FFmpeg process is None")
 
-    def _start_forwarding_thread(self, client_socket):
-        self.forward_thread = threading.Thread(
-            target=self.forward_to_ffmpeg,
-            args=(self.decoder_ffmpeg_process, client_socket),
-        )
-        self.forward_thread.start()
-
     def _handle_failure(self, consecutive_failures, current_delay, extended_cooldown):
         if consecutive_failures >= self.max_consecutive_failures:
             print(
@@ -335,15 +262,3 @@ class MPEGTSClient(MPEGTSBase):
                 file=sys.stderr,
             )
             time.sleep(delay)
-
-    def _cleanup_after_stream(self, client_socket):
-        if client_socket:
-            try:
-                client_socket.close()
-            except Exception as e:
-                print(f"Error closing socket for stream {self.stream_id}: {e}")
-        with self.lock:
-            self.cleanup_decoder_ffmpeg()
-        if self.running:
-            print(f"Stream {self.stream_id}: Attempting to reconnect in 2 seconds...")
-            time.sleep(2)
