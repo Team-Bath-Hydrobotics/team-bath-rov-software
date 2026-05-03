@@ -4,29 +4,14 @@
       {
         "id": "1",
         "feed_settings": {
-          "width": 640,
-          "height": 480,
-          "fps": 60,
-          "format": "mono"
-        },
-        "backpressure_queue_settings": {
-          "max_queue_size": 1000,
-          "queue_timeout_ms": 500
-        },
-        "filter_settings":{
-          "filters":[]
-        }
-      },
-      {
-        "id": "2",
-        "feed_settings": {
-          "width": 1920,
-          "height": 1080,
+          "width": 2028,
+          "height": 1520,
           "fps": 30,
-          "format": "stereo"
+          "format": "stereo",
+          "stream_name":"csi_0"
         },
         "backpressure_queue_settings": {
-          "max_queue_size": 500,
+          "max_queue_size": 10,
           "queue_timeout_ms": 500
         },
         "filter_settings":{
@@ -37,30 +22,21 @@
     "output_feeds": [
       {
         "id": "1",
-        "feed_settings": {
-          "width": 640,
-          "height": 480,
-          "fps": 30,
-          "format": "mono"
-        }
-      },
-      {
-        "id": "2",
         "feed_settings": {    
-          "width": 1920,
-          "height": 1080,
-          "fps": 60,
+          "width": 2028,
+          "height": 1520,
+          "fps": 30,
           "format": "stereo"
         }
       }
     ]
   },
   "network": {
-    "input_base_video_port": 6000,
-    "host_ip": "127.0.0.1",
+    "input_base_video_port": 8554,
+    "host_ip": "138.38.246.166",
     "target_ip": "127.0.0.1",
-    "output_base_video_port": 8554,
-    "input_network_type": "tcp",
+    "output_base_video_port": 6000,
+    "input_network_type": "udp",
     "output_network_type": "udp",
     "websocket_relay": {
       "enabled": true,

@@ -102,7 +102,6 @@ class VideoProcessor:
             self.frame_queues[feed_id] = frame_queue
 
             # Calculate ports for this feed
-            input_port = self.input_base_video_port + idx
             output_port = self.output_base_video_port + idx
 
             filter
@@ -110,7 +109,7 @@ class VideoProcessor:
             client = RTPClient(
                 host_ip=self.host_ip,
                 stream_id=feed_id,
-                port=input_port,
+                port=self.input_base_video_port,
                 input_config=input_feed_settings,
                 output_config=output_feed_settings,
                 frame_queue=frame_queue,

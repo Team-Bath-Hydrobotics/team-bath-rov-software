@@ -47,3 +47,6 @@ class BackpressureQueue:
 
     def empty(self):
         return self.queue.empty()
+
+    def qsize(self):
+        return self.queue.qsize()
