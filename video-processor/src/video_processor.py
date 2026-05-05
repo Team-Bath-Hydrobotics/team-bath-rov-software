@@ -1,4 +1,6 @@
 import argparse
+import json
+import queue as pyqueue
 import signal
 import sys
 import threading
@@ -6,18 +8,18 @@ import time
 
 from back_pressure_queue import BackpressureQueue
 from filters.basic_filters import Filter
-from streaming.mpegts_server import MPEGTSServer
 from streaming.rtp_client import RTPClient
+from streaming.websocket_sender import FrameWebSocketServer
 
 from common.metrics.metrics_monitor import MetricsMonitor
 from common.network.network_type import NetworkEnum
 
 
 class VideoProcessor:
-    """Video Processor to coordinate MPEGTS receiving and sending along with preprocessing"""
+    """Coordinates RTSP ingestion + filtering + queueing + websocket relay"""
 
     def __init__(self, video_feeds, network_config, client_resilience_config):
-        if video_feeds[0] is None or len(video_feeds[0]) == 0:
+        if not video_feeds or not video_feeds[0]:
             print("No input video feeds configured, exiting.")
             sys.exit(1)
 
@@ -37,244 +39,168 @@ class VideoProcessor:
         ) = parse_network_args(network_config)
 
         self.running = False
-
-        # Frame processing
-        self.servers = {}
         self.clients = {}
-        self.threads = []
         self.frame_queues = {}
+        self.ws_servers = {}
+        self.threads = []
 
+    # -------------------------
+    # WS forwarder (CRITICAL MISSING PIECE)
+    # -------------------------
+    def _ws_forwarder(self, feed_id, queue, ws_server):
+        print(f"[WS-FWD] started feed={feed_id}")
+        print(f"[WS] feed={feed_id} port={self.ws_relay_base_port + int(feed_id)}")
+
+        while self.running:
+            try:
+                frame, metadata = queue.get()
+                ws_server.broadcast(frame)
+            except pyqueue.Empty:
+                # normal: no frame available yet
+                continue
+            except Exception as e:
+                import traceback
+
+                print(f"[WS-FWD] error feed={feed_id}: {repr(e)}")
+                traceback.print_exc()
+
+    # -------------------------
+    # startup
+    # -------------------------
     def start(self):
-        """Start video processor"""
-        print("Starting Video Processor with MPEGTS...")
-
-        # Wait for simulator to be fully ready
-        print("Waiting for simulator to initialize...")
-        time.sleep(3)
+        print("Starting Video Processor...")
+        time.sleep(2)
         self.running = True
 
-        # Map feed id -> feed config for input and output feeds
-        input_map = {
-            self.extract_feed_id(cfg): cfg
-            for cfg in self.input_video_feeds
-            if cfg is not None
-        }
-        output_map = {
-            self.extract_feed_id(cfg): cfg
-            for cfg in self.output_video_feeds
-            if cfg is not None
-        }
+        input_map = {self.extract_feed_id(c): c for c in self.input_video_feeds if c}
+        output_map = {self.extract_feed_id(c): c for c in self.output_video_feeds if c}
 
-        threads = []  # Initialize threads list
-        idx = -1
+        idx = 0
+
         for feed_id, input_cfg in input_map.items():
-            idx += 1
             if feed_id not in output_map:
-                print(
-                    f"Warning: No matching output feed for input feed ID {feed_id}, ignoring input {feed_id}"
-                )
                 continue
 
             output_cfg = output_map[feed_id]
-            if input_cfg is None or output_cfg is None:
-                print(
-                    f"Error: Could not find settings for feed ID {feed_id}, skipping."
-                )
-                continue
+            input_settings = input_cfg.get("feed_settings", input_cfg)
 
-            print(f"Setting up feed ID {feed_id}...")
-            input_feed_settings = input_cfg.get("feed_settings", input_cfg)
-            output_feed_settings = output_cfg.get("feed_settings", output_cfg)
-            backpressure_queue_settings = input_cfg.get(
-                "backpressure_queue_settings", {}
-            )
+            queue_cfg = input_cfg.get("backpressure_queue_settings", {})
+            max_q = queue_cfg.get("max_queue_size", 10000)
+            timeout = queue_cfg.get("queue_timeout_ms", 500)
 
-            # Create frame queue for this feed
-            max_queue_size, queue_timeout_ms = self.parse_backpressure_args(
-                backpressure_queue_settings
-            )
-            print(
-                f"Feed {feed_id}: Creating backpressure queue with max size {max_queue_size} and timeout {queue_timeout_ms} ms"
-            )
-            frame_queue = BackpressureQueue(
-                max_queue_size=max_queue_size, queue_timeout_ms=queue_timeout_ms
-            )
+            frame_queue = BackpressureQueue(max_q, timeout)
             self.frame_queues[feed_id] = frame_queue
 
-            # Calculate ports for this feed
-            output_port = self.output_base_video_port + idx
+            # -------------------------
+            # WebSocket server
+            # -------------------------
+            ws_server = FrameWebSocketServer(port=self.ws_relay_base_port + idx)
+            ws_server.start()
+            self.ws_servers[feed_id] = ws_server
 
-            filter
-            # Create RTP client (receives from simulator or pi5)
+            # -------------------------
+            # WS forwarder thread (THIS WAS MISSING)
+            # -------------------------
+            fwd_thread = threading.Thread(
+                target=self._ws_forwarder,
+                args=(feed_id, frame_queue, ws_server),
+                daemon=True,
+            )
+            self.threads.append(fwd_thread)
+
+            # -------------------------
+            # RTP client
+            # -------------------------
             client = RTPClient(
                 host_ip=self.host_ip,
                 stream_id=feed_id,
                 port=self.input_base_video_port,
-                input_config=input_feed_settings,
-                output_config=output_feed_settings,
+                input_config=input_settings,
+                output_config=output_cfg,
                 frame_queue=frame_queue,
                 network_type=NetworkEnum(self.input_network_type),
                 resilience_config=self.client_resilience_config,
-                filter=parse_filter_args(input_cfg),
+                filter=Filter(input_cfg.get("filter_settings", {}).get("filters", [])),
             )
+
             self.clients[feed_id] = client
 
-            # Create MPEGTS server (sends UDP output)
-            server = MPEGTSServer(
-                target_ip=self.target_ip,
-                stream_id=feed_id,
-                port=output_port,
-                input_config=output_feed_settings,
-                output_config={},
-                frame_queue=frame_queue,
-                network_type=NetworkEnum(self.output_network_type),
-                ws_relay_enabled=self.ws_relay_enabled,
-                ws_relay_base_port=self.ws_relay_base_port,
+            # delayed start
+            t = threading.Thread(
+                target=self._delayed_start,
+                args=(client, idx * 1.5),
+                daemon=True,
             )
-            self.servers[feed_id] = server
+            self.threads.append(t)
 
-            # Start client thread (receiver)
-            client_thread = threading.Thread(
-                target=self.start_client_delayed, args=(client, idx * 0.5)
-            )
-            client_thread.daemon = True
-            threads.append(client_thread)
+            idx += 1
 
-            # Start server thread (sender)
-            server_thread = threading.Thread(target=server.start)
-            server_thread.daemon = True
-            threads.append(server_thread)
+        # start threads
+        for t in self.threads:
+            t.start()
 
-        # Start all threads
-        for thread in threads:
-            thread.start()
+        signal.signal(signal.SIGINT, self._shutdown)
 
-        print("Video Processor started!")
-        signal.signal(signal.SIGINT, self.signal_handler)
+        print("Video Processor running")
 
         while self.running:
             time.sleep(5)
-            # Print queue status
-            for feed_id in self.frame_queues.keys():
-                queue_size = self.frame_queues[feed_id].queue.qsize()
-                dropped = self.frame_queues[feed_id].dropped_frames
-                print(f"Feed {feed_id}: Queue size: {queue_size}, Dropped: {dropped}")
-        print("Stopping Video Processor...")
-        # Cleanup servers and clients
-        for server in self.servers.values():
-            server.stop()
-        for client in self.clients.values():
-            client.stop()
+            for fid, q in self.frame_queues.items():
+                print(f"Feed {fid}: qsize={q.qsize()} dropped={q.dropped_frames}")
 
-    def start_client_delayed(self, client, delay):
+        print("Stopping...")
+        for c in self.clients.values():
+            c.stop()
+
+    # -------------------------
+    # helpers
+    # -------------------------
+    def _delayed_start(self, client, delay):
         time.sleep(delay)
         client.start()
 
-    def signal_handler(self, sig, frame):
+    def _shutdown(self, sig, frame):
         self.running = False
 
-    def extract_feed_id(self, feed_config):
-        return feed_config.get("id", -1)
-
-    def parse_backpressure_args(self, config):
-        print(f"Parsing backpressure args for feed config: {config}")
-        max_queue_size = config.get("max_queue_size", 10000)
-        queue_timeout_ms = config.get("queue_timeout_ms", 500)
-
-        print(
-            f"Backpressure settings: max_queue_size={max_queue_size}, queue_timeout_ms={queue_timeout_ms}"
-        )
-
-        return max_queue_size, queue_timeout_ms
+    def extract_feed_id(self, cfg):
+        return cfg.get("id", -1)
 
 
-def parse_config_args(arg):
-    if arg.config:
-        import json
-
-        with open(arg.config, "r") as f:
-            config = json.load(f)
-        video_config = config.get("video_config", {})
-        network_config = config.get("network", {})
-    else:
-        print("No configuration file provided, using default settings.")
-        video_config = {}
-        network_config = {}
-    return video_config, network_config
-
-
-def parse_video_feeds(video_config):
-    input_feeds = video_config.get("input_feeds", [])
-    output_feeds = video_config.get("output_feeds", [])
-    return (input_feeds, output_feeds)
-
-
+# -------------------------
+# config helpers
+# -------------------------
 def parse_network_args(network_config):
-    input_base_video_port = network_config.get("input_base_video_port", 6000)
-    host_ip = network_config.get("host_ip", "127.0.0.1")
-    target_ip = network_config.get("target_ip", "127.0.0.1")
-    output_video_base_port = network_config.get("output_base_video_port", 8554)
-    input_network_type = network_config.get("input_network_type", "")
-    output_network_type = network_config.get("output_network_type", "")
-    ws_relay_config = network_config.get("websocket_relay", {})
-    ws_relay_enabled = ws_relay_config.get("enabled", False)
-    ws_relay_base_port = ws_relay_config.get("base_port", None)
     return (
-        host_ip,
-        target_ip,
-        input_base_video_port,
-        output_video_base_port,
-        input_network_type,
-        output_network_type,
-        ws_relay_enabled,
-        ws_relay_base_port,
+        network_config.get("host_ip", "127.0.0.1"),
+        network_config.get("target_ip", "127.0.0.1"),
+        network_config.get("input_base_video_port", 6000),
+        network_config.get("output_base_video_port", 8554),
+        network_config.get("input_network_type", ""),
+        network_config.get("output_network_type", ""),
+        network_config.get("websocket_relay", {}).get("enabled", False),
+        network_config.get("websocket_relay", {}).get("base_port", 50000),
     )
-
-
-def parse_filter_args(feed_config):
-    filter_settings = feed_config.get("filter_settings", {"filters": []})
-    filter_funcs = filter_settings.get("filters", [])
-
-    filter = Filter(filter_funcs)
-    return filter
-
-
-def parse_client_resilience_args(network_config):
-    resilience_config = network_config.get("client_resilience", {})
-    base_delay_ms = resilience_config.get("base_delay_ms", 500)
-    max_delay_ms = resilience_config.get("max_delay_ms", 30000)
-    max_consecutive_failures = resilience_config.get("max_consecutive_failures", 10)
-    extended_cooldown_ms = resilience_config.get("extended_cooldown_ms", 60000)
-    max_frame_errors = resilience_config.get("max_frame_errors", 100)
-    return {
-        "base_delay_ms": base_delay_ms,
-        "max_delay_ms": max_delay_ms,
-        "max_consecutive_failures": max_consecutive_failures,
-        "extended_cooldown_ms": extended_cooldown_ms,
-        "max_frame_errors": max_frame_errors,
-    }
 
 
 def main():
-    parser = argparse.ArgumentParser(description="ROV Telemetry and Video Simulator")
-    parser.add_argument(
-        "--config", type=str, help="JSON file video processor configurations"
-    )
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=str)
     args = parser.parse_args()
-    metrics_monitor = MetricsMonitor(memory_threshold=400.0)
 
-    # Start monitoring
-    metrics_monitor.start()
-    video_config, network_config = parse_config_args(args)
-    video_feeds = parse_video_feeds(video_config)
-    client_resilience_config = parse_client_resilience_args(network_config)
+    with open(args.config) as f:
+        cfg = json.load(f)
 
-    video_processor = VideoProcessor(
-        video_feeds, network_config, client_resilience_config
+    metrics = MetricsMonitor(memory_threshold=400.0)
+    metrics.start()
+
+    vp = VideoProcessor(
+        (cfg["video_config"]["input_feeds"], cfg["video_config"]["output_feeds"]),
+        cfg["network"],
+        cfg["network"].get("client_resilience", {}),
     )
-    video_processor.start()
-    metrics_monitor.stop()
+
+    vp.start()
+    metrics.stop()
 
 
 if __name__ == "__main__":

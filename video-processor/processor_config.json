@@ -17,7 +17,41 @@
         "filter_settings":{
           "filters":[]
         }
-      }
+      },
+      {
+        "id": "2",
+        "feed_settings": {
+          "width": 640,
+          "height": 480,
+          "fps": 30,
+          "format": "mono",
+          "stream_name":"usb_0"
+        },
+        "backpressure_queue_settings": {
+          "max_queue_size": 10,
+          "queue_timeout_ms": 500
+        },
+        "filter_settings":{
+          "filters":[]
+        }
+      },
+        {
+          "id": "3",
+          "feed_settings": {
+            "width": 640,
+            "height": 480,
+            "fps": 30,
+            "format": "mono",
+            "stream_name":"usb_1"
+          },
+          "backpressure_queue_settings": {
+            "max_queue_size": 10,
+            "queue_timeout_ms": 500
+          },
+          "filter_settings":{
+            "filters":[]
+          }
+        }
     ],
     "output_feeds": [
       {
@@ -27,6 +61,24 @@
           "height": 1520,
           "fps": 30,
           "format": "stereo"
+        }
+      },
+      {
+        "id": "2",
+        "feed_settings": {
+          "width": 640,
+          "height": 480,
+          "fps": 30,
+          "format": "mono"
+        }
+      },
+      {
+        "id": "3",
+        "feed_settings": {
+          "width": 640,
+          "height": 480,
+          "fps": 30,
+          "format": "mono"
         }
       }
     ]

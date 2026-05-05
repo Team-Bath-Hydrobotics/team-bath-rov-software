@@ -1,4 +1,3 @@
-import sys
 import threading
 import time
 from typing import Dict
@@ -14,7 +13,7 @@ from common.network.network_type import NetworkEnum
 
 
 class RTPClient(VideoStreamBase):
-    """RTP client to receive and decode video streams"""
+    """Robust RTSP client using PyAV with reconnect + backpressure-safe decode"""
 
     def __init__(
         self,
@@ -31,91 +30,105 @@ class RTPClient(VideoStreamBase):
         super().__init__(
             stream_id, port, input_config, output_config, frame_queue, network_type
         )
+
         self.host_ip = host_ip
-        self.filter = filter
         self.stream_name = input_config.get("stream_name", "")
-        self.max_frame_errors = resilience_config.get("max_frame_errors", 100)
-        self.base_delay_ms = resilience_config.get("base_delay_ms", 500)
-        self.max_delay_ms = resilience_config.get("max_delay_ms", 30000)
+        self.filter = filter
+        self.frame_queue = frame_queue
+
         self.max_consecutive_failures = resilience_config.get(
             "max_consecutive_failures", 10
         )
-        self.extended_cooldown_ms = resilience_config.get("extended_cooldown_ms", 60000)
-        self.target_ip = output_config.get("target_ip", "")
+        self.extended_cooldown_s = (
+            resilience_config.get("extended_cooldown_ms", 60000) / 1000.0
+        )
 
     def start(self):
-        """Start receiving RTP stream"""
         self.running = True
-        thread = threading.Thread(target=lambda: self.receive_rtp_stream(), daemon=True)
-        thread.start()
+        threading.Thread(target=self.receive_rtp_stream, daemon=True).start()
 
+    # -------------------------
+    # Decode loop (single connection lifecycle)
+    # -------------------------
     def decode_frames(self):
         rtsp_url = f"rtsp://{self.host_ip}:{self.port}/{self.stream_name}"
 
+        container = None
+        try:
+            print(f"[RTP] Opening stream: {rtsp_url}")
+
+            container = av.open(
+                rtsp_url,
+                options={
+                    "rtsp_flags": "prefer_tcp",
+                    "stimeout": "15000000",
+                    "buffer_size": "2097152",
+                    "allowed_media_types": "video",
+                },
+            )
+
+            frames_processed = 0
+            last_log = time.time()
+
+            # Correct PyAV API (avoids demux/decode misuse)
+            for frame in container.decode(video=0):
+                if not self.running:
+                    break
+
+                if frame is None:
+                    continue
+
+                img = frame.to_ndarray(format="bgr24")
+                img = np.ascontiguousarray(img)
+                img = self.filter.apply(img)
+
+                self.frame_counter += 1
+                frames_processed += 1
+
+                metadata = self._create_frame_metadata()
+
+                # Backpressure-safe enqueue (never block decode thread)
+                self.frame_queue.put((img, metadata))
+
+                if time.time() - last_log > 2:
+                    print(
+                        f"[RTP] stream={self.stream_id} "
+                        f"frames={frames_processed} "
+                        f"queue={self.frame_queue.qsize()}"
+                    )
+                    last_log = time.time()
+
+        finally:
+            if container:
+                container.close()
+
+    # -------------------------
+    # Supervisor loop
+    # -------------------------
+    def receive_rtp_stream(self):
+        print(f"[RTP] Receiver started stream={self.stream_id} port={self.port}")
+
+        failures = 0
+
         while self.running:
-            container = None
             try:
-                print(f"Opening PyAV stream: {rtsp_url}")
-
-                container = av.open(
-                    rtsp_url,
-                    options={
-                        "rtsp_transport": "udp",
-                        "fflags": "nobuffer",
-                        "flags": "low_delay",
-                        "probesize": "32",
-                        "analyzeduration": "0",
-                        "max_delay": "0",
-                        "stimeout": "5000000",
-                    },
-                )
-
-                stream = container.streams.video[0]
-                stream.thread_type = "AUTO"
-
-                frames_processed = 0
-                last_status = time.time()
-
-                last_frame_time = time.time()
-                for frame in container.decode(stream):
-                    if not self.running:
-                        break
-                    if time.time() - last_frame_time > 5:
-                        print(f"Stream {self.stream_id}: decode stall detected")
-                        break
-                    last_frame_time = time.time()
-                    try:
-                        if self.frame_queue.qsize() > 50:
-                            continue
-                        img = frame.to_ndarray(format="bgr24")
-                        img = np.ascontiguousarray(img)
-                        img = self.filter.apply(img)
-
-                        self.frame_counter += 1
-                        frames_processed += 1
-
-                        metadata = self._create_frame_metadata()
-                        self.frame_queue.put((img, metadata))
-
-                        last_status = self.log_status(frames_processed, last_status)
-
-                    except Exception as e:
-                        print(f"Frame error: {e}")
+                self.decode_frames()
+                failures = 0
 
             except Exception as e:
-                print(f"PyAV stream error: {e}")
-                time.sleep(1)
+                print(f"[RTP] Unexpected error: {e}")
+                failures += 1
 
-            finally:
-                if container is not None:
-                    container.close()
+            if failures >= self.max_consecutive_failures:
+                print(f"[RTP] Cooldown {self.extended_cooldown_s}s")
+                time.sleep(self.extended_cooldown_s)
+                failures = 0
+            else:
+                time.sleep(0.5)
 
-    def _log_too_many_frame_errors(self):
-        print(
-            f"Too many consecutive frame errors for stream {self.stream_id}, reconnecting...",
-            file=sys.stderr,
-        )
-
+    # -------------------------
+    # metadata
+    # -------------------------
     def _create_frame_metadata(self):
         return FrameMetadata(
             frame_id=self.frame_counter,
@@ -129,26 +142,3 @@ class RTPClient(VideoStreamBase):
             output_width=self.output_width,
             output_height=self.output_height,
         )
-
-    def receive_rtp_stream(self):
-        """Main loop: connect, forward, decode, and reconnect if needed, with disconnect handling"""
-        print(f"Starting RTP receiver for stream {self.stream_id} on port {self.port}")
-        consecutive_failures = 0
-        extended_cooldown = self.extended_cooldown_ms / 1000.0
-
-        while self.running:
-            try:
-                self.decode_frames()
-
-                consecutive_failures = 0
-
-            except Exception as e:
-                print(f"Stream {self.stream_id} error: {e}")
-                consecutive_failures += 1
-
-                if consecutive_failures >= self.max_consecutive_failures:
-                    print("Extended cooldown")
-                    time.sleep(extended_cooldown)
-                    consecutive_failures = 0
-                else:
-                    time.sleep(1)
