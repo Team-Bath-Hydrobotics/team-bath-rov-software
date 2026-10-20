@@ -1,4 +1,5 @@
 .env
+/mqtt/PASSWORD
 __pycache__/
 .DS_Store
 .vscode/
