@@ -23,16 +23,10 @@ poetry install
 ```
 
 ## Running
-You'll need a .env file in the root of this project with the following variables defined
-```
-MQTT_TLS_WEBSOCKET_URL=replaceme
-MQTT_USERNAME=replaceme
-MQTT_PASSWORD=replaceme
-```
-the values for these have been shared on teams, if you can't find them contact Max.
+
 Run the processor with a configuration file:
 ```bash
-poetry run python src/telemetry_processor.py --config path/to/config.json
+poetry run python src/telemetry_processor.py --config src/config.json
 ```
 
 ## Configuration
