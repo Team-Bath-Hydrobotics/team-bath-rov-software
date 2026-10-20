@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hivemq xmlns:xsi="http://w3.org"
+        xsi:noNamespaceSchemaLocation="hivemq-config.xsd">
+
+    <listeners>
+        <!-- Your original unencrypted MQTT listener -->
+        <tcp-listener>
+            <port>1883</port>
+            <bind-address>0.0.0.0</bind-address>
+        </tcp-listener>
+
+        <tls-tcp-listener>
+            <port>8883</port>
+            <bind-address>0.0.0.0</bind-address>
+            <name>mqtt-tls</name>
+            <tls>
+                <keystore>
+                    <path>/opt/hivemq/conf/keystore.jks</path>
+                    <password>ILove0tters</password>
+                    <private-key-password>ILove0tters</private-key-password>
+                </keystore>
+                <client-authentication-mode>NONE</client-authentication-mode>
+            </tls>
+        </tls-tcp-listener>
+
+        <!-- Your new TLS WebSocket listener -->
+        <tls-websocket-listener>
+            <port>8884</port>
+            <bind-address>0.0.0.0</bind-address>
+            <path>/mqtt</path>
+            <subprotocols>
+                <subprotocol>mqttv3.1</subprotocol>
+                <subprotocol>mqtt</subprotocol>
+            </subprotocols>
+            <allow-extensions>true</allow-extensions>
+            <tls>
+                <keystore>
+                    <path>/opt/hivemq/conf/keystore.jks</path>
+                    <password>ILove0tters</password>
+                    <private-key-password>ILove0tters</private-key-password>
+                </keystore>
+                <client-authentication-mode>NONE</client-authentication-mode>
+            </tls>
+        </tls-websocket-listener>
+    </listeners>
+
+</hivemq>
