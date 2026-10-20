@@ -8,7 +8,7 @@ __pycache__/
 packet-simulator/src/fake_videos/
 packet-simulator/fake_videos/
 .mp4
-# Local Netlify folder
+# Local Netlify folders
 .netlify
 machine-learning/crab_detection/scripts/test_e2e.py
 /machine-learning/crab_detection/tests
