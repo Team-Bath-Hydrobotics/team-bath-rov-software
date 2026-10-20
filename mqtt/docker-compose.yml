@@ -2,6 +2,8 @@ services:
   hivemq:
     image: hivemq/hivemq-ce:latest
     container_name: mqtt-broker
+    env_file:
+      - ./PASSWORD
     ports:
       - "1883:1883"
       - "8883:8883"

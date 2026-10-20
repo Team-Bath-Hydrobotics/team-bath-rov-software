@@ -8,7 +8,7 @@ cd "$SCRIPT_DIR"
 
 # Configuration variables
 ALIAS="hivemq"
-PASSWORD="ILove0tters"
+PASSWORD_FILE="$SCRIPT_DIR/PASSWORD"
 KEYSTORE_NAME="keystore.jks"
 PKCS12_NAME="hivemq.p12"
 CERT_NAME="localhost-cert.pem"
@@ -18,6 +18,18 @@ CA_CERT_NAME="mkcert-rootCA.pem"
 echo "========================================="
 echo " Creating HiveMQ TLS Keystore via Docker"
 echo "========================================="
+
+# Read the keystore password from the local Docker Compose env file.
+if [[ ! -f "$PASSWORD_FILE" ]]; then
+    echo "❌ Error: $PASSWORD_FILE is missing. Copy PASSWORD.example to PASSWORD and set a password."
+    exit 1
+fi
+
+PASSWORD="$(sed -n 's/^HIVEMQ_KEYSTORE_PASSWORD=//p' "$PASSWORD_FILE")"
+if [[ -z "$PASSWORD" ]]; then
+    echo "❌ Error: Set HIVEMQ_KEYSTORE_PASSWORD in $PASSWORD_FILE."
+    exit 1
+fi
 
 # 1. Check if mkcert is installed
 if ! command -v mkcert &> /dev/null; then

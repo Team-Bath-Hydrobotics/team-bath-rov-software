@@ -16,8 +16,8 @@
             <tls>
                 <keystore>
                     <path>/opt/hivemq/conf/keystore.jks</path>
-                    <password>ILove0tters</password>
-                    <private-key-password>ILove0tters</private-key-password>
+                    <password>${ENV:HIVEMQ_KEYSTORE_PASSWORD}</password>
+                    <private-key-password>${ENV:HIVEMQ_KEYSTORE_PASSWORD}</private-key-password>
                 </keystore>
                 <client-authentication-mode>NONE</client-authentication-mode>
             </tls>
@@ -36,8 +36,8 @@
             <tls>
                 <keystore>
                     <path>/opt/hivemq/conf/keystore.jks</path>
-                    <password>ILove0tters</password>
-                    <private-key-password>ILove0tters</private-key-password>
+                    <password>${ENV:HIVEMQ_KEYSTORE_PASSWORD}</password>
+                    <private-key-password>${ENV:HIVEMQ_KEYSTORE_PASSWORD}</private-key-password>
                 </keystore>
                 <client-authentication-mode>NONE</client-authentication-mode>
             </tls>
