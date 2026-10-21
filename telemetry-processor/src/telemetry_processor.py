@@ -373,8 +373,6 @@ def parse_config_and_env(config_path: str) -> dict:
     with open(config_path, "r") as f:
         config = json.load(f)
     env = {
-        "mqtt_username": os.getenv("MQTT_USERNAME"),
-        "mqtt_password": os.getenv("MQTT_PASSWORD"),
         "mqtt_broker_host": os.getenv("MQTT_BROKER_HOST"),
         "mqtt_broker_port": os.getenv("MQTT_BROKER_PORT"),
         "mqtt_use_tls": os.getenv("MQTT_USE_TLS"),
