@@ -81,13 +81,23 @@ class TelemetryProcessor:
         broker_port = self.env.get("mqtt_broker_port") or mqtt_config.get(
             "broker_port", 1883
         )
+        use_tls = self.env.get("mqtt_use_tls")
+        if use_tls is None:
+            use_tls = mqtt_config.get("use_tls", False)
+        else:
+            use_tls = use_tls.lower() in {"1", "true", "yes", "on"}
+        tls_ca_certs = self.env.get("mqtt_tls_ca_certs") or mqtt_config.get(
+            "tls_ca_certs"
+        )
+
         self.publisher = MQTTPublisher(
             broker_host=broker_host,
             broker_port=int(broker_port),
-            username=self.env.get("mqtt_username"),
-            password=self.env.get("mqtt_password"),
             client_id=mqtt_config.get("client_id", "telemetry-processor"),
             base_topic=topic,
+            use_tls=use_tls,
+            tls_insecure=mqtt_config.get("tls_insecure", False),
+            tls_ca_certs=tls_ca_certs,
         )
 
         # Setup filters per sensor
@@ -363,10 +373,10 @@ def parse_config_and_env(config_path: str) -> dict:
     with open(config_path, "r") as f:
         config = json.load(f)
     env = {
-        "mqtt_username": os.getenv("MQTT_USERNAME"),
-        "mqtt_password": os.getenv("MQTT_PASSWORD"),
         "mqtt_broker_host": os.getenv("MQTT_BROKER_HOST"),
         "mqtt_broker_port": os.getenv("MQTT_BROKER_PORT"),
+        "mqtt_use_tls": os.getenv("MQTT_USE_TLS"),
+        "mqtt_tls_ca_certs": os.getenv("MQTT_TLS_CA_CERTS"),
     }
     return config, env
 

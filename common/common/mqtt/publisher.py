@@ -11,19 +11,20 @@ class MQTTPublisher:
         self,
         broker_host: str,
         broker_port: int,
-        username: str,
-        password: str,
         client_id: str,
         base_topic: str,
+        use_tls: bool = False,
+        tls_insecure: bool = False,
+        tls_ca_certs: str | None = None,
     ):
         """Initializes the MQTT publisher with connection details."""
         self.client = mqtt.Client(client_id=client_id)
         self.broker_host = broker_host
         self.broker_port = broker_port
         self.id = f"publisher_{id(self)}"
-        self.client.username_pw_set(username=username, password=password)
-        self.client.tls_set()
-        self.client.tls_insecure_set(True)
+        if use_tls:
+            self.client.tls_set(ca_certs=tls_ca_certs)
+            self.client.tls_insecure_set(tls_insecure)
         self.client.on_connect = self._on_connect
         self.client.on_disconnect = self._on_disconnect
         self.connected = False

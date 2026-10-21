@@ -7,7 +7,9 @@
   "output": {
     "mqtt": {
       "broker_host": "localhost",
-      "broker_port": 1883,
+      "broker_port": 8883,
+      "use_tls": true,
+      "tls_ca_certs": "../mqtt/mkcert-rootCA.pem",
       "client_id": "telemetry-processor",
       "base_topic": "hydrobotics/rov/<rov_id>/telemetry"
     }
