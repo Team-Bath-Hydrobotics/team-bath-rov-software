@@ -93,8 +93,6 @@ class TelemetryProcessor:
         self.publisher = MQTTPublisher(
             broker_host=broker_host,
             broker_port=int(broker_port),
-            username=self.env.get("mqtt_username"),
-            password=self.env.get("mqtt_password"),
             client_id=mqtt_config.get("client_id", "telemetry-processor"),
             base_topic=topic,
             use_tls=use_tls,
