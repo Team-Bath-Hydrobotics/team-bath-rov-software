@@ -21,9 +21,9 @@ The pilot-facing UI lives in a separate repo: [`team-bath-rov-secondary-ui`](htt
 ### Prerequisites
 
 - Python 3.11+
-- [Poetry](https://python-poetry.org/docs/#installing-with-pipx) (dependency management)
-- [Node.js 20+](https://nodejs.org/) & npm (for the secondary UI)
-- [FFmpeg](https://ffmpeg.org/) (for video processing)
+- [Poetry](https://python-poetry.org/docs/#installing-with-pipx) - dependency management
+- [FFmpeg](https://ffmpeg.org/) - for video processing
+- [Docker](https://docs.docker.com/desktop/#:~:text=Next%20steps-,Install%20Docker%20Desktop,-Install%20Docker%20Desktop) - for managing containers
 
 ### 1. Clone both repos
 
@@ -32,17 +32,19 @@ git clone https://github.com/Team-Bath-Hydrobotics/team-bath-rov-software.git
 git clone https://github.com/Team-Bath-Hydrobotics/team-bath-rov-secondary-ui.git
 ```
 
-### 2. Run the photogrammetry backend
+### 2. Run the Telemetry Processor
 
-```bash
-cd team-bath-rov-software/photogrammetry-backend
-pip install -e .
-uvicorn app.main:app --reload --port 8100
-```
+Instructions can be found in telemetry-processor/README.md
 
-The API will be available at `http://localhost:8100`. Interactive docs at `http://localhost:8100/docs`.
+### 3. Run the Video Processor
 
-### 3. Run the secondary UI
+Instructions can be found in video-processor/README.md
+
+### 4. Run the Packet Simulator
+
+Instructions can be found in packet-simulator/README.md
+
+### 5. Run the secondary UI
 
 ```bash
 cd team-bath-rov-secondary-ui
@@ -51,6 +53,18 @@ npm run dev
 ```
 
 The UI dev server starts at `http://localhost:5173` and proxies `/api` requests to the backend via its Vite config.
+
+### To run the photogrammetry backend
+
+This isn't being used for the 2027 MATE ROV competition AFAIK so we don't need to worry about this for now
+
+```bash
+cd team-bath-rov-software/photogrammetry-backend
+pip install -e .
+uvicorn app.main:app --reload --port 8100
+```
+
+The API will be available at `http://localhost:8100`. Interactive docs at `http://localhost:8100/docs`.
 
 ### How the repos connect
 
