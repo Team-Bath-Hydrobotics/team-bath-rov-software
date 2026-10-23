@@ -32,19 +32,32 @@ git clone https://github.com/Team-Bath-Hydrobotics/team-bath-rov-software.git
 git clone https://github.com/Team-Bath-Hydrobotics/team-bath-rov-secondary-ui.git
 ```
 
-### 2. Run the Telemetry Processor
+### 2. Open Git Bash and run.
+```bash
+./run-all.sh
+```
+#### What it does
+The purpose of the script is to make it easier to start up the project, compared to Option 2, which makes you start them all manually in your IDE.
 
-Instructions can be found in telemetry-processor/README.md
+This is annoying, as all of the processes are in different directories.
 
-### 3. Run the Video Processor
+This script aims to:
+- Start the Docker container.
+- Start all of the processes (Telemetry, Video, Packet Sim) in the correct order.
+- Report any errors in /logs/
 
-Instructions can be found in video-processor/README.md
+Once you have run the script, you are done; the processes should be starting up, and the webpage can be found at `http://localhost:5173`
 
-### 4. Run the Packet Simulator
+### 3. More involved method
 
-Instructions can be found in packet-simulator/README.md
+This option involves manually starting every one of the processes individually. Assuming you didn't do Step 2
 
-### 5. Run the secondary UI
+These can be found in their respective directories.
+- telemetry-processor/README.md
+- video-processor/README.md
+- packet-simulator/README.md
+
+#### Run the secondary UI
 
 ```bash
 cd team-bath-rov-secondary-ui
@@ -54,7 +67,7 @@ npm run dev
 
 The UI dev server starts at `http://localhost:5173` and proxies `/api` requests to the backend via its Vite config.
 
-### To run the photogrammetry backend
+#### To run the photogrammetry backend
 
 This isn't being used for the 2027 MATE ROV competition AFAIK so we don't need to worry about this for now
 
