@@ -32,19 +32,20 @@ git clone https://github.com/Team-Bath-Hydrobotics/team-bath-rov-software.git
 git clone https://github.com/Team-Bath-Hydrobotics/team-bath-rov-secondary-ui.git
 ```
 
-### 2. Open Git Bash and run.
+### 2. Open Git Bash and run
 ```bash
 ./run-all.sh
 ```
 #### What it does
-The purpose of the script is to make it easier to start up the project, compared to Option 2, which makes you start them all manually in your IDE.
-
-This is annoying, as all of the processes are in different directories.
 
 This script aims to:
 - Start the Docker container.
 - Start all of the processes (Telemetry, Video, Packet Sim) in the correct order.
 - Report any errors in /logs/
+
+The purpose of the script is to make it easier to start up the project, compared to Option 2, which makes you start them all manually in your IDE.
+
+This is annoying, as all of the processes are in different directories.
 
 Once you have run the script, you are done; the processes should be starting up, and the webpage can be found at `http://localhost:5173`
 
@@ -52,12 +53,17 @@ Once you have run the script, you are done; the processes should be starting up,
 
 This option involves manually starting every one of the processes individually. Assuming you didn't do Step 2
 
-These can be found in their respective directories.
+Instructions for these can be found in their respective directories. 
+Please note that all of these processes must be
+
+### **run in order!**
+
+Or something might hang or not work; it's important but not devastating
 - telemetry-processor/README.md
 - video-processor/README.md
 - packet-simulator/README.md
 
-#### Run the secondary UI
+#### Run the secondary UI manually
 
 ```bash
 cd team-bath-rov-secondary-ui
