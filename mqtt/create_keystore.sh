@@ -71,7 +71,17 @@ openssl pkcs12 -export \
 
 echo "Step 5: Converting PKCS12 bundle into Java KeyStore ($KEYSTORE_NAME) using Docker..."
 # Mounts the current directory into a temporary container to run keytool
-docker run --rm -v "$(pwd)":/tmp -w /tmp hivemq/hivemq-ce:latest \
+
+if pwd -W >/dev/null 2>&1; then
+    DOCKER_DIR="$(pwd -W)"   # Git Bash on Windows
+else
+    DOCKER_DIR="$(pwd)"      # macOS/Linux
+fi
+
+MSYS_NO_PATHCONV=1 docker run --rm \
+  --mount "type=bind,source=${DOCKER_DIR},target=/tmp" \
+  --workdir /tmp \
+  hivemq/hivemq-ce:latest \
   keytool -importkeystore \
   -srckeystore "$PKCS12_NAME" \
   -srcstoretype PKCS12 \
