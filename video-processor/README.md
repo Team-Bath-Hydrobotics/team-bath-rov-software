@@ -11,7 +11,7 @@ Ensure you are in the src of the project
 `cd video-processor`
 Run
 `poetry install` to install all dependencies
-`poetry run python video_processor.py --config ../processor_config.json` to run the video processor
+`poetry run python src/video_processor.py --config processor_config.json` to run the video processor
 
 The config should be in the form:
 ```
