@@ -115,14 +115,14 @@ for name, command in COMMANDS.items():
         print(f"Started {name} process, reporting logs to {log_dir}")
     
 
-web_cwd = ""
+web_cwd = None 
 if args.web is not None:
     with open(LOGS_DIR / "web.log", "w") as web_log:
         web_cwd = args.web
         process = subprocess.Popen(WEB_RUN_COMMAND, stdout=web_log, stderr=subprocess.STDOUT, cwd=web_cwd)
-time.sleep(1)
-print("Web server should be open")
-print("Hosted at http://localhost:5173")
+        time.sleep(1)
+        print("Web server should be open")
+        print("Hosted at http://localhost:5173")
 
 
 ## This slop is supposed to shutdown all the processes but I hate it and it doesn't work
