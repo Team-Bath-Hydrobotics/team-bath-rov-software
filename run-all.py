@@ -104,10 +104,6 @@ for name, command in COMMANDS.items():
 
         if not args.verbose:
            PROCESS_STDOUT = log 
-
-        ## This means we need to open docker
-        if COMMANDS["telemetry-processor"] is not None and not docker_started:
-            docker_started = True
         
         ## Runs the current process and outputs to PROCESS_STDOUT, usually log (unless verbose enabled)
         process = subprocess.Popen(command, stdout=PROCESS_STDOUT, stderr=subprocess.STDOUT, cwd=ROOT/name)
