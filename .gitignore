@@ -1,5 +1,7 @@
 .env
 /mqtt/PASSWORD
+/mqtt/mkcert-rootCA.pem
+/mqtt/keystore.jks
 __pycache__/
 .DS_Store
 .vscode/
