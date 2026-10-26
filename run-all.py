@@ -32,7 +32,6 @@ COMMANDS["packet-simulator"]    = ["poetry", "run", "python", "src/packet_simula
 
 DOCKER_RUN_COMMAND = ["docker", "compose", "up", "-d", "--wait"]
 DOCKER_SHUTDOWN_COMMAND = ["docker", "compose", "down"]
-docker_started                  = False
 
 WEB_RUN_COMMAND = ["npm", "run", "dev"]
 
