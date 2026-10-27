@@ -1,4 +1,4 @@
-import subprocess 
+import subprocess
 import sys
 import time
 import os
@@ -6,7 +6,7 @@ import argparse
 import threading
 from pathlib import Path
 
-## Path and where the logs go
+# Path and where the logs go
 ROOT = Path(__file__).resolve().parent
 LOGS_DIR = ROOT / "logs"
 LOGS_DIR.mkdir(exist_ok=True)
@@ -23,7 +23,7 @@ def pump(name, process, log_path):
                 print(f"[{name}] {line}", end="")
     # Loop ends naturally when process ends
 
-## Commands to run
+# Commands to run
 COMMANDS = {}
 COMMANDS["video-processor"]     = ["poetry", "run", "python", "src/video_processor.py", "--config", "processor_config.json"]
 COMMANDS["telemetry-processor"] = ["poetry", "run", "python", "src/telemetry_processor.py", "--config", "src/config.json"]
@@ -34,23 +34,23 @@ DOCKER_SHUTDOWN_COMMAND = ["docker", "compose", "down"]
 
 WEB_RUN_COMMAND = ["npm", "run", "dev"]
 
-## None means that we will output to the terminal window, this is cluttered but useful for debugging
+# None means that we will output to the terminal window, this is cluttered but useful for debugging
 PROCESS_STDOUT = None
 
-## Keeps track of the processes so we can shut them down
+# Keeps track of the processes so we can shut them down
 processes = {}
 
 # Threads
 threads = []
 
-## This is passed to argparse as a type because it can resolve the directory instantly from runtime and give an appropriate error
+# This is passed to argparse as a type because it can resolve the directory instantly from runtime and give an appropriate error
 def dir_arg(value: str) -> Path:
     path = Path(value).expanduser().resolve()
     if not path.is_dir():
         raise argparse.ArgumentTypeError(f"{path} is not a directory")
     return path
 
-## Setup parser options
+# Setup parser options
 parser = argparse.ArgumentParser(description="A run all script designed to spin up all the processes required to develop and run team-bath-software")
 parser.add_argument(
     "--run", "-r",
@@ -62,7 +62,7 @@ parser.add_argument(
     "--verbose", "-v",
     action="store_true",
     help="Verbose output, shows all the output from the processes, still writes to log files aswell. Warning: Very cluttered if running all",
-) ## TODO, make some way that you can chose what processes output, while still running them all
+) # TODO, make some way that you can chose what processes output, while still running them all
 parser.add_argument(
     "--web", "-w",
     default="../team-bath-rov-secondary-ui",
@@ -102,12 +102,12 @@ if "telemetry-processor" in COMMANDS:
         print("Docker failed to start! See", LOGS_DIR / "docker.log")
         sys.exit(1)
 
-time.sleep(2) ## TODO, replace with proper poll for the port. This just gives docker time to start, 
-## increase if you are getting telemetry_processor errors on startup, something like "Failed to connect to MQTT broker"
+time.sleep(2) # TODO, replace with proper poll for the port. This just gives docker time to start, 
+# increase if you are getting telemetry_processor errors on startup, something like "Failed to connect to MQTT broker"
 
 env = {**os.environ, "PYTHONNUNBUFFERED": "1"} # stop python children block buffering
 
-## Main loop
+# Main loop
 for name, command in COMMANDS.items():
     log_path= LOGS_DIR / f"{name}.log"
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -126,7 +126,6 @@ for name, command in COMMANDS.items():
             bufsize=1,
         )
 
-<<<<<<< HEAD
         t = threading.Thread(target=pump, args=(name, process, log_path), daemon=True)
         t.start()
         threads.append(t)
@@ -142,15 +141,6 @@ for name, command in COMMANDS.items():
             )
     processes[name] = process
     print(f"Started {name}, logging to {log_path}")
-=======
-        if not args.verbose:
-           PROCESS_STDOUT = log 
-        
-        ## Runs the current process and outputs to PROCESS_STDOUT, usually log (unless verbose enabled)
-        process = subprocess.Popen(command, stdout=PROCESS_STDOUT, stderr=subprocess.STDOUT, cwd=ROOT/name)
-        processes[name] = process
-        print(f"Started {name} process, reporting logs to {log_dir}")
->>>>>>> bc1c140b82bb10721d8e0f444c7173fc4ac49f75
     
 
 web_cwd = None 
@@ -180,10 +170,10 @@ except KeyboardInterrupt:
         print("Docker composed down")
 
     try:
-        ## Tries to let them shutdown normally
+        # Tries to let them shutdown normally
         exit_codes = [p.wait(timeout=3) for p in processes.values()]
     except subprocess.TimeoutExpired:
-        ## Kills them if being polite takes too long
+        # Kills them if being polite takes too long
         exit_codes = [p.terminate() for p in processes.values()]
 
 for t in threads:
