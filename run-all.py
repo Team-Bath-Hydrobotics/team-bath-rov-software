@@ -31,7 +31,6 @@ COMMANDS["packet-simulator"]    = ["poetry", "run", "python", "src/packet_simula
 
 DOCKER_RUN_COMMAND = ["docker", "compose", "up", "-d", "--wait"]
 DOCKER_SHUTDOWN_COMMAND = ["docker", "compose", "down"]
-docker_started                  = False
 
 WEB_RUN_COMMAND = ["npm", "run", "dev"]
 
@@ -127,6 +126,7 @@ for name, command in COMMANDS.items():
             bufsize=1,
         )
 
+<<<<<<< HEAD
         t = threading.Thread(target=pump, args=(name, process, log_path), daemon=True)
         t.start()
         threads.append(t)
@@ -142,6 +142,15 @@ for name, command in COMMANDS.items():
             )
     processes[name] = process
     print(f"Started {name}, logging to {log_path}")
+=======
+        if not args.verbose:
+           PROCESS_STDOUT = log 
+        
+        ## Runs the current process and outputs to PROCESS_STDOUT, usually log (unless verbose enabled)
+        process = subprocess.Popen(command, stdout=PROCESS_STDOUT, stderr=subprocess.STDOUT, cwd=ROOT/name)
+        processes[name] = process
+        print(f"Started {name} process, reporting logs to {log_dir}")
+>>>>>>> bc1c140b82bb10721d8e0f444c7173fc4ac49f75
     
 
 web_cwd = None 
