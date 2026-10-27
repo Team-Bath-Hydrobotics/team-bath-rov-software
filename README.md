@@ -33,7 +33,7 @@ git clone https://github.com/Team-Bath-Hydrobotics/team-bath-rov-secondary-ui.gi
 
 ## Option 1 (recommended)
 
-Navigate to the team-bath-rov-software root and run:
+Navigate to the team-bath-rov-software/scripts and run:
 ```bash
 python run-all.py --help
 ```
