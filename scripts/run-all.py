@@ -7,7 +7,7 @@ import threading
 from pathlib import Path
 
 # Path and where the logs go
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 LOGS_DIR = ROOT / "logs"
 LOGS_DIR.mkdir(exist_ok=True)
 
@@ -65,7 +65,7 @@ parser.add_argument(
 ) # TODO, make some way that you can chose what processes output, while still running them all
 parser.add_argument(
     "--web", "-w",
-    default="../team-bath-rov-secondary-ui",
+    default="../../team-bath-rov-secondary-ui",
     type=dir_arg,
     help="Tells the script where the team-bath-secondary-ui folder is located. Passing this flag will start the website after the processes start successfully. Please note: Use the path relative to the current directory!"
 )
