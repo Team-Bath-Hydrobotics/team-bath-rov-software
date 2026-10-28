@@ -106,7 +106,7 @@ if "telemetry-processor" in COMMANDS:
 time.sleep(2) # TODO, replace with proper poll for the port. This just gives docker time to start, 
 # increase if you are getting telemetry_processor errors on startup, something like "Failed to connect to MQTT broker"
 
-env = {**os.environ, "PYTHONNUNBUFFERED": "1"} # stop python children block buffering
+env = {**os.environ, "PYTHONUNBUFFERED": "1"} # stop python children block buffering
 
 # Main loop
 for name, command in COMMANDS.items():
