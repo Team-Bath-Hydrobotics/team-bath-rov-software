@@ -133,24 +133,26 @@ class MPEGTSServer(MPEGTSBase):
                         and not self.encoder_ffmpeg_process.stdin.closed
                     ):
                         try:
-                            ready = select.select(
-                                [], [self.encoder_ffmpeg_process.stdin], [], 0.01
+                            if self.encoder_ffmpeg_process is None or self.encoder_ffmpeg_process.stdin is None:
+                                print(f"Encoder unavailable for stream {self.stream_id}")
+                                break
+                            return_code = self.encoder_ffmpeg_process.poll()
+                            if return_code is not None:
+                                print(
+                                    f"Encoder exited for stream {self.stream_id}, "
+                                    f"return code: {return_code}"
+                                )
+                                break
+                            self.encoder_ffmpeg_process.stdin.write(frame_data.tobytes())
+                            self.encoder_ffmpeg_process.stdin.flush()
+                            frames_sent += 1
+                            last_status_time = self.log_status(
+                                frames_sent, last_status_time
                             )
-                            if ready[1]:  # stdin is ready
-                                self.encoder_ffmpeg_process.stdin.write(
-                                    frame_data.tobytes()
-                                )
-                                self.encoder_ffmpeg_process.stdin.flush()
-                                frames_sent += 1
-                                last_status_time = self.log_status(
-                                    frames_sent, last_status_time
-                                )
-                            else:
-                                # stdin not ready, skip frame
-                                pass
                         except (BrokenPipeError, OSError) as e:
                             print(
-                                f"FFmpeg process ended for stream {self.stream_id}: {e}"
+                                f"Encoder stdin write failed for stream {self.stream_id}: "
+                                f"{e}; return code: {self.encoder_ffmpeg_process.poll() if self.encoder_ffmpeg_process else None}"
                             )
                             break
                     else:
