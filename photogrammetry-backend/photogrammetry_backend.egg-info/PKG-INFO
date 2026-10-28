@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: photogrammetry-backend
+Version: 1.0.0
+Summary: Photogrammetry backend for Team Bath ROV — MATE 2026 coral garden 3D modeling
+Requires-Python: >=3.11
+Requires-Dist: fastapi
+Requires-Dist: uvicorn[standard]
+Requires-Dist: python-multipart
+Requires-Dist: pydantic-settings
