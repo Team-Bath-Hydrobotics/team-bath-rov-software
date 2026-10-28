@@ -46,7 +46,7 @@ python run-all.py --help
 ```
 Review the output to learn more about the flags. 
 
-By default, it runs everything and starts the web server as usual. 
+By default (with no flags provided), it runs everything and starts the web server as usual. 
 
 ## Option 2 (more involved)
 
