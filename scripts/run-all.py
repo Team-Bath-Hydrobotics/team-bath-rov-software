@@ -65,10 +65,11 @@ parser.add_argument(
 ) # TODO, make some way that you can chose what processes output, while still running them all
 parser.add_argument(
     "--web", "-w",
-    default="../../team-bath-rov-secondary-ui",
+    default=ROOT.parent / "team-bath-rov-secondary-ui",
     type=dir_arg,
     help="Tells the script where the team-bath-secondary-ui folder is located. Passing this flag will start the website after the processes start successfully. Please note: Use the path relative to the current directory!"
 )
+
 parser.add_argument(
     "--exclude", "-e",
     type=str,
