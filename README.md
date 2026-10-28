@@ -38,6 +38,12 @@ poetry install
 Repeat this step for video-processor and packet-processor
 
 ## Running
+
+For two lightweight simulated camera feeds on your laptop, see the
+[local video preset](config/local-video/README.md). It provides matching simulator
+and processor configurations with generated 640×480 video at 30 fps and small
+frame queues.
+
 ## Option 1 (recommended)
 
 Navigate to the team-bath-rov-software/scripts and run:
