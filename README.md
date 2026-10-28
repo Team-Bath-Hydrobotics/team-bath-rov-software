@@ -24,27 +24,45 @@ The pilot-facing UI lives in a separate repo: [`team-bath-rov-secondary-ui`](htt
 - [Poetry](https://python-poetry.org/docs/#installing-with-pipx) - dependency management
 - [FFmpeg](https://ffmpeg.org/) - for video processing
 - [Docker](https://docs.docker.com/desktop/#:~:text=Next%20steps-,Install%20Docker%20Desktop,-Install%20Docker%20Desktop) - for managing containers
-
-### 1. Clone both repos
-
+  
+## 1. Clone both repos:
 ```bash
 git clone https://github.com/Team-Bath-Hydrobotics/team-bath-rov-software.git
 git clone https://github.com/Team-Bath-Hydrobotics/team-bath-rov-secondary-ui.git
 ```
+## 2. Install dependencies 
+Navigate to team-bath-rov-software/telemetry-processor and run
+```bash
+poetry install
+```
+Repeat this step for video-processor and packet-processor
 
-### 2. Run the Telemetry Processor
+## Running
+## Option 1 (recommended)
+
+Navigate to the team-bath-rov-software/scripts and run:
+```bash
+python run-all.py --help
+```
+Review the output to learn more about the flags. 
+
+By default (with no flags provided), it runs everything and starts the web server as usual. 
+
+## Option 2 (more involved)
+
+#### 1. Run the Telemetry Processor
 
 Instructions can be found in telemetry-processor/README.md
 
-### 3. Run the Video Processor
+#### 2. Run the Video Processor
 
 Instructions can be found in video-processor/README.md
 
-### 4. Run the Packet Simulator
+#### 3. Run the Packet Simulator
 
 Instructions can be found in packet-simulator/README.md
 
-### 5. Run the secondary UI
+#### 4. Run the secondary UI
 
 ```bash
 cd team-bath-rov-secondary-ui
