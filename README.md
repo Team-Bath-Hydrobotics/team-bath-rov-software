@@ -42,7 +42,15 @@ Repeat this step for video-processor and packet-processor
 For two lightweight simulated camera feeds on your laptop, see the
 [local video preset](config/local-video/README.md). It provides matching simulator
 and processor configurations with generated 640×480 video at 30 fps and small
-frame queues.
+frame queues. From the repository root, start it with the secondary UI using:
+
+```bash
+python scripts/run-all.py --local-video --exclude telemetry-processor
+```
+
+Omit `--exclude telemetry-processor` to include telemetry and its Docker broker.
+Without `--local-video`, run-all uses the existing video configs in each service
+directory.
 
 ## Option 1 (recommended)
 
