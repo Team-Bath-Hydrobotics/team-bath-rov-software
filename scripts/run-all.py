@@ -71,12 +71,21 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--local-video",
+    action="store_true",
+    help="Use the matching local video simulator and processor configs for generated camera feeds. By default, use the existing configs in each service directory.",
+)
+parser.add_argument(
     "--exclude", "-e",
     type=str,
     default=None,
     help="Tells the script which processes you wouldn't like to run. Only works when the \"run\" flag is to \"all\". This is because if you only want to run one thing, then you shouldn't need to exclude anything"
 )
 args = parser.parse_args()
+
+if args.local_video:
+    COMMANDS["video-processor"][-1] = str(ROOT / "config/local-video/processor.json")
+    COMMANDS["packet-simulator"][-1] = str(ROOT / "config/local-video/simulator.json")
 
 if args.run != "all":
     COMMANDS = {k: v for k, v in COMMANDS.items() if k in args.run}
