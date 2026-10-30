@@ -32,7 +32,7 @@ if [[ -z "$PASSWORD" ]]; then
 fi
 
 # 1. Check if mkcert is installed
-if command -v mkcert &> /dev/null; then
+if ! command -v mkcert &> /dev/null; then
     echo "❌ Error: mkcert is not installed."
     echo "Please run:"
     echo "Mac: brew install mkcert"
