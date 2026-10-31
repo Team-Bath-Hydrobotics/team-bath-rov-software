@@ -71,9 +71,9 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--local-video",
+    "--no-local-video",
     action="store_true",
-    help="Use the matching local video simulator and processor configs for generated camera feeds. By default, use the existing configs in each service directory.",
+    help="Use the original video configs in each service directory instead of the default local video configs for generated camera feeds.",
 )
 parser.add_argument(
     "--exclude", "-e",
@@ -83,7 +83,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-if args.local_video:
+if not args.no_local_video:
     COMMANDS["video-processor"][-1] = str(ROOT / "config/local-video/processor.json")
     COMMANDS["packet-simulator"][-1] = str(ROOT / "config/local-video/simulator.json")
 
