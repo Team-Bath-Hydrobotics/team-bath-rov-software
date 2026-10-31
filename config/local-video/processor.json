@@ -1,0 +1,77 @@
+{
+  "video_config": {
+    "input_feeds": [
+      {
+        "id": "1",
+        "feed_settings": {
+          "width": 640,
+          "height": 480,
+          "fps": 30,
+          "format": "mono"
+        },
+        "backpressure_queue_settings": {
+          "max_queue_size": 3,
+          "queue_timeout_ms": 100
+        },
+        "filter_settings": {
+          "filters": []
+        }
+      },
+      {
+        "id": "2",
+        "feed_settings": {
+          "width": 640,
+          "height": 480,
+          "fps": 30,
+          "format": "mono"
+        },
+        "backpressure_queue_settings": {
+          "max_queue_size": 3,
+          "queue_timeout_ms": 100
+        },
+        "filter_settings": {
+          "filters": []
+        }
+      }
+    ],
+    "output_feeds": [
+      {
+        "id": "1",
+        "feed_settings": {
+          "width": 640,
+          "height": 480,
+          "fps": 30,
+          "format": "mono"
+        }
+      },
+      {
+        "id": "2",
+        "feed_settings": {
+          "width": 640,
+          "height": 480,
+          "fps": 30,
+          "format": "mono"
+        }
+      }
+    ]
+  },
+  "network": {
+    "input_base_video_port": 6000,
+    "host_ip": "127.0.0.1",
+    "target_ip": "",
+    "output_base_video_port": 8554,
+    "input_network_type": "tcp",
+    "output_network_type": "udp",
+    "websocket_relay": {
+      "enabled": true,
+      "base_port": 50000
+    }
+  },
+  "client_resilience": {
+    "base_delay_ms": 500,
+    "max_delay_ms": 30000,
+    "max_consecutive_failures": 10,
+    "extended_cooldown_ms": 60000,
+    "max_frame_errors": 100
+  }
+}
