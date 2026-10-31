@@ -26,15 +26,16 @@ Install the secondary UI dependencies using its README as well.
 From the software repository root, start both video services and the secondary UI:
 
 ```sh
-python scripts/run-all.py --local-video --exclude telemetry-processor
+python scripts/run-all.py --exclude telemetry-processor
 ```
 
 Omit `--exclude telemetry-processor` to also start telemetry and its Docker broker.
 The UI repository is expected alongside the software repository; use
 `--web /path/to/team-bath-rov-secondary-ui` if it is elsewhere.
-`--local-video` also works with `--run` to select a single service.
-Without `--local-video`, the script uses `video-processor/processor_config.json`
-and `packet-simulator/src/video_config.json`.
+The local video configs are used by default, including with `--run` to select a
+single service. Pass `--no-local-video` to use
+`video-processor/processor_config.json` and `packet-simulator/src/video_config.json`
+instead. This flag also works with `--run`.
 
 Alternatively, start the services separately:
 
@@ -84,8 +85,9 @@ telemetry, follow the existing broker and telemetry setup separately.
   `1` and `2` map to the UI camera IDs and WebSocket ports above.
 - `target_ip` is empty to select WebSocket-only output. The current processor
   omits its optional UDP output when no target is configured.
-- This is an optional preset. Select it with `scripts/run-all.py --local-video`
-  or the explicit `--config` commands above.
+- This preset is the default for `scripts/run-all.py`. Use `--no-local-video`
+  to select the original service configs, or use the explicit `--config` commands
+  above when starting the services separately.
 
 The simulator and WebSocket relay currently bind listeners on all interfaces.
 The addresses above describe clients running on the same machine; this preset
