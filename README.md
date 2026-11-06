@@ -135,6 +135,22 @@ cd ../team-bath-rov-software
 ### 5. Configure MQTT
 
 Start Docker Desktop, then create the local password file:
+## Running
+
+For two lightweight simulated camera feeds on your laptop, see the
+[local video preset](config/local-video/README.md). It provides matching simulator
+and processor configurations with generated 640×480 video at 30 fps and small
+frame queues. From the repository root, start it with the secondary UI using:
+
+```bash
+python scripts/run-all.py --exclude telemetry-processor
+```
+
+Omit `--exclude telemetry-processor` to include telemetry and its Docker broker.
+Local video configs are used by default. Pass `--no-local-video` to use the
+original video configs in each service directory.
+
+## Option 1 (recommended)
 
 ```bash
 cd mqtt

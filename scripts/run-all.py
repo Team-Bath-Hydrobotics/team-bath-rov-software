@@ -6,22 +6,22 @@ import argparse
 import threading
 from pathlib import Path
 
-# Path and where the logs go
+# Repository root and log directory
 ROOT = Path(__file__).resolve().parent.parent
 LOGS_DIR = ROOT / "logs"
 LOGS_DIR.mkdir(exist_ok=True)
 
-# For printing and writing the processes output
+# Serialize terminal output from worker threads.
 print_lock = threading.Lock()
 def pump(name, process, log_path):
     with open(log_path, "w", encoding="utf-8") as log:
-    # Runs in it's own thread: copy one processes output to it's log file and the terminal
+        # Copy process output to its log file and the terminal.
         for line in process.stdout:
             log.write(line)
             log.flush()
             with print_lock:
                 print(f"[{name}] {line}", end="")
-    # Loop ends naturally when process ends
+    # Stop reading when the process closes its output stream.
 
 # Commands to run
 COMMANDS = {}
@@ -34,16 +34,16 @@ DOCKER_SHUTDOWN_COMMAND = ["docker", "compose", "down"]
 
 WEB_RUN_COMMAND = ["npm", "run", "dev"]
 
-# None means that we will output to the terminal window, this is cluttered but useful for debugging
+# None routes subprocess output to the terminal.
 PROCESS_STDOUT = None
 
-# Keeps track of the processes so we can shut them down
+# Track child processes for shutdown.
 processes = {}
 
 # Threads
 threads = []
 
-# This is passed to argparse as a type because it can resolve the directory instantly from runtime and give an appropriate error
+# Resolve and validate directory arguments during parsing.
 def dir_arg(value: str) -> Path:
     path = Path(value).expanduser().resolve()
     if not path.is_dir():
@@ -51,42 +51,51 @@ def dir_arg(value: str) -> Path:
     return path
 
 # Setup parser options
-parser = argparse.ArgumentParser(description="A run all script designed to spin up all the processes required to develop and run team-bath-software")
+parser = argparse.ArgumentParser(description="Start the services required to develop and run the Team Bath ROV software.")
 parser.add_argument(
     "--run", "-r",
     type=str,
-    help="What to run with the script, default is all. Can specify specific process like telemetry-processor or video-processor",
+    help="Select a service to start, such as telemetry-processor or video-processor. Defaults to all services.",
     default="all",
 )
 parser.add_argument(
     "--verbose", "-v",
     action="store_true",
-    help="Verbose output, shows all the output from the processes, still writes to log files aswell. Warning: Very cluttered if running all",
-) # TODO, make some way that you can chose what processes output, while still running them all
+    help="Display service output in the terminal and write it to log files.",
+) # TODO: Allow terminal output to be enabled for selected services.
 parser.add_argument(
     "--web", "-w",
     default=ROOT.parent / "team-bath-rov-secondary-ui",
     type=dir_arg,
-    help="Tells the script where the team-bath-secondary-ui folder is located. Passing this flag will start the website after the processes start successfully. Please note: Use the path relative to the current directory!"
+    help="Path to the secondary UI repository. Relative paths are resolved from the current directory. Defaults to the sibling team-bath-rov-secondary-ui directory."
 )
 
+parser.add_argument(
+    "--no-local-video",
+    action="store_true",
+    help="Use the original video configs in each service directory instead of the default local video configs for generated camera feeds.",
+)
 parser.add_argument(
     "--exclude", "-e",
     type=str,
     default=None,
-    help="Tells the script which processes you wouldn't like to run. Only works when the \"run\" flag is to \"all\". This is because if you only want to run one thing, then you shouldn't need to exclude anything"
+    help="Exclude a service from the selected processes."
 )
 args = parser.parse_args()
+
+if not args.no_local_video:
+    COMMANDS["video-processor"][-1] = str(ROOT / "config/local-video/processor.json")
+    COMMANDS["packet-simulator"][-1] = str(ROOT / "config/local-video/simulator.json")
 
 if args.run != "all":
     COMMANDS = {k: v for k, v in COMMANDS.items() if k in args.run}
 
 if args.exclude != None:
     if args.exclude not in COMMANDS:
-        print(f"{args.exclude} is not a recognised command! They are:")
+        print(f"{args.exclude} is not a recognised service. Available services:")
         print(" 1. telemetry-processor")
         print(" 2. video-processor")
-        print(" 3. packet-processor")
+        print(" 3. packet-simulator")
         sys.exit(1)
     else:
         COMMANDS.pop(args.exclude)
@@ -100,13 +109,13 @@ if "telemetry-processor" in COMMANDS:
             docker_log.write(line)
         process.wait()
     if process.returncode != 0:
-        print("Docker failed to start! See", LOGS_DIR / "docker.log")
+        print("Docker failed to start. See", LOGS_DIR / "docker.log")
         sys.exit(1)
 
-time.sleep(2) # TODO, replace with proper poll for the port. This just gives docker time to start, 
-# increase if you are getting telemetry_processor errors on startup, something like "Failed to connect to MQTT broker"
+# TODO: Replace the startup delay with a broker readiness check.
+time.sleep(2)
 
-env = {**os.environ, "PYTHONUNBUFFERED": "1"} # stop python children block buffering
+env = {**os.environ, "PYTHONUNBUFFERED": "1"} # Disable output buffering in Python child processes.
 
 # Main loop
 for name, command in COMMANDS.items():
@@ -114,7 +123,7 @@ for name, command in COMMANDS.items():
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
     if args.verbose:
-        # Different flags used as for this method we want to use the threads to handle their output
+        # Stream process output through a dedicated logging thread.
         process = subprocess.Popen(
             command,
             env=env,
@@ -151,11 +160,11 @@ if args.web is not None:
         process = subprocess.Popen(WEB_RUN_COMMAND, stdout=web_log, stderr=subprocess.STDOUT, cwd=web_cwd)
         processes["web"] = process
         time.sleep(1)
-        print("Web server should be open")
+        print("Web server process started")
         print("Hosted at http://localhost:5173")
 
 
-# Better shutdown method apparently, works the same
+# Monitor child processes and handle keyboard interruption.
 try:
     while True:
         for name, p in processes.items():
@@ -168,16 +177,16 @@ except KeyboardInterrupt:
 
     if "telemetry-processor" in COMMANDS:
         process = subprocess.run(DOCKER_SHUTDOWN_COMMAND, cwd=ROOT/"mqtt", capture_output=True, text=True)
-        print("Docker composed down")
+        print("Docker Compose shutdown command completed")
 
     try:
-        # Tries to let them shutdown normally
+        # Allow child processes time to exit.
         exit_codes = [p.wait(timeout=3) for p in processes.values()]
     except subprocess.TimeoutExpired:
-        # Kills them if being polite takes too long
+        # Terminate child processes that exceed the shutdown timeout.
         exit_codes = [p.terminate() for p in processes.values()]
 
 for t in threads:
     t.join(timeout=2)
 
-print("All processess finished")
+print("All processes finished")
