@@ -12,7 +12,7 @@ poetry run pytest tests/processor -v
 | Helper | What it does |
 |---|---|
 | `make_processor` | Builds a real `TelemetryProcessor` (real schemas and receiver, which do no I/O until `start()`), then swaps in a `FakePublisher`. Accepts `processing`, `mqtt` and `env` overrides. |
-| `FakePublisher` | Replaces `MQTTPublisher`. Records `publish()` calls in `.published`, and records `connect`/`disconnect`. |
+| `FakePublisher` | Replaces `MQTTPublisher`. Records `publish()` calls in `.published`, and whether `disconnect()` was called. `connect()` does nothing. |
 | `FakeClock` / `clock` | Replaces the `time` name *inside* `telemetry_processor` only. Tests set `clock.now` to control timestamps. `sleep()` never blocks, records the duration in `clock.sleeps`, and calls `on_sleep` so a test can stop a loop. |
 | `receive(processor, clock, at, **fields)` | Sets the fake time, then feeds a real `ROVData` to `_on_telemetry_received`. |
 | `publisher_calls` | Replaces `MQTTPublisher` with a recorder so a test can inspect the arguments the processor passed to it. |
@@ -71,7 +71,7 @@ Call `apply_filters` and `_on_aggregation_ready` directly.
 | state values flow into the packet | A state entry appears unchanged in the packet. |
 | sensors without state keep defaults | Setting `depth` doesn't change `actuator_2`. |
 | exactly the schema properties | The packet keys equal the schema's property names. |
-| default packet is valid against schema | Validates with `jsonschema` (see Known issues). |
+| default packet is valid against schema | Validates with `jsonschema`. Regression test for the schema encoding bug (see Bugs fixed). |
 | invalid packet is reported but returned | A bad `depth` value is still returned, and `capsys` sees "Schema validation error". |
 
 ### TestConstruction
@@ -110,9 +110,11 @@ Uses `tmp_path` and `clean_environ`.
 - `start()` returns without starting the receiver if the broker isn't connected.
 - `_cleanup()` flushes the aggregator (a buffered high-frequency sample reaches the state) and disconnects the publisher.
 
-## Known issues (expected failures)
+## Bugs fixed
 
-| Test | Why it fails |
+These tests found real bugs, which were fixed in the same PR. The tests now guard against them coming back.
+
+| Test | Bug |
 |---|---|
-| `test_default_packet_is_valid_against_schema` | `common`'s `load_schemas()` opens the schema files without `encoding="utf-8"`. On non-UTF-8 locales (Windows cp1252) `²` is read as `Â²`, so the schema's unit never matches `"rad/s²"`. This is marked `xfail` only on non-UTF-8 locales. With `PYTHONUTF8=1` it passes. |
-| `test_cleanup_without_start_does_not_crash` | `publish_thread` is only set in `start()`, so `_cleanup()` raises `AttributeError` if `start()` never ran. This is a strict `xfail`, so it will fail loudly when someone fixes the bug, to remind them to remove the marker. |
+| `test_default_packet_is_valid_against_schema` | `common`'s `load_schemas()` opened the schema files without `encoding="utf-8"`. On Windows (cp1252) `²` was read as `Â²`, so the schema's unit never matched `"rad/s²"`. Fixed by reading the files as UTF-8. |
+| `test_cleanup_without_start_does_not_crash` | `publish_thread` was only set in `start()`, so `_cleanup()` raised `AttributeError` if `start()` never ran. Fixed by initialising it to `None` in `__init__`. |

@@ -1,7 +1,6 @@
 """Unit tests for TelemetryProcessor."""
 
 import json
-import locale
 import os
 
 import jsonschema
@@ -369,12 +368,9 @@ class TestAssemblePacket:
         packet = processor._assemble_packet()
         assert set(packet) == set(processor.schema["properties"])
 
-    @pytest.mark.xfail(
-        locale.getpreferredencoding(False).lower().replace("-", "") != "utf8",
-        reason="load_schemas() opens schema files without encoding='utf-8', so on "
-        "non-UTF-8 locales (e.g. Windows cp1252) the '²' units are mis-decoded",
-    )
     def test_default_packet_is_valid_against_schema(self, make_processor):
+        """Regression: schemas used to be read with the platform encoding, which
+        mis-decoded the '²' units on Windows (cp1252)."""
         processor = make_processor()
         packet = processor._assemble_packet()
         jsonschema.validate(instance=packet, schema=processor.schema)
@@ -633,10 +629,9 @@ class TestLifecycle:
         assert processor.telemetry_state["velocity_x"]["value"] == 4.0
         assert processor.publisher.disconnected is True
 
-    @pytest.mark.xfail(
-        raises=AttributeError,
-        strict=True,
-        reason="publish_thread is only set in start(), not __init__",
-    )
     def test_cleanup_without_start_does_not_crash(self, make_processor):
-        make_processor()._cleanup()
+        """Regression: publish_thread used to be set only in start(), so this
+        raised AttributeError."""
+        processor = make_processor()
+        processor._cleanup()
+        assert processor.publisher.disconnected is True
