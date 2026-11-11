@@ -24,16 +24,17 @@ def free_port():
 
 @pytest.fixture
 def sample_telemetry_data():
-    """Return sample telemetry data for testing."""
-    from data_interface.telemetry_data import TelemetryData
+    """Return a sample TelemetryData point for testing."""
+    from common.data_interface import TelemetryData
+    #Updated since data.interface did not exist and instead lives inside common
 
     return TelemetryData(
         timestamp=1000.0,
-        sensor_id="depth_sensor",
+        sensor_name="depth",
         value=15.5,
-        unit="meters",
-        metadata={"location": "bow"},
+        unit="m",
     )
+    #Updated to sensor_name from sensor_id since telemetry dataclass has field sensor_name not sensor_id
 
 
 @pytest.fixture
