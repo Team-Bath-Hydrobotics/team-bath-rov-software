@@ -1,26 +1,46 @@
-[tool.poetry]
+[project]
 name = "telemetry-processor"
 version = "0.1.0"
 description = "ROV Telemetry Preprocessor - aggregation, filtering (Kalman), and MQTT output"
-authors = ["Team Bath Hydrobotics"]
+authors = [{ name = "Team Bath Hydrobotics" }]
+requires-python = ">=3.10,<4"
 readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "paho-mqtt>=2.0.0,<3",
+    "numpy>=2.1.1,<3",
+    "jsonschema>=4.25.1,<5",
+    "dotenv>=0.9.9,<0.10",
+    "common",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-paho-mqtt = "^2.0.0"
-numpy = "^2.1.1"
-jsonschema = "^4.25.1"
-dotenv = "^0.9.9"
-common = {path = "../common"}
+[dependency-groups]
+dev = [
+    "pytest>=7.4.0,<8",
+    "black>=24.0.0,<25",
+    "flake8>=7.0.0,<8",
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
-black = "^24.0.0"
-flake8 = "^7.0.0"
+[tool.uv]
+default-groups = "all"
+
+[tool.uv.sources]
+common = { path = "../common" }
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.13.4,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "src"
+module-root = ""
 
 [tool.black]
 line-length = 88
