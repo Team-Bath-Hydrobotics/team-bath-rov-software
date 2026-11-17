@@ -117,6 +117,16 @@ time.sleep(2)
 
 env = {**os.environ, "PYTHONUNBUFFERED": "1"} # Disable output buffering in Python child processes.
 
+# Check where npm is
+if args.web is not None:
+    import shutil
+    npm = shutil.which("npm")
+    if npm is None:
+        print("npm not found on PATH, so the web UI cannot be started")
+        print("Install Node.js and tick \"add to path\", and restart")
+        print("To run without the web UI, pass --web none")
+        sys.exit(1)
+
 # Main loop
 for name, command in COMMANDS.items():
     log_path= LOGS_DIR / f"{name}.log"
