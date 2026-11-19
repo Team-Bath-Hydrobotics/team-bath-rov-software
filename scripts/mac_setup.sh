@@ -77,6 +77,15 @@ if [[ ! -d "$UI_ROOT" ]]; then
     exit 1
 fi
 
+UI_ENV_FILE="$UI_ROOT/.env"
+UI_ENV_TEMP="$(mktemp)"
+if [[ -f "$UI_ENV_FILE" ]]; then
+    grep -v -E '^[[:space:]]*VITE_MQTT_(HOST|PORT|URL)[[:space:]]*=' "$UI_ENV_FILE" > "$UI_ENV_TEMP" || true
+fi
+printf 'VITE_MQTT_URL=wss://localhost:8884/mqtt\n' >> "$UI_ENV_TEMP"
+mv "$UI_ENV_TEMP" "$UI_ENV_FILE"
+echo "Configured MQTT WebSocket settings in $UI_ENV_FILE."
+
 npm --prefix "$UI_ROOT" install
 
 if pipx list 2>/dev/null | grep -q "package poetry"; then
