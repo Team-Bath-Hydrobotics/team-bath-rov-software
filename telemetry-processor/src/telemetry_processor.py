@@ -42,6 +42,7 @@ class TelemetryProcessor:
         self.publisher: Optional[MQTTPublisher] = None
         self.filters: Dict[str, List[BaseFilter]] = {}
         self.aggregator: Optional[TimeWindowAggregator] = None
+        self.publish_thread: Optional[threading.Thread] = None
         self.telemetry_state = {}
         self.last_received = {}
         self.schemas = load_schemas()
