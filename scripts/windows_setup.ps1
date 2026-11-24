@@ -38,6 +38,7 @@ Write-Host "Installing prerequisites..."
 Install-WingetPackage "Git.Git"
 Install-WingetPackage "Docker.DockerDesktop"
 Install-WingetPackage "Python.Python.3.11"
+Install-WingetPackage "Astral.uv"
 Install-WingetPackage "OpenJS.NodeJS.LTS"
 Install-WingetPackage "Gyan.FFmpeg"
 Install-WingetPackage "FiloSottile.mkcert"
@@ -75,23 +76,14 @@ try {
     Pop-Location
 }
 
-& py -3.11 -m pip install --user pipx
-& py -3.11 -m pipx ensurepath
-
-$userScripts = Join-Path $env:USERPROFILE "AppData\Roaming\Python\Python311\Scripts"
-$env:Path = "$userScripts;$env:Path"
-
-if (Get-Command poetry -ErrorAction SilentlyContinue) {
-    Write-Host "Poetry is already installed; skipping."
-} else {
-    & py -3.11 -m pipx install poetry
+if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+    throw "uv was installed but is not available in this PowerShell session. Open a new PowerShell window and rerun this script."
 }
 
 foreach ($service in @("telemetry-processor", "video-processor", "packet-simulator")) {
     Push-Location (Join-Path $repoRoot $service)
     try {
-        poetry env use $pythonPath
-        poetry install --no-interaction
+        uv sync --python $pythonPath
     } finally {
         Pop-Location
     }
