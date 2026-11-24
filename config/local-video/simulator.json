@@ -1,0 +1,24 @@
+{
+  "video_config": {
+    "feeds": [
+      {
+        "width": 640,
+        "height": 480,
+        "fps": 30,
+        "format": "mono"
+      },
+      {
+        "width": 640,
+        "height": 480,
+        "fps": 30,
+        "format": "mono"
+      }
+    ],
+    "input_file_dir": ""
+  },
+  "network": {
+    "base_video_port": 6000,
+    "host_ip": "127.0.0.1",
+    "output_network_type": "tcp"
+  }
+}
