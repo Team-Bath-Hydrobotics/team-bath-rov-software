@@ -261,6 +261,6 @@ To run the docs site locally:
 
 ```bash
 cd docs-site
-poetry install --no-root
-poetry run mkdocs serve
+uv sync
+uv run mkdocs serve
 ```

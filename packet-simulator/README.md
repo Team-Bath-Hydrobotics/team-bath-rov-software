@@ -10,8 +10,8 @@ brew install ffmpeg or your OS equivalent process
 Ensure you are in the src of the project
 `cd packet-simulator`
 run
-`poetry install` to install all dependencies
-`poetry run python src/packet_simulator.py --config src/video_config.json`
+`uv install` to install all dependencies
+`uv run python src/packet_simulator.py --config src/video_config.json`
 This will generate image and telemetry data encoded via MPEGTS and send the video data over the specified network type.
 --config represents the path to the config file in the format 
 

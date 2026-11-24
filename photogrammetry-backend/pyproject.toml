@@ -8,7 +8,6 @@ dependencies = [
     "uvicorn[standard]",
     "python-multipart",
     "pydantic-settings",
-    "fcntl",
 ]
 
 [tool.setuptools.packages.find]

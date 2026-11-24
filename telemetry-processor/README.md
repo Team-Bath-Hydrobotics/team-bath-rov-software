@@ -19,14 +19,14 @@ cd telemetry-processor
 
 Install dependencies with Poetry:
 ```bash
-poetry install
+uv install
 ```
 
 ## Running
 
 Run the processor with a configuration file:
 ```bash
-poetry run python src/telemetry_processor.py --config src/config.json
+uv run python src/telemetry_processor.py --config src/config.json
 ```
 
 ## Configuration
@@ -95,19 +95,19 @@ The configuration file should be JSON with the following structure:
 
 Format code with Black:
 ```bash
-poetry run black src/ tests/
+uv run black src/ tests/
 ```
 
 Check code style with Flake8:
 ```bash
-poetry run flake8 src/ tests/
+uv run flake8 src/ tests/
 ```
 
 ### Testing
 
 Run tests with pytest:
 ```bash
-poetry run pytest
+uv run pytest
 ```
 
 ## Architecture
