@@ -32,7 +32,10 @@ COMMANDS["packet-simulator"]    = ["poetry", "run", "python", "src/packet_simula
 DOCKER_RUN_COMMAND = ["docker", "compose", "up", "-d", "--wait"]
 DOCKER_SHUTDOWN_COMMAND = ["docker", "compose", "down"]
 
-WEB_RUN_COMMAND = ["npm", "run", "dev"]
+# On Windows, npm is exposed as a ``npm.cmd`` command shim.  ``Popen`` starts
+# processes directly (rather than through a shell), so asking for bare ``npm``
+# can fail with WinError 2 even when npm works in PowerShell.
+WEB_RUN_COMMAND = ["npm.cmd" if os.name == "nt" else "npm", "run", "dev"]
 
 # None routes subprocess output to the terminal.
 PROCESS_STDOUT = None

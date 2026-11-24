@@ -60,6 +60,14 @@ if (-not (Test-Path $uiRoot)) {
     throw "Secondary UI repository was not found at $uiRoot. Clone it beside team-bath-rov-software first."
 }
 
+$uiEnvFile = Join-Path $uiRoot ".env"
+$uiEnvLines = if (Test-Path $uiEnvFile) { Get-Content $uiEnvFile } else { @() }
+$uiEnvLines = @($uiEnvLines | Where-Object { $_ -notmatch '^\s*VITE_MQTT_(HOST|PORT|URL)\s*=' })
+$uiEnvLines += "VITE_MQTT_URL=wss://localhost:8884/mqtt"
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[IO.File]::WriteAllLines($uiEnvFile, [string[]]$uiEnvLines, $utf8NoBom)
+Write-Host "Configured MQTT WebSocket settings in $uiEnvFile."
+
 Push-Location $uiRoot
 try {
     npm install
@@ -131,7 +139,6 @@ if (-not (Test-Path $passwordFile)) {
         throw "Passwords did not match or were empty."
     }
 
-    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
     [IO.File]::WriteAllText($passwordFile, "HIVEMQ_KEYSTORE_PASSWORD=$passwordText`n", $utf8NoBom)
 } else {
     Write-Host "mqtt/PASSWORD already exists; leaving it unchanged."
