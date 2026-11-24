@@ -25,9 +25,9 @@ def pump(name, process, log_path):
 
 # Commands to run
 COMMANDS = {}
-COMMANDS["video-processor"]     = ["poetry", "run", "python", "src/video_processor.py", "--config", "processor_config.json"]
-COMMANDS["telemetry-processor"] = ["poetry", "run", "python", "src/telemetry_processor.py", "--config", "src/config.json"]
-COMMANDS["packet-simulator"]    = ["poetry", "run", "python", "src/packet_simulator.py", "--config", "src/video_config.json"]
+COMMANDS["video-processor"]     = ["uv", "run", "python", "src/video_processor.py", "--config", "processor_config.json"]
+COMMANDS["telemetry-processor"] = ["uv", "run", "python", "src/telemetry_processor.py", "--config", "src/config.json"]
+COMMANDS["packet-simulator"]    = ["uv", "run", "python", "src/packet_simulator.py", "--config", "src/video_config.json"]
 
 DOCKER_RUN_COMMAND = ["docker", "compose", "up", "-d", "--wait"]
 DOCKER_SHUTDOWN_COMMAND = ["docker", "compose", "down"]
