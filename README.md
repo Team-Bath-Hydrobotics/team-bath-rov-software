@@ -108,16 +108,16 @@ Use Python 3.11 for each service:
 
 ```bash
 cd telemetry-processor
-poetry env use python3.11
-poetry install
+uv venv --python 3.11
+uv sync
 
 cd ../video-processor
-poetry env use python3.11
-poetry install
+uv venv --python 3.11
+uv sync
 
 cd ../packet-simulator
-poetry env use python3.11
-poetry install
+uv venv --python 3.11
+uv sync
 
 cd ..
 ```
@@ -204,17 +204,17 @@ Then run each service in a separate terminal:
 
 ```bash
 cd telemetry-processor
-poetry run python src/telemetry_processor.py --config src/config.json
+uv run python src/telemetry_processor.py --config src/config.json
 ```
 
 ```bash
 cd video-processor
-poetry run python src/video_processor.py --config processor_config.json
+uv run python src/video_processor.py --config processor_config.json
 ```
 
 ```bash
 cd packet-simulator
-poetry run python src/packet_simulator.py --config src/video_config.json
+uv run python src/packet_simulator.py --config src/video_config.json
 ```
 
 ```bash
