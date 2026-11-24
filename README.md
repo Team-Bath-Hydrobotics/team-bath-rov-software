@@ -86,7 +86,7 @@ UI at `../team-bath-rov-secondary-ui` by default.
 
 ### 2. Install prerequisites
 
-Install Python 3.11+, Poetry, Node.js/npm, FFmpeg, Docker Desktop, `mkcert`,
+Install Python 3.11+, uv, Node.js/npm, FFmpeg, Docker Desktop, `mkcert`,
 and Git for Windows. Git for Windows includes Git Bash, which is needed for the
 MQTT keystore script.
 
@@ -94,7 +94,7 @@ Verify the tools:
 
 ```bash
 python3 --version
-poetry --version
+uv --version
 node --version
 npm --version
 ffmpeg -version
