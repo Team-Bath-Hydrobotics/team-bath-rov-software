@@ -148,6 +148,7 @@ web_cwd = None
 if args.web is not None:
     with open(LOGS_DIR / "web.log", "w") as web_log:
         web_cwd = args.web
+        print(web_cwd)
         process = subprocess.Popen(WEB_RUN_COMMAND, stdout=web_log, stderr=subprocess.STDOUT, cwd=web_cwd)
         processes["web"] = process
         time.sleep(1)
