@@ -1,35 +1,44 @@
-# This workflow executes several linters on changed files based on languages used in your code base whenever
-# you push a code or open a pull request.
-#
-# You can adjust the behavior by modifying this file.
-# For more information, see:
-# https://github.com/github/super-linter
-name: Lint Code Base
+name: Lint
+
+on: # yamllint disable-line rule:truthy
+  push: null
+  pull_request: null
 
 permissions:
   contents: read
-  packages: read
-  statuses: write
 
-on:
-  workflow_dispatch:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 jobs:
-  run-lint:
+  fix-lint-issues:
+    permissions:
+      # To write linting fixes
+      contents: write
+      # To write Super-linter status checks
+      statuses: write
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
-
-      - name: Lint Code Base
-        uses: github/super-linter@v4
+          persist-credentials: false
+      - name: Super-Linter
+        uses: super-linter/super-linter@v9.0.0 
         env:
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Set fix mode variables to true
+          FIX_SHELL_SHFMT: true
+          FIX_YAML_PRETTIER: true
+          FIX_PYTHON_BLACK: true
+          FIX_PYTHON_ISORT: true
+      - name: Commit and push linting fixes
+        # Run only on:
+        # - Pull requests
+        # - Not on the default branch
+        if: >
+          github.event_name == 'pull_request' &&
+          github.ref_name != github.event.repository.default_branch
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          commit_message: "chore: fix linting issues"
+          commit_user_name: super-linter
+          commit_user_email: super-linter@super-linter.dev
