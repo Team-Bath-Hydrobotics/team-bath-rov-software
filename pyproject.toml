@@ -1,22 +1,37 @@
-[tool.poetry]
+[project]
 name = "team-bath-rov-software"
 version = "0.1.0"
 description = "ROV Software Suite"
-authors = ["Your Name <your.email@example.com>"]
+authors = [{ name = "Your Name", email = "your.email@example.com" }]
+requires-python = ">=3.10,<4"
 readme = "README.md"
-packages = [{include = "src"}]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
+[dependency-groups]
+dev = [
+    "black>=24.0.0",
+    "flake8>=7.0.0",
+    "pre-commit>=4.4.0,<5",
+]
 
-[tool.poetry.group.dev.dependencies]
-black = ">=24.0.0"
-flake8 = ">=7.0.0"
-pre-commit = "^4.4.0"
+[tool.uv]
+default-groups = "all"
+
+[tool.uv.build-backend]
+module-name = ["src"]
+module-root = ""
+namespace = true
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.13.4,<0.14.0"]
+build-backend = "uv_build"
 
 [tool.black]
 target-version = ['py310']

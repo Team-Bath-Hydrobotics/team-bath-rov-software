@@ -29,11 +29,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Poetry
-        run: pip install poetry
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: uv sync --locked --no-install-project
 
       - name: Build and deploy site
-        run: poetry run mkdocs gh-deploy --force
+        run: uv run --no-sync mkdocs gh-deploy --force

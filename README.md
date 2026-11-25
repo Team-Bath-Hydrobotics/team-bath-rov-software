@@ -86,7 +86,7 @@ UI at `../team-bath-rov-secondary-ui` by default.
 
 ### 2. Install prerequisites
 
-Install Python 3.11+, Poetry, Node.js/npm, FFmpeg, Docker Desktop, `mkcert`,
+Install Python 3.11+, uv, Node.js/npm, FFmpeg, Docker Desktop, `mkcert`,
 and Git for Windows. Git for Windows includes Git Bash, which is needed for the
 MQTT keystore script.
 
@@ -94,7 +94,7 @@ Verify the tools:
 
 ```bash
 python3 --version
-poetry --version
+uv --version
 node --version
 npm --version
 ffmpeg -version
@@ -108,16 +108,16 @@ Use Python 3.11 for each service:
 
 ```bash
 cd telemetry-processor
-poetry env use python3.11
-poetry install
+uv venv --python 3.11
+uv sync
 
 cd ../video-processor
-poetry env use python3.11
-poetry install
+uv venv --python 3.11
+uv sync
 
 cd ../packet-simulator
-poetry env use python3.11
-poetry install
+uv venv --python 3.11
+uv sync
 
 cd ..
 ```
@@ -204,17 +204,17 @@ Then run each service in a separate terminal:
 
 ```bash
 cd telemetry-processor
-poetry run python src/telemetry_processor.py --config src/config.json
+uv run python src/telemetry_processor.py --config src/config.json
 ```
 
 ```bash
 cd video-processor
-poetry run python src/video_processor.py --config processor_config.json
+uv run python src/video_processor.py --config processor_config.json
 ```
 
 ```bash
 cd packet-simulator
-poetry run python src/packet_simulator.py --config src/video_config.json
+uv run python src/packet_simulator.py --config src/video_config.json
 ```
 
 ```bash
@@ -261,6 +261,6 @@ To run the docs site locally:
 
 ```bash
 cd docs-site
-poetry install --no-root
-poetry run mkdocs serve
+uv sync
+uv run mkdocs serve
 ```

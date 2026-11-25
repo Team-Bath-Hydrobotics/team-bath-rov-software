@@ -36,7 +36,8 @@ else
     brew install --cask docker
 fi
 
-for formula in pipx python@3.11 ffmpeg mkcert node; do
+# uv replaces Poetry as the Python package and environment manager.
+for formula in uv python@3.11 ffmpeg mkcert node; do
     if brew list --formula "$formula" >/dev/null 2>&1; then
         echo "$formula is already installed; skipping."
     else
@@ -88,19 +89,9 @@ echo "Configured MQTT WebSocket settings in $UI_ENV_FILE."
 
 npm --prefix "$UI_ROOT" install
 
-if pipx list 2>/dev/null | grep -q "package poetry"; then
-    echo "Poetry is already installed; upgrading it."
-    pipx upgrade poetry
-else
-    pipx install --python "$PYTHON_BIN" poetry
-fi
-pipx ensurepath
-export PATH="$HOME/.local/bin:$PATH"
-
 for service in telemetry-processor video-processor packet-simulator; do
     cd "$REPO_ROOT/$service"
-    poetry env use "$PYTHON_BIN"
-    poetry install --no-interaction
+    uv sync --python "$PYTHON_BIN"
 done
 
 cd "$REPO_ROOT/mqtt"
