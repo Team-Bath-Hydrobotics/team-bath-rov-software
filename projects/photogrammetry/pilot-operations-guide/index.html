@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../../img/favicon.ico">
+        <title>Pilot Operations Guide - Team Bath ROV Software Documentation</title>
+        <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../../css/brands.min.css" rel="stylesheet">
+        <link href="../../../css/solid.min.css" rel="stylesheet">
+        <link href="../../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../../..">Team Bath ROV Software Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">General</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../general/getting-started/" class="dropdown-item">Getting Started</a>
+</li>
+                                    
+<li>
+    <a href="../../../general/architecture/" class="dropdown-item">Architecture</a>
+</li>
+                                    
+<li>
+    <a href="../../../general/development/" class="dropdown-item">Development</a>
+</li>
+                                    
+<li>
+    <a href="../../../general/git/" class="dropdown-item">Git</a>
+</li>
+                                    
+<li>
+    <a href="../../../general/pr/" class="dropdown-item">Pull Requests</a>
+</li>
+                                    
+<li>
+    <a href="../../../general/roadmap/" class="dropdown-item">Roadmap</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Projects</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../db-writer/db-writer/" class="dropdown-item">DB Writer</a>
+</li>
+                                    
+<li>
+    <a href="../photogrammetry/" class="dropdown-item">Photogrammetry</a>
+</li>
+                                    
+<li>
+    <a href="../../crab-detection/crab-detection/" class="dropdown-item">Crab-Detection</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active" aria-current="page">Pilot Operations Guide</a>
+</li>
+                                    
+<li>
+    <a href="../../ui/ui/" class="dropdown-item">UI</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">ADRS</a>
+                                <ul class="dropdown-menu">
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">2026</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../../adrs/2026/db-adr/" class="dropdown-item">DB-ADR</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Other</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../other/25-26/team/" class="dropdown-item">25-26 Team</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../../crab-detection/crab-detection/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../../ui/ui/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#pilot-operations-guide-task-12-coral-garden-ridge-modelling" class="nav-link">Pilot Operations Guide: Task 1.2 — Coral Garden Ridge Modelling</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#scoring-breakdown" class="nav-link">Scoring Breakdown</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#the-gated-flow" class="nav-link">The Gated Flow</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#what-you-know-before-starting" class="nav-link">What You Know Before Starting</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#competition-procedure" class="nav-link">Competition Procedure</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#scaling-algorithm" class="nav-link">Scaling Algorithm</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#recommended-strategy" class="nav-link">Recommended Strategy</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#timing-guide" class="nav-link">Timing Guide</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#troubleshooting-during-competition" class="nav-link">Troubleshooting During Competition</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#pre-competition-checklist" class="nav-link">Pre-Competition Checklist</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="pilot-operations-guide-task-12-coral-garden-ridge-modelling">Pilot Operations Guide: Task 1.2 — Coral Garden Ridge Modelling</h1>
+<blockquote>
+<p><strong>Competition:</strong> MATE 2026 Explorer — Task 1.2
+<strong>Option A (Photogrammetry):</strong> up to 40 points
+<strong>Option B (Manual CAD):</strong> up to 30 points
+<strong>You can attempt BOTH and take whichever scores higher.</strong></p>
+</blockquote>
+<hr />
+<h2 id="scoring-breakdown">Scoring Breakdown</h2>
+<h3 id="option-a-autonomous-photogrammetry-up-to-40-pts">Option A: Autonomous Photogrammetry (up to 40 pts)</h3>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What you do</th>
+<th>Points</th>
+<th>Judge interaction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A1. 3D Model</strong></td>
+<td>Generate a photogrammetry model showing the colored target squares</td>
+<td>5-20 pts (see below)</td>
+<td>Judge rotates the model on screen</td>
+</tr>
+<tr>
+<td><strong>A2. Measure Length</strong></td>
+<td>Physically measure the coral garden length with the ROV</td>
+<td>10 pts (within 5 cm)</td>
+<td>Show judge your method — no guessing allowed</td>
+</tr>
+<tr>
+<td><strong>A3. Scale Model</strong></td>
+<td>Enter the true length into the system, display it on the 3D model</td>
+<td>5 pts</td>
+<td>Judge sees the true length displayed on the model</td>
+</tr>
+<tr>
+<td><strong>A4. Estimate Height</strong></td>
+<td>Use the scaled model to digitally estimate the height</td>
+<td>5 pts (within 5 cm)</td>
+<td>Judge sees the height displayed on the model</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3D Model quality scoring (Step A1):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Targets visible in model</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All 8 colored squares</td>
+<td>20</td>
+</tr>
+<tr>
+<td>4 to 7 squares</td>
+<td>15</td>
+</tr>
+<tr>
+<td>1 to 3 squares</td>
+<td>10</td>
+</tr>
+<tr>
+<td>0 targets (but model exists)</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<h3 id="option-b-manual-cad-up-to-30-pts">Option B: Manual CAD (up to 30 pts)</h3>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What you do</th>
+<th>Points</th>
+<th>Judge interaction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>B1. Measure Length</strong></td>
+<td>Physically measure with ROV</td>
+<td>10 pts (within 5 cm)</td>
+<td>Show judge your method</td>
+</tr>
+<tr>
+<td><strong>B2. Measure Height</strong></td>
+<td>Physically measure with ROV</td>
+<td>10 pts (within 5 cm)</td>
+<td>Show judge your method</td>
+</tr>
+<tr>
+<td><strong>B3. Create 3D Model</strong></td>
+<td>Input both measurements into CAD, generate model with dimensions shown</td>
+<td>10 pts</td>
+<td>Judge sees three rectangular prisms with length + height labels</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-gated-flow">The Gated Flow</h2>
+<pre><code>┌─────────────────────────────────────────────────────┐
+│  STEP 1: Measure the length (both options need this) │
+│                                                       │
+│  Pilot measures length with ROV tools                │
+│  → Tell judge your measurement + explain method       │
+│  → Judge awards 0-10 points                          │
+│  → Judge gives you the TRUE LENGTH                   │
+│                                                       │
+│  ⚠ If you don't attempt this, you get NO true length │
+│    and cannot complete any remaining steps!           │
+└───────────────────────┬─────────────────────────────┘
+                        │
+           ┌────────────┴────────────┐
+           ▼                         ▼
+   ┌───────────────┐       ┌─────────────────┐
+   │  OPTION A      │       │  OPTION B        │
+   │  Photogrammetry│       │  Manual CAD      │
+   │                │       │                  │
+   │  Enter true    │       │  Measure height  │
+   │  length →      │       │  with ROV →      │
+   │  scale model → │       │  enter both →    │
+   │  get height    │       │  generate model  │
+   │                │       │                  │
+   │  Max: 40 pts   │       │  Max: 30 pts     │
+   └───────────────┘       └─────────────────┘
+</code></pre>
+<hr />
+<h2 id="what-you-know-before-starting">What You Know Before Starting</h2>
+<table>
+<thead>
+<tr>
+<th>Given</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Structure</td>
+<td>1/2-inch PVC pipe</td>
+</tr>
+<tr>
+<td>Length</td>
+<td>Between 1 m and 2.5 m (unknown exact value)</td>
+</tr>
+<tr>
+<td>Width</td>
+<td>Approximately 36 cm</td>
+</tr>
+<tr>
+<td>Height</td>
+<td><strong>Unknown</strong> — this is what you must find</td>
+</tr>
+<tr>
+<td>Visual targets</td>
+<td>Eight 10 cm x 10 cm colored squares on the structure</td>
+</tr>
+<tr>
+<td>Allowed tools</td>
+<td>You may place a ruler or known-dimension object near the garden</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>colored squares</strong> (10 cm x 10 cm) serve two purposes:
+1. <strong>Scoring</strong> — more visible targets in the model = more points (up to 20)
+2. <strong>Scale reference</strong> — each is a known 10 cm measurement you can use for verification</p>
+<hr />
+<h2 id="competition-procedure">Competition Procedure</h2>
+<h3 id="phase-0-start-image-capture-immediately-copilot">Phase 0: Start Image Capture Immediately (Copilot)</h3>
+<p>The 3D model takes 5-10 minutes to generate. <strong>Start this as soon as the ROV reaches the coral garden.</strong> You don't need the true length yet — just photos.</p>
+<ol>
+<li>On the <strong>Co-Pilot page</strong>, press the <strong>red record button</strong> on the camera aimed at the coral</li>
+<li><strong>Pilot slowly around the entire coral garden:</strong><ul>
+<li>Maintain ~30-50 cm distance</li>
+<li>Move slowly — no sudden turns or motion blur</li>
+<li><strong>Orbit the full structure</strong> from multiple angles around it</li>
+<li>Capture from different heights (above, level, slightly below)</li>
+<li><strong>Ensure all 8 colored squares</strong> are clearly visible in at least several frames each — this is worth up to 20 points</li>
+<li>Aim for <strong>60-80% overlap</strong> between successive viewpoints</li>
+<li>15-30 images minimum</li>
+</ul>
+</li>
+<li>Press <strong>stop</strong> — browser extracts frames and downloads a ZIP</li>
+<li>Go to the <strong>Photogrammetry page</strong>, upload the folder, and click <strong>"Generate Model"</strong></li>
+<li>The pipeline runs in the background — proceed to Step 1 while it processes</li>
+</ol>
+<h3 id="step-1-measure-the-length-10-points-required-for-everything-else">Step 1: Measure the Length (10 points) — REQUIRED FOR EVERYTHING ELSE</h3>
+<p><strong>You MUST attempt this. If you skip it, the judge will NOT give you the true length.</strong></p>
+<p><strong>Methods:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>How</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Laser pointers</strong></td>
+<td>Known separation (e.g. 10 cm). Traverse the coral, count how many laser-widths fit.</td>
+<td>Most common method</td>
+</tr>
+<tr>
+<td><strong>Physical ruler</strong></td>
+<td>Place alongside the coral using the manipulator arm</td>
+<td>Must retrieve before demo ends (counts as debris otherwise)</td>
+</tr>
+<tr>
+<td><strong>Colored squares</strong></td>
+<td>Each is 10 cm x 10 cm. Count how many fit along the length.</td>
+<td>Can verify from camera footage</td>
+</tr>
+<tr>
+<td><strong>ROV/arm reference</strong></td>
+<td>Use the manipulator arm or ROV body as a known-length reference</td>
+<td>Must know the exact dimension</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Procedure:</strong>
+1. Pilot measures the length using one of the methods above
+2. Copilot records the number
+3. <strong>Tell the station judge:</strong> "We measured the length as X cm. We measured it by [method]."
+4. Judge awards up to <strong>10 points</strong> if within 5 cm
+5. <strong>The judge gives you the TRUE LENGTH</strong> — write this down immediately</p>
+<h3 id="step-2a-scale-model-estimate-height-option-a-10-more-points">Step 2A: Scale Model + Estimate Height (Option A — 10 more points)</h3>
+<p>Once you have the true length from the judge AND the 3D model has finished generating:</p>
+<ol>
+<li>Enter the <strong>true length</strong> (from the judge) into the <strong>"True Coral Length"</strong> field</li>
+<li>Click <strong>"Estimate Height"</strong></li>
+<li>The system:<ul>
+<li>Calculates scale factor: <code>S = true_length / model_longest_horizontal_extent</code></li>
+<li>Calculates height: <code>H = model_vertical_extent x S</code></li>
+<li>Displays both the <strong>true length</strong> and <strong>estimated height</strong> on the model</li>
+</ul>
+</li>
+<li><strong>Show the judge:</strong><ul>
+<li>The 3D model (rotatable) — judge checks target visibility (5-20 pts)</li>
+<li>The <strong>true length displayed on the model</strong> — judge verifies (5 pts)</li>
+<li>The <strong>estimated height displayed on the model</strong> — judge checks if within 5 cm (5 pts)</li>
+</ul>
+</li>
+</ol>
+<h3 id="step-2b-manual-cad-fallback-option-b-20-more-points">Step 2B: Manual CAD Fallback (Option B — 20 more points)</h3>
+<p>Do this <strong>in parallel</strong> if time allows, or as a backup if the pipeline fails:</p>
+<ol>
+<li><strong>Physically measure the height</strong> using the same tools as length measurement</li>
+<li>On the <strong>Photogrammetry page:</strong><ul>
+<li>Enter the <strong>true length</strong> (from judge) in "True Coral Length"</li>
+<li>Enter your <strong>measured height</strong> in "Estimated Coral Height"</li>
+</ul>
+</li>
+<li>Click <strong>"Manual CAD Model"</strong></li>
+<li><strong>Show the judge</strong> the model with <strong>three rectangular prisms</strong> showing both dimensions</li>
+</ol>
+<hr />
+<h2 id="scaling-algorithm">Scaling Algorithm</h2>
+<pre><code>Inputs:
+  true_length:  Exact length given by the judge (cm)
+  3D model:     The GLB mesh generated from your photos
+
+Step 1: Compute bounding box of the 3D model
+  L_model = longest horizontal extent (model units)
+  H_model = vertical extent (model units)
+
+Step 2: Scale Factor
+  S = true_length / L_model
+
+Step 3: Real Height
+  H_real = H_model x S
+
+Step 4: Display (judge must see both)
+  &quot;Length: [true_length] cm&quot;
+  &quot;Height: [H_real] cm&quot;
+</code></pre>
+<hr />
+<h2 id="recommended-strategy">Recommended Strategy</h2>
+<p><strong>Do both options simultaneously:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Pilot</th>
+<th>Copilot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0:00</td>
+<td>Navigate to coral</td>
+<td>—</td>
+</tr>
+<tr>
+<td>0:30</td>
+<td>Orbit coral (copilot records)</td>
+<td>Start camera recording</td>
+</tr>
+<tr>
+<td>3:00</td>
+<td>Begin length measurement</td>
+<td>Stop recording, upload images, click Generate</td>
+</tr>
+<tr>
+<td>5:00</td>
+<td>Begin height measurement</td>
+<td>Pipeline running in background</td>
+</tr>
+<tr>
+<td>7:00</td>
+<td>Report length to judge → get TRUE LENGTH</td>
+<td>Enter true length if model is ready</td>
+</tr>
+<tr>
+<td>8:00</td>
+<td>Report height to judge (Option B)</td>
+<td>Click "Manual CAD Model" with both measurements</td>
+</tr>
+<tr>
+<td>9:00</td>
+<td>—</td>
+<td>If pipeline done: click "Estimate Height" (Option A)</td>
+</tr>
+<tr>
+<td>10:00</td>
+<td>—</td>
+<td>Show judge BOTH models, take higher score</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Option B is the safe bet</strong> (30 pts, guaranteed if measurements are good). <strong>Option A is the bonus</strong> (40 pts if the model is high quality with targets visible). Doing both maximizes your score.</p>
+<hr />
+<h2 id="timing-guide">Timing Guide</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Time</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Image capture + start pipeline</td>
+<td>3 min</td>
+<td>Do FIRST</td>
+</tr>
+<tr>
+<td>Length measurement</td>
+<td>2 min</td>
+<td>While model generates</td>
+</tr>
+<tr>
+<td>Height measurement (Option B)</td>
+<td>2 min</td>
+<td>While model generates</td>
+</tr>
+<tr>
+<td>Report to judge, get true length</td>
+<td>1 min</td>
+<td><strong>Write down the true length!</strong></td>
+</tr>
+<tr>
+<td>Enter true length + scale/estimate</td>
+<td>30 sec</td>
+<td>After judge gives true length</td>
+</tr>
+<tr>
+<td>Manual CAD model</td>
+<td>30 sec</td>
+<td>Enter height + length, click button</td>
+</tr>
+<tr>
+<td>Show judge results</td>
+<td>1-2 min</td>
+<td>Show both models if you have them</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>~10-12 min</strong></td>
+<td>Fits within 15-min demo window</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="troubleshooting-during-competition">Troubleshooting During Competition</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Quick fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pipeline still running</td>
+<td>Use Option B (Manual CAD) — instant, worth 30 pts</td>
+</tr>
+<tr>
+<td>Model has few/no targets visible</td>
+<td>Still worth 5 pts. Focus on Option B for more points.</td>
+</tr>
+<tr>
+<td>Height estimate seems wrong</td>
+<td>Check you entered the TRUE length (from judge), not your own estimate</td>
+</tr>
+<tr>
+<td>Model not textured</td>
+<td>Geometry still works for height estimation. Targets may not be visible though.</td>
+</tr>
+<tr>
+<td>Backend not responding</td>
+<td>Option B only needs the Manual CAD endpoint. Restart Docker if possible.</td>
+</tr>
+<tr>
+<td>Judge won't give true length</td>
+<td>You must attempt to measure length first. Show your method.</td>
+</tr>
+<tr>
+<td>Object left in pool</td>
+<td>Any ruler/reference object counts as debris if not retrieved!</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pre-competition-checklist">Pre-Competition Checklist</h2>
+<ul>
+<li>[ ] Docker Desktop running with 8GB+ RAM</li>
+<li>[ ] Photogrammetry backend container tested end-to-end</li>
+<li>[ ] Frontend connects to backend (<code>curl http://localhost:8100/api/health</code>)</li>
+<li>[ ] Camera recording tested (Co-Pilot page: record → stop → ZIP download works)</li>
+<li>[ ] Full pipeline test: upload images → generate → enter length → estimate height</li>
+<li>[ ] Manual CAD tested: enter length + height → generate → verify dimensions shown</li>
+<li>[ ] Laser pointers or reference tools calibrated and mounted on ROV</li>
+<li>[ ] Team knows the exact dimensions of the manipulator arm / ROV body for reference</li>
+<li>[ ] Practice the judge interaction: "We measured X cm by [method]"</li>
+<li>[ ] <strong>Roles assigned:</strong><ul>
+<li><strong>Pilot:</strong> Drives ROV, measures length and height with tools</li>
+<li><strong>Copilot:</strong> Records camera, operates UI, presents results to judge</li>
+</ul>
+</li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../../js/base.js"></script>
+        <script src="../../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
