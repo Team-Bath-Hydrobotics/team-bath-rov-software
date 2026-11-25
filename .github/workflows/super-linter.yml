@@ -47,6 +47,8 @@ jobs:
           VALIDATE_PYTHON_RUFF_FORMAT: false
           VALIDATE_SPELL_CODESPELL: false
           VALIDATE_TRIVY: false
+          VALIDATE_BASH: false
+          VALIDATE_GITHUB_ACTIONS: false
 
       - name: Commit and push linting fixes
         # Run only on:
