@@ -16,3 +16,7 @@ machine-learning/crab_detection/error.log
 /mqtt/keystore.jks
 /mqtt/mkcert-rootCA.pem
 /logs/
+/mqtt/.coverage
+/scripts/.coverage
+/telemetry-processor/tests/.coverage
+/telemetry-processor/.coverage

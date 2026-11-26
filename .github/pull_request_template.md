@@ -1,6 +1,6 @@
 # PR Description
 
-Describe the problem/feature this ticket is about
+Describe the problem/feature this ticket is about.
 
 # What did you change
 
@@ -10,9 +10,13 @@ What files were modified to complete the task?
 
 Are there any other tickets that need to be merged before this one?
 
-# Before/After
+# Before
 
-Images/explanation of what behaviour is like before merging and what it will be like afterwards.
+Images/explanation of what behaviour is like on `main` branch.
+# After
+
+Images/explanation of what new behaviour is like on this branch.
+
 
 # Testing
 
