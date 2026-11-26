@@ -3,16 +3,23 @@ import json
 from pathlib import Path
 
 
+def _load_json(path):
+    # Schemas are UTF-8 (units like "m/s²"); don't rely on the platform default
+    # encoding, which is cp1252 on Windows.
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
 def load_schemas():
     """Tries to load all schemas from the schemas directory."""
     try:
         base = Path(__file__).parent / "schemas"
         print(f"Loading schemas from {base}")
-        video_frame_schema = json.load(open(base / "video_frame.schema.json"))
-        rov_telemetry_schema = json.load(open(base / "rov_telemetry.schema.json"))
-        rov_command_schema = json.load(open(base / "rov_command.schema.json"))
-        float_telemetry_schema = json.load(open(base / "float_telemetry.schema.json"))
-        status_schema = json.load(open(base / "project_status.schema.json"))
+        video_frame_schema = _load_json(base / "video_frame.schema.json")
+        rov_telemetry_schema = _load_json(base / "rov_telemetry.schema.json")
+        rov_command_schema = _load_json(base / "rov_command.schema.json")
+        float_telemetry_schema = _load_json(base / "float_telemetry.schema.json")
+        status_schema = _load_json(base / "project_status.schema.json")
         return {
             "hydrobotics/video/+/frame": video_frame_schema,
             "hydrobotics/rov/+/telemetry": rov_telemetry_schema,
