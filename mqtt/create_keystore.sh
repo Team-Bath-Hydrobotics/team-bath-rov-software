@@ -81,7 +81,15 @@ else
     DOCKER_DIR="$(pwd)"      # macOS/Linux
 fi
 
+# Docker Engine on Linux enforces host file permissions on bind mounts.
+# Run as the calling user so keytool can read hivemq.p12 and write keystore.jks.
+DOCKER_USER_ARGS=()
+if [[ "$(uname -s)" == "Linux" ]]; then
+    DOCKER_USER_ARGS=(--user "$(id -u):$(id -g)")
+fi
+
 MSYS_NO_PATHCONV=1 docker run --rm \
+  ${DOCKER_USER_ARGS[@]+"${DOCKER_USER_ARGS[@]}"} \
   --mount "type=bind,source=${DOCKER_DIR},target=/tmp" \
   --workdir /tmp \
   hivemq/hivemq-ce:latest \
