@@ -1,2 +1,0 @@
-recursive-include common/mqtt/schemas *.json
-include common/mqtt/topics.yaml

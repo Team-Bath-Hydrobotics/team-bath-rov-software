@@ -16,8 +16,8 @@ from filters.kalman_filter import KalmanFilter
 from input.telemetry_receiver import TelemetryReceiver
 
 from common.data_interface.telemetry_data import TelemetryData
-from common.mqtt.publisher import MQTTPublisher
-from common.mqtt.schema_loader import get_schema_for_topic, load_schemas
+from mqtt.publisher import MQTTPublisher
+from mqtt.schema_loader import get_schema_for_topic, load_schemas
 from common.network.network_type import NetworkEnum
 
 
